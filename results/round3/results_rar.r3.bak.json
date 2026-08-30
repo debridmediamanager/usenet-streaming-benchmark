@@ -1,0 +1,260 @@
+[
+ {
+  "target": "zurg",
+  "test": "rar",
+  "import": "present in nzbs/",
+  "new_entries": [],
+  "listing": [
+   "DoomsdayRar",
+   "FatherBrown",
+   "MandaloriaREMUX",
+   "OnePiece-1174",
+   "Servant.S01.2160p.ATVP.WEB-DL",
+   "TLOU-S02E01-FLUX",
+   "The.Wild.Robot.2024.BluRay.1080p.DD5.1.x264-TiGER",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "release_dir": [
+   "FatherBrown"
+  ],
+  "files": [
+   "father.brown.2013.s02e05.hdtv.x264-tla-sample.mp4",
+   "father.brown.2013.s02e05.hdtv.x264-tla.mp4",
+   "father.brown.2013.s02e05.hdtv.x264-tla.nfo",
+   "TOWN - NZB FORUM - KLICK IT.url",
+   "Top Usenet Provider - CHEAP - FULL SPEED.url"
+  ],
+  "file_paths": [
+   "FatherBrown/Father.Brown.2013.S02E05.HDTV.x264-TLA/Sample/father.brown.2013.s02e05.hdtv.x264-tla-sample.mp4",
+   "FatherBrown/Father.Brown.2013.S02E05.HDTV.x264-TLA/father.brown.2013.s02e05.hdtv.x264-tla.mp4",
+   "FatherBrown/Father.Brown.2013.S02E05.HDTV.x264-TLA/father.brown.2013.s02e05.hdtv.x264-tla.nfo",
+   "FatherBrown/TOWN - NZB FORUM - KLICK IT.url",
+   "FatherBrown/Top Usenet Provider - CHEAP - FULL SPEED.url"
+  ],
+  "subdirs": [
+   "FatherBrown/Father.Brown.2013.S02E05.HDTV.x264-TLA",
+   "FatherBrown/Father.Brown.2013.S02E05.HDTV.x264-TLA/Sample"
+  ],
+  "probed_url": "http://localhost:9998/dav/all/FatherBrown/Father.Brown.2013.S02E05.HDTV.x264-TLA/father.brown.2013.s02e05.hdtv.x264-tla.mp4",
+  "content_length": 321905886,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 16777216,
+   "asked": 16777216,
+   "complete": true,
+   "s": 1.85,
+   "MBps": 9.09,
+   "md5": "79d1e148021c44ce018c9c47eb504d39",
+   "all_zero": false
+  },
+  "harness_note": "corpus5b picked the first video found, which is the Sample/ file on this server; re-probed the main file",
+  "probe_sample": {
+   "curl_exit": 0,
+   "http": "416",
+   "bytes": 0,
+   "asked": 16777216,
+   "complete": false,
+   "s": 0.0,
+   "MBps": 0,
+   "md5": null,
+   "all_zero": null
+  },
+  "probed_url_sample": "http://localhost:9998/dav/all/FatherBrown/Father.Brown.2013.S02E05.HDTV.x264-TLA/Sample/father.brown.2013.s02e05.hdtv.x264-tla-sample.mp4"
+ },
+ {
+  "target": "decypharr",
+  "test": "rar",
+  "import": "/sabnzbd/api -> {\n  \"status\": false,\n  \"error\": \"No files uploaded\"\n}",
+  "new_entries": [],
+  "listing": [
+   "FatherBrown",
+   "MandaloriaREMUX",
+   "OnePiece-1174",
+   "Servant.S01.2160p.ATVP.WEB-DL",
+   "TLOU-S02E01-FLUX",
+   "The.Wild.Robot.2024.BluRay.1080p.DD5.1.x264-TiGER",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "release_dir": [
+   "FatherBrown"
+  ],
+  "files": [
+   "Father.Brown.2013.S02E05.HDTV.x264-TLAfather.brown.2013.s02e05.hdtv.x264-tla.mp4"
+  ],
+  "file_paths": [
+   "FatherBrown/Father.Brown.2013.S02E05.HDTV.x264-TLAfather.brown.2013.s02e05.hdtv.x264-tla.mp4"
+  ],
+  "subdirs": [],
+  "probed_url": "http://localhost:8282/webdav/__all__/FatherBrown/Father.Brown.2013.S02E05.HDTV.x264-TLAfather.brown.2013.s02e05.hdtv.x264-tla.mp4",
+  "content_length": 321905886,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 16777216,
+   "asked": 16777216,
+   "complete": true,
+   "s": 3.01,
+   "MBps": 5.57,
+   "md5": "79d1e148021c44ce018c9c47eb504d39",
+   "all_zero": false
+  }
+ },
+ {
+  "target": "altmount",
+  "test": "rar",
+  "import": "{\"error\":{\"code\":\"VALIDATION_ERROR\",\"details\":\"File does not exist: /home/ben/bench/am-nzbs/FatherBrown.nzb\",\"message\":\"File not found\"},\"success\":false}",
+  "new_entries": [],
+  "listing": [
+   "FatherBrown",
+   "Obfuscated",
+   "ToyStory5",
+   "ToyStory5Damaged",
+   "anime-OnePiece-1174",
+   "movie-direct-The.Wild.Robot.2024.BluRay.1080p.DD5.1.x264-TiGER",
+   "movie-obfuscated-Obfuscated",
+   "movie-scene-rar-DoomsdayRar",
+   "tv-episode-direct-TLOU-S02E01-FLUX",
+   "tv-episode-obf-rar-FatherBrown",
+   "tv-season-pack-Servant.S01.2160p.ATVP.WEB-DL"
+  ],
+  "release_dir": [
+   "FatherBrown",
+   "tv-episode-obf-rar-FatherBrown"
+  ],
+  "files": [
+   "FatherBrown.mp4",
+   "tv-episode-obf-rar-FatherBrown.mp4"
+  ],
+  "file_paths": [
+   "FatherBrown/FatherBrown.mp4",
+   "tv-episode-obf-rar-FatherBrown/tv-episode-obf-rar-FatherBrown.mp4"
+  ],
+  "subdirs": [],
+  "probed_url": "http://localhost:8081/webdav/complete/FatherBrown/FatherBrown.mp4",
+  "content_length": 321905886,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 16777216,
+   "asked": 16777216,
+   "complete": true,
+   "s": 2.57,
+   "MBps": 6.54,
+   "md5": "79d1e148021c44ce018c9c47eb504d39",
+   "all_zero": false
+  }
+ },
+ {
+  "target": "infinidysk",
+  "test": "rar",
+  "import": "{\"nzo_ids\":[\"3903af3f-f3c9-492b-9e8d-98f3760187fe\"],\"status\":true,\"error\":null} || HIST {\"history\":{\"slots\":[{\"nzo_id\":\"3903af3f-f3c9-492b-9e8d-98f3760187fe\",\"nzb_name\":\"FatherBrown.nzb\",\"name\":\"FatherBrown\",\"category\":\"uncategorized\",\"status\":\"Completed\",\"bytes\":394141285,\"storage\":\"/mnt/nzbdav/completed-symlinks/uncategorized/FatherBrown (2)\",\"download_time\":8,\"completed\":1788016606,\"fail_message\":\"\",\"nzb_blob_id\":\"3903af3f-f3c9-492b-9e8d-98f3760187fe\",\"indexer\":null,\"providers\":[{\"host\":\"news.news-provider.example\",\"nickname\":null,\"segments\":34}]},{\"nzo_id\":\"3146e448-cbed-4185-934b-8a73bbf61d43\",\"nzb_name\":\"Obfuscated.nzb\",\"name\":\"Obfuscated\",\"category\":\"uncategorized\",\"status\":\"Completed\",\"bytes\":7164735989,\"storage\":\"/mnt/nzbdav/completed-symlinks/uncategorized/Obfuscated (2)\",",
+  "new_entries": [
+   "FatherBrown (2)"
+  ],
+  "listing": [
+   "FatherBrown",
+   "FatherBrown (2)",
+   "Obfuscated",
+   "Obfuscated (2)",
+   "ToyStory5",
+   "ToyStory5Damaged",
+   "ToyStory5Damaged (2)"
+  ],
+  "release_dir": [
+   "FatherBrown (2)"
+  ],
+  "files": [
+   "FatherBrown (2).mp4",
+   "Sample",
+   "TOWN - NZB FORUM - KLICK IT.url",
+   "Top Usenet Provider - CHEAP - FULL SPEED.url"
+  ],
+  "file_paths": [
+   "FatherBrown (2)/Father.Brown.2013.S02E05.HDTV.x264-TLA/FatherBrown (2).mp4",
+   "FatherBrown (2)/Father.Brown.2013.S02E05.HDTV.x264-TLA/Sample",
+   "FatherBrown (2)/TOWN - NZB FORUM - KLICK IT.url",
+   "FatherBrown (2)/Top Usenet Provider - CHEAP - FULL SPEED.url"
+  ],
+  "subdirs": [
+   "FatherBrown (2)/Father.Brown.2013.S02E05.HDTV.x264-TLA"
+  ],
+  "probed_url": "http://127.0.0.1:8092/content/uncategorized/FatherBrown%20(2)/Father.Brown.2013.S02E05.HDTV.x264-TLA/FatherBrown%20(2).mp4",
+  "content_length": 321905886,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 16777216,
+   "asked": 16777216,
+   "complete": true,
+   "s": 2.78,
+   "MBps": 6.04,
+   "md5": "79d1e148021c44ce018c9c47eb504d39",
+   "all_zero": false
+  }
+ },
+ {
+  "target": "nzbdav-og",
+  "test": "rar",
+  "import": "{\"nzo_ids\":[\"c4a7d34d-61d9-4190-95bb-39392c18fcd0\"],\"status\":true,\"error\":null} || HIST {\"history\":{\"slots\":[{\"nzo_id\":\"c4a7d34d-61d9-4190-95bb-39392c18fcd0\",\"nzb_name\":\"FatherBrown.nzb\",\"name\":\"FatherBrown\",\"category\":\"uncategorized\",\"status\":\"Completed\",\"bytes\":394141285,\"storage\":\"/mnt/nzbdav/completed-symlinks/uncategorized/FatherBrown (2)\",\"download_time\":6,\"fail_message\":\"\",\"nzb_blob_id\":\"c4a7d34d-61d9-4190-95bb-39392c18fcd0\"},{\"nzo_id\":\"179b571f-b3f5-4c5e-9a8f-5fb97cb8c604\",\"nzb_name\":\"Obfuscated.nzb\",\"name\":\"Obfuscated\",\"category\":\"uncategorized\",\"status\":\"Completed\",\"bytes\":7164735989,\"storage\":\"/mnt/nzbdav/completed-symlinks/uncategorized/Obfuscated (2)\",\"download_time\":2,\"fail_message\":\"\",\"nzb_blob_id\":\"179b571f-b3f5-4c5e-9a8f-5fb97cb8c604\"},{\"nzo_id\":\"138063a8-8041-",
+  "new_entries": [
+   "FatherBrown (2)"
+  ],
+  "listing": [
+   "FatherBrown",
+   "FatherBrown (2)",
+   "Obfuscated",
+   "Obfuscated (2)",
+   "ToyStory5",
+   "ToyStory5Damaged",
+   "ToyStory5Damaged (2)"
+  ],
+  "release_dir": [
+   "FatherBrown (2)"
+  ],
+  "files": [
+   "father.brown.2013.s02e05.hdtv.x264-tla-sample.mp4",
+   "father.brown.2013.s02e05.hdtv.x264-tla.mp4",
+   "TOWN - NZB FORUM - KLICK IT.url",
+   "Top Usenet Provider - CHEAP - FULL SPEED.url"
+  ],
+  "file_paths": [
+   "FatherBrown (2)/Father.Brown.2013.S02E05.HDTV.x264-TLA/Sample/father.brown.2013.s02e05.hdtv.x264-tla-sample.mp4",
+   "FatherBrown (2)/Father.Brown.2013.S02E05.HDTV.x264-TLA/father.brown.2013.s02e05.hdtv.x264-tla.mp4",
+   "FatherBrown (2)/TOWN - NZB FORUM - KLICK IT.url",
+   "FatherBrown (2)/Top Usenet Provider - CHEAP - FULL SPEED.url"
+  ],
+  "subdirs": [
+   "FatherBrown (2)/Father.Brown.2013.S02E05.HDTV.x264-TLA",
+   "FatherBrown (2)/Father.Brown.2013.S02E05.HDTV.x264-TLA/Sample"
+  ],
+  "probed_url": "http://127.0.0.1:8093/content/uncategorized/FatherBrown%20(2)/Father.Brown.2013.S02E05.HDTV.x264-TLA/father.brown.2013.s02e05.hdtv.x264-tla.mp4",
+  "content_length": 321905886,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 16777216,
+   "asked": 16777216,
+   "complete": true,
+   "s": 5.52,
+   "MBps": 3.04,
+   "md5": "79d1e148021c44ce018c9c47eb504d39",
+   "all_zero": false
+  },
+  "harness_note": "corpus5b picked the first video found, which is the Sample/ file on this server; re-probed the main file",
+  "probe_sample": {
+   "curl_exit": 0,
+   "http": "416",
+   "bytes": 0,
+   "asked": 16777216,
+   "complete": false,
+   "s": 0.23,
+   "MBps": 0,
+   "md5": null,
+   "all_zero": null
+  },
+  "probed_url_sample": "http://127.0.0.1:8093/content/uncategorized/FatherBrown%20(2)/Father.Brown.2013.S02E05.HDTV.x264-TLA/Sample/father.brown.2013.s02e05.hdtv.x264-tla-sample.mp4"
+ }
+]

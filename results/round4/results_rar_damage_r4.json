@@ -1,0 +1,442 @@
+{
+ "rar": [
+  {
+   "phase": "rar",
+   "target": "zurg",
+   "chosen_dir": "FatherBrown",
+   "files": [
+    "father.brown.2013.s02e05.hdtv.x264-tla-sample.mp4",
+    "father.brown.2013.s02e05.hdtv.x264-tla.mp4",
+    "father.brown.2013.s02e05.hdtv.x264-tla.nfo",
+    "TOWN - NZB FORUM - KLICK IT.url",
+    "Top Usenet Provider - CHEAP - FULL SPEED.url"
+   ],
+   "subdirs": [
+    "Father.Brown.2013.S02E05.HDTV.x264-TLA",
+    "Sample"
+   ],
+   "preserves_structure": true,
+   "video": "father.brown.2013.s02e05.hdtv.x264-tla.mp4",
+   "content_length": 321905886,
+   "probe": {
+    "curl_exit": 0,
+    "http": "206",
+    "bytes": 16777216,
+    "asked": 16777216,
+    "complete": true,
+    "s": 1.84,
+    "MBps": 9.13,
+    "md5": "79d1e148021c44ce018c9c47eb504d39",
+    "all_zero": false
+   }
+  },
+  {
+   "phase": "rar",
+   "target": "decypharr",
+   "chosen_dir": "FatherBrown",
+   "files": [
+    "Father.Brown.2013.S02E05.HDTV.x264-TLAfather.brown.2013.s02e05.hdtv.x264-tla.mp4"
+   ],
+   "subdirs": [],
+   "preserves_structure": false,
+   "video": "Father.Brown.2013.S02E05.HDTV.x264-TLAfather.brown.2013.s02e05.hdtv.x264-tla.mp4",
+   "content_length": 321905886,
+   "probe": {
+    "curl_exit": 0,
+    "http": "206",
+    "bytes": 16777216,
+    "asked": 16777216,
+    "complete": true,
+    "s": 2.33,
+    "MBps": 7.19,
+    "md5": "79d1e148021c44ce018c9c47eb504d39",
+    "all_zero": false
+   }
+  },
+  {
+   "phase": "rar",
+   "target": "altmount",
+   "chosen_dir": "FatherBrown",
+   "files": [],
+   "subdirs": [],
+   "preserves_structure": false,
+   "video": null,
+   "content_length": null
+  },
+  {
+   "phase": "rar",
+   "target": "infinidysk",
+   "chosen_dir": "FatherBrown",
+   "files": [
+    "Sample",
+    "father.brown.2013.s02e05.hdtv.x264-tla.mp4",
+    "TOWN - NZB FORUM - KLICK IT.url",
+    "Top Usenet Provider - CHEAP - FULL SPEED.url"
+   ],
+   "subdirs": [
+    "Father.Brown.2013.S02E05.HDTV.x264-TLA"
+   ],
+   "preserves_structure": true,
+   "video": "father.brown.2013.s02e05.hdtv.x264-tla.mp4",
+   "content_length": 321905886,
+   "probe": {
+    "curl_exit": 0,
+    "http": "206",
+    "bytes": 16777216,
+    "asked": 16777216,
+    "complete": true,
+    "s": 5.34,
+    "MBps": 3.14,
+    "md5": "79d1e148021c44ce018c9c47eb504d39",
+    "all_zero": false
+   }
+  },
+  {
+   "phase": "rar",
+   "target": "nzbdav-og",
+   "chosen_dir": "FatherBrown",
+   "files": [
+    "father.brown.2013.s02e05.hdtv.x264-tla-sample.mp4",
+    "father.brown.2013.s02e05.hdtv.x264-tla.mp4",
+    "TOWN - NZB FORUM - KLICK IT.url",
+    "Top Usenet Provider - CHEAP - FULL SPEED.url"
+   ],
+   "subdirs": [
+    "Father.Brown.2013.S02E05.HDTV.x264-TLA",
+    "Sample"
+   ],
+   "preserves_structure": true,
+   "video": "father.brown.2013.s02e05.hdtv.x264-tla.mp4",
+   "content_length": 321905886,
+   "probe": {
+    "curl_exit": 0,
+    "http": "206",
+    "bytes": 16777216,
+    "asked": 16777216,
+    "complete": true,
+    "s": 4.53,
+    "MBps": 3.7,
+    "md5": "79d1e148021c44ce018c9c47eb504d39",
+    "all_zero": false
+   }
+  }
+ ],
+ "damage_followup": [
+  {
+   "phase": "damage_followup",
+   "target": "zurg",
+   "chosen_dir": "ToyStory5Damaged",
+   "video": "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+   "content_length": 6608994141,
+   "read_t0": {
+    "curl_exit": 0,
+    "http": "206",
+    "bytes": 4194304,
+    "asked": 4194304,
+    "complete": true,
+    "s": 0.01,
+    "MBps": 323.68,
+    "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+    "all_zero": true
+   },
+   "reads": [
+    {
+     "after_min": 2,
+     "curl_exit": 0,
+     "http": "206",
+     "bytes": 4194304,
+     "asked": 4194304,
+     "complete": true,
+     "s": 0.02,
+     "MBps": 185.24,
+     "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+     "all_zero": true
+    },
+    {
+     "after_min": 4,
+     "curl_exit": 0,
+     "http": "206",
+     "bytes": 4194304,
+     "asked": 4194304,
+     "complete": true,
+     "s": 0.01,
+     "MBps": 315.48,
+     "md5": "64129aacaf7f58d8225fc8a46898ec08",
+     "all_zero": false
+    }
+   ]
+  },
+  {
+   "phase": "damage_followup",
+   "target": "decypharr",
+   "chosen_dir": "ToyStory5Damaged",
+   "video": "ToyStory5Damaged.mkv",
+   "content_length": 6608994141,
+   "read_t0": {
+    "curl_exit": 18,
+    "http": "206",
+    "bytes": 0,
+    "asked": 4194304,
+    "complete": false,
+    "s": 4.7,
+    "MBps": 0,
+    "md5": null,
+    "all_zero": null
+   },
+   "reads": [
+    {
+     "after_min": 2,
+     "curl_exit": 18,
+     "http": "206",
+     "bytes": 0,
+     "asked": 4194304,
+     "complete": false,
+     "s": 3.5,
+     "MBps": 0,
+     "md5": null,
+     "all_zero": null
+    },
+    {
+     "after_min": 4,
+     "curl_exit": 18,
+     "http": "206",
+     "bytes": 0,
+     "asked": 4194304,
+     "complete": false,
+     "s": 3.5,
+     "MBps": 0,
+     "md5": null,
+     "all_zero": null
+    },
+    {
+     "after_min": 6,
+     "curl_exit": 18,
+     "http": "206",
+     "bytes": 0,
+     "asked": 4194304,
+     "complete": false,
+     "s": 3.5,
+     "MBps": 0,
+     "md5": null,
+     "all_zero": null
+    },
+    {
+     "after_min": 8,
+     "curl_exit": 18,
+     "http": "206",
+     "bytes": 0,
+     "asked": 4194304,
+     "complete": false,
+     "s": 3.5,
+     "MBps": 0,
+     "md5": null,
+     "all_zero": null
+    }
+   ]
+  },
+  {
+   "phase": "damage_followup",
+   "target": "altmount",
+   "chosen_dir": "ToyStory5Damaged",
+   "video": "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+   "content_length": 6608994141,
+   "read_t0": {
+    "curl_exit": 0,
+    "http": "206",
+    "bytes": 4194304,
+    "asked": 4194304,
+    "complete": true,
+    "s": 0.01,
+    "MBps": 468.22,
+    "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+    "all_zero": true
+   },
+   "reads": [
+    {
+     "after_min": 2,
+     "curl_exit": 0,
+     "http": "206",
+     "bytes": 4194304,
+     "asked": 4194304,
+     "complete": true,
+     "s": 0.02,
+     "MBps": 182.97,
+     "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+     "all_zero": true
+    },
+    {
+     "after_min": 4,
+     "curl_exit": 0,
+     "http": "206",
+     "bytes": 4194304,
+     "asked": 4194304,
+     "complete": true,
+     "s": 0.01,
+     "MBps": 505.22,
+     "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+     "all_zero": true
+    },
+    {
+     "after_min": 6,
+     "curl_exit": 0,
+     "http": "206",
+     "bytes": 4194304,
+     "asked": 4194304,
+     "complete": true,
+     "s": 0.01,
+     "MBps": 308.43,
+     "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+     "all_zero": true
+    },
+    {
+     "after_min": 8,
+     "curl_exit": 0,
+     "http": "206",
+     "bytes": 4194304,
+     "asked": 4194304,
+     "complete": true,
+     "s": 0.01,
+     "MBps": 308.75,
+     "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+     "all_zero": true
+    }
+   ]
+  },
+  {
+   "phase": "damage_followup",
+   "target": "infinidysk",
+   "chosen_dir": "ToyStory5Damaged",
+   "video": "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+   "content_length": 6608994141,
+   "read_t0": {
+    "curl_exit": 0,
+    "http": "206",
+    "bytes": 4194304,
+    "asked": 4194304,
+    "complete": true,
+    "s": 0.97,
+    "MBps": 4.33,
+    "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+    "all_zero": true
+   },
+   "reads": [
+    {
+     "after_min": 2,
+     "curl_exit": 0,
+     "http": "206",
+     "bytes": 4194304,
+     "asked": 4194304,
+     "complete": true,
+     "s": 0.02,
+     "MBps": 226.76,
+     "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+     "all_zero": true
+    },
+    {
+     "after_min": 4,
+     "curl_exit": 0,
+     "http": "206",
+     "bytes": 4194304,
+     "asked": 4194304,
+     "complete": true,
+     "s": 0.05,
+     "MBps": 84.93,
+     "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+     "all_zero": true
+    },
+    {
+     "after_min": 6,
+     "curl_exit": 0,
+     "http": "206",
+     "bytes": 4194304,
+     "asked": 4194304,
+     "complete": true,
+     "s": 0.02,
+     "MBps": 174.07,
+     "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+     "all_zero": true
+    },
+    {
+     "after_min": 8,
+     "curl_exit": 0,
+     "http": "206",
+     "bytes": 4194304,
+     "asked": 4194304,
+     "complete": true,
+     "s": 0.01,
+     "MBps": 411.85,
+     "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+     "all_zero": true
+    }
+   ]
+  },
+  {
+   "phase": "damage_followup",
+   "target": "nzbdav-og",
+   "chosen_dir": "ToyStory5Damaged",
+   "video": "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+   "content_length": 6608994141,
+   "read_t0": {
+    "curl_exit": 0,
+    "http": "404",
+    "bytes": 0,
+    "asked": 4194304,
+    "complete": false,
+    "s": 6.73,
+    "MBps": 0,
+    "md5": null,
+    "all_zero": null
+   },
+   "reads": [
+    {
+     "after_min": 2,
+     "curl_exit": 0,
+     "http": "404",
+     "bytes": 0,
+     "asked": 4194304,
+     "complete": false,
+     "s": 1.47,
+     "MBps": 0,
+     "md5": null,
+     "all_zero": null
+    },
+    {
+     "after_min": 4,
+     "curl_exit": 0,
+     "http": "404",
+     "bytes": 0,
+     "asked": 4194304,
+     "complete": false,
+     "s": 1.51,
+     "MBps": 0,
+     "md5": null,
+     "all_zero": null
+    },
+    {
+     "after_min": 6,
+     "curl_exit": 0,
+     "http": "404",
+     "bytes": 0,
+     "asked": 4194304,
+     "complete": false,
+     "s": 1.79,
+     "MBps": 0,
+     "md5": null,
+     "all_zero": null
+    },
+    {
+     "after_min": 8,
+     "curl_exit": 0,
+     "http": "404",
+     "bytes": 0,
+     "asked": 4194304,
+     "complete": false,
+     "s": 1.52,
+     "MBps": 0,
+     "md5": null,
+     "all_zero": null
+    }
+   ]
+  }
+ ]
+}

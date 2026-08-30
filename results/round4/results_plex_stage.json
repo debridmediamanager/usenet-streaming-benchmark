@@ -1,0 +1,286 @@
+{
+ "zurg": {
+  "target": "zurg",
+  "episodes_found": 10,
+  "stage_s": 5.2,
+  "files": {
+   "1": {
+    "url": "http://localhost:9998/dav/all/Bosch.S01/Bosch.S01E01.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E01.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 2210528776
+   },
+   "2": {
+    "url": "http://localhost:9998/dav/all/Bosch.S01/Bosch.S01E02.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E02.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 1778138438
+   },
+   "3": {
+    "url": "http://localhost:9998/dav/all/Bosch.S01/Bosch.S01E03.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E03.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 1889404969
+   },
+   "4": {
+    "url": "http://localhost:9998/dav/all/Bosch.S01/Bosch.S01E04.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E04.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 2073522367
+   },
+   "5": {
+    "url": "http://localhost:9998/dav/all/Bosch.S01/Bosch.S01E05.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E05.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 1706807733
+   },
+   "6": {
+    "url": "http://localhost:9998/dav/all/Bosch.S01/Bosch.S01E06.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E06.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 2066195468
+   },
+   "7": {
+    "url": "http://localhost:9998/dav/all/Bosch.S01/Bosch.S01E07.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E07.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 2138870090
+   },
+   "8": {
+    "url": "http://localhost:9998/dav/all/Bosch.S01/Bosch.S01E08.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E08.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 1845294719
+   },
+   "9": {
+    "url": "http://localhost:9998/dav/all/Bosch.S01/Bosch.S01E09.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E09.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 1750940602
+   },
+   "10": {
+    "url": "http://localhost:9998/dav/all/Bosch.S01/Bosch.S01E10.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E10.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 2148599512
+   }
+  }
+ },
+ "decypharr": {
+  "target": "decypharr",
+  "import": "/sabnzbd/api -> {\n  \"status\": false,\n  \"error\": \"No files uploaded\"\n}",
+  "episodes_found": 10,
+  "stage_s": 925.2,
+  "files": {
+   "1": {
+    "url": "http://localhost:8282/webdav/__all__/Bosch.S01/Bosch.S01E01.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E01.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 2210528776
+   },
+   "2": {
+    "url": "http://localhost:8282/webdav/__all__/Bosch.S01/Bosch.S01E02.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E02.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 1778138438
+   },
+   "3": {
+    "url": "http://localhost:8282/webdav/__all__/Bosch.S01/Bosch.S01E03.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E03.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 1889404969
+   },
+   "4": {
+    "url": "http://localhost:8282/webdav/__all__/Bosch.S01/Bosch.S01E04.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E04.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 2073522367
+   },
+   "5": {
+    "url": "http://localhost:8282/webdav/__all__/Bosch.S01/Bosch.S01E05.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E05.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 1706807733
+   },
+   "6": {
+    "url": "http://localhost:8282/webdav/__all__/Bosch.S01/Bosch.S01E06.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E06.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 2066195468
+   },
+   "7": {
+    "url": "http://localhost:8282/webdav/__all__/Bosch.S01/Bosch.S01E07.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E07.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 2138870090
+   },
+   "8": {
+    "url": "http://localhost:8282/webdav/__all__/Bosch.S01/Bosch.S01E08.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E08.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 1845294719
+   },
+   "9": {
+    "url": "http://localhost:8282/webdav/__all__/Bosch.S01/Bosch.S01E09.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E09.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 1750940602
+   },
+   "10": {
+    "url": "http://localhost:8282/webdav/__all__/Bosch.S01/Bosch.S01E10.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E10.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 2148599512
+   }
+  }
+ },
+ "altmount": {
+  "target": "altmount",
+  "import": "{\"data\":{\"queue_id\":13,\"message\":\"File successfully added to import queue with ID 13\"},\"success\":true}",
+  "episodes_found": 9,
+  "stage_s": 969.3,
+  "files": {
+   "1": {
+    "url": "http://localhost:8081/webdav/complete/Bosch.S01/Bosch.S01E01.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E01.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 2210528776
+   },
+   "2": {
+    "url": "http://localhost:8081/webdav/complete/Bosch.S01/Bosch.S01E02.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E02.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 1778138438
+   },
+   "3": {
+    "url": "http://localhost:8081/webdav/complete/Bosch.S01/Bosch.S01E03.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E03.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 1889404969
+   },
+   "4": {
+    "url": "http://localhost:8081/webdav/complete/Bosch.S01/Bosch.S01E04.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E04.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 2073522367
+   },
+   "5": {
+    "url": "http://localhost:8081/webdav/complete/Bosch.S01/Bosch.S01E05.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E05.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 1706807733
+   },
+   "6": {
+    "url": "http://localhost:8081/webdav/complete/Bosch.S01/Bosch.S01E06.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E06.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 2066195468
+   },
+   "8": {
+    "url": "http://localhost:8081/webdav/complete/Bosch.S01/Bosch.S01E08.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E08.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 1845294719
+   },
+   "9": {
+    "url": "http://localhost:8081/webdav/complete/Bosch.S01/Bosch.S01E09.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E09.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 1750940602
+   },
+   "10": {
+    "url": "http://localhost:8081/webdav/complete/Bosch.S01/Bosch.S01E10.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E10.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 2148599512
+   }
+  }
+ },
+ "infinidysk": {
+  "target": "infinidysk",
+  "import": "{\"nzo_ids\":[\"3ddc6e22-5a68-4b06-9566-8422248c7e1d\"],\"status\":true,\"error\":null} || HIST {\"history\":{\"slots\":[{\"nzo_id\":\"3ddc6e22-5a68-4b06-9566-8422248c7e1d\",\"nzb_name\":\"Bosch.S01.nzb\",\"name\":\"Bosch.S",
+  "episodes_found": 10,
+  "stage_s": 67.5,
+  "files": {
+   "1": {
+    "url": "http://127.0.0.1:8092/content/uncategorized/Bosch.S01/Bosch.S01E01.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E01.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 2210528776
+   },
+   "2": {
+    "url": "http://127.0.0.1:8092/content/uncategorized/Bosch.S01/Bosch.S01E02.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E02.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 1778138438
+   },
+   "3": {
+    "url": "http://127.0.0.1:8092/content/uncategorized/Bosch.S01/Bosch.S01E03.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E03.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 1889404969
+   },
+   "4": {
+    "url": "http://127.0.0.1:8092/content/uncategorized/Bosch.S01/Bosch.S01E04.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E04.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 2073522367
+   },
+   "5": {
+    "url": "http://127.0.0.1:8092/content/uncategorized/Bosch.S01/Bosch.S01E05.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E05.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 1706807733
+   },
+   "6": {
+    "url": "http://127.0.0.1:8092/content/uncategorized/Bosch.S01/Bosch.S01E06.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E06.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 2066195468
+   },
+   "7": {
+    "url": "http://127.0.0.1:8092/content/uncategorized/Bosch.S01/Bosch.S01E07.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E07.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 2138870090
+   },
+   "8": {
+    "url": "http://127.0.0.1:8092/content/uncategorized/Bosch.S01/Bosch.S01E08.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E08.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 1845294719
+   },
+   "9": {
+    "url": "http://127.0.0.1:8092/content/uncategorized/Bosch.S01/Bosch.S01E09.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E09.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 1750940602
+   },
+   "10": {
+    "url": "http://127.0.0.1:8092/content/uncategorized/Bosch.S01/Bosch.S01E10.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E10.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 2148599512
+   }
+  }
+ },
+ "nzbdav-og": {
+  "target": "nzbdav-og",
+  "import": "{\"nzo_ids\":[\"405e4dc6-9c9c-4b5d-a419-2ba77e7a9806\"],\"status\":true,\"error\":null} || HIST {\"history\":{\"slots\":[{\"nzo_id\":\"405e4dc6-9c9c-4b5d-a419-2ba77e7a9806\",\"nzb_name\":\"Bosch.S01.nzb\",\"name\":\"Bosch.S",
+  "episodes_found": 10,
+  "stage_s": 67.2,
+  "files": {
+   "1": {
+    "url": "http://127.0.0.1:8093/content/uncategorized/Bosch.S01/Bosch.S01E01.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E01.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 2210528776
+   },
+   "2": {
+    "url": "http://127.0.0.1:8093/content/uncategorized/Bosch.S01/Bosch.S01E02.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E02.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 1778138438
+   },
+   "3": {
+    "url": "http://127.0.0.1:8093/content/uncategorized/Bosch.S01/Bosch.S01E03.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E03.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 1889404969
+   },
+   "4": {
+    "url": "http://127.0.0.1:8093/content/uncategorized/Bosch.S01/Bosch.S01E04.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E04.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 2073522367
+   },
+   "5": {
+    "url": "http://127.0.0.1:8093/content/uncategorized/Bosch.S01/Bosch.S01E05.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E05.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 1706807733
+   },
+   "6": {
+    "url": "http://127.0.0.1:8093/content/uncategorized/Bosch.S01/Bosch.S01E06.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E06.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 2066195468
+   },
+   "7": {
+    "url": "http://127.0.0.1:8093/content/uncategorized/Bosch.S01/Bosch.S01E07.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E07.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 2138870090
+   },
+   "8": {
+    "url": "http://127.0.0.1:8093/content/uncategorized/Bosch.S01/Bosch.S01E08.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E08.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 1845294719
+   },
+   "9": {
+    "url": "http://127.0.0.1:8093/content/uncategorized/Bosch.S01/Bosch.S01E09.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E09.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 1750940602
+   },
+   "10": {
+    "url": "http://127.0.0.1:8093/content/uncategorized/Bosch.S01/Bosch.S01E10.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "path": "Bosch.S01/Bosch.S01E10.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "size": 2148599512
+   }
+  }
+ }
+}

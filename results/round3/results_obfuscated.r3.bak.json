@@ -1,0 +1,192 @@
+[
+ {
+  "target": "zurg",
+  "test": "obfuscated",
+  "import": "present in nzbs/",
+  "new_entries": [],
+  "listing": [
+   "DoomsdayRar",
+   "FatherBrown",
+   "MandaloriaREMUX",
+   "OnePiece-1174",
+   "Servant.S01.2160p.ATVP.WEB-DL",
+   "TLOU-S02E01-FLUX",
+   "The.Wild.Robot.2024.BluRay.1080p.DD5.1.x264-TiGER",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "release_dir": [],
+  "files": [],
+  "file_paths": [],
+  "subdirs": [],
+  "probed_url": null
+ },
+ {
+  "target": "decypharr",
+  "test": "obfuscated",
+  "import": "/sabnzbd/api -> {\n  \"status\": false,\n  \"error\": \"No files uploaded\"\n}",
+  "new_entries": [],
+  "listing": [
+   "FatherBrown",
+   "MandaloriaREMUX",
+   "OnePiece-1174",
+   "Servant.S01.2160p.ATVP.WEB-DL",
+   "TLOU-S02E01-FLUX",
+   "The.Wild.Robot.2024.BluRay.1080p.DD5.1.x264-TiGER",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "release_dir": [],
+  "files": [],
+  "file_paths": [],
+  "subdirs": [],
+  "probed_url": null
+ },
+ {
+  "target": "altmount",
+  "test": "obfuscated",
+  "import": "{\"error\":{\"code\":\"VALIDATION_ERROR\",\"details\":\"File does not exist: /home/ben/bench/am-nzbs/Obfuscated.nzb\",\"message\":\"File not found\"},\"success\":false}",
+  "new_entries": [],
+  "listing": [
+   "FatherBrown",
+   "Obfuscated",
+   "ToyStory5",
+   "ToyStory5Damaged",
+   "anime-OnePiece-1174",
+   "movie-direct-The.Wild.Robot.2024.BluRay.1080p.DD5.1.x264-TiGER",
+   "movie-obfuscated-Obfuscated",
+   "movie-scene-rar-DoomsdayRar",
+   "tv-episode-direct-TLOU-S02E01-FLUX",
+   "tv-episode-obf-rar-FatherBrown",
+   "tv-season-pack-Servant.S01.2160p.ATVP.WEB-DL"
+  ],
+  "release_dir": [
+   "Obfuscated",
+   "movie-obfuscated-Obfuscated"
+  ],
+  "files": [
+   "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+   "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv"
+  ],
+  "file_paths": [
+   "Obfuscated/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+   "movie-obfuscated-Obfuscated/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv"
+  ],
+  "subdirs": [],
+  "probed_url": "http://localhost:8081/webdav/complete/Obfuscated/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+  "content_length": 6608994141,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 8388608,
+   "asked": 8388608,
+   "complete": true,
+   "s": 1.9,
+   "MBps": 4.41,
+   "md5": "0354005fcf952920f64cebbae0c3d6d1",
+   "all_zero": false
+  }
+ },
+ {
+  "target": "infinidysk",
+  "test": "obfuscated",
+  "import": "{\"nzo_ids\":[\"3146e448-cbed-4185-934b-8a73bbf61d43\"],\"status\":true,\"error\":null} || HIST {\"history\":{\"slots\":[{\"nzo_id\":\"3146e448-cbed-4185-934b-8a73bbf61d43\",\"nzb_name\":\"Obfuscated.nzb\",\"name\":\"Obfuscated\",\"category\":\"uncategorized\",\"status\":\"Completed\",\"bytes\":7164735989,\"storage\":\"/mnt/nzbdav/completed-symlinks/uncategorized/Obfuscated (2)\",\"download_time\":5,\"completed\":1788015156,\"fail_message\":\"\",\"nzb_blob_id\":\"3146e448-cbed-4185-934b-8a73bbf61d43\",\"indexer\":null,\"providers\":[{\"host\":\"news.news-provider.example\",\"nickname\":null,\"segments\":14}]},{\"nzo_id\":\"656b4bf5-e5dc-44c9-98f6-6f399e89a9d3\",\"nzb_name\":\"ToyStory5Damaged.nzb\",\"name\":\"ToyStory5Damaged\",\"category\":\"uncategorized\",\"status\":\"Completed\",\"bytes\":7164735989,\"storage\":\"/mnt/nzbdav/completed-symlinks/uncategorized/ToySto",
+  "new_entries": [
+   "Obfuscated (2)"
+  ],
+  "listing": [
+   "FatherBrown",
+   "Obfuscated",
+   "Obfuscated (2)",
+   "ToyStory5",
+   "ToyStory5Damaged",
+   "ToyStory5Damaged (2)"
+  ],
+  "release_dir": [
+   "Obfuscated (2)"
+  ],
+  "files": [
+   "2GakUdPS8XKgPLp20S4yY26JtIhDzkpeIRNyPSzklKkuwF",
+   "9kwjjb5fIpYc2hWp8e54D986q2Z2QckXasLJrfQY32IFzInzTr1gUC",
+   "G8q5Ca8mz9xsfSLlFx1YxEnE2gZPLjyY6JiM",
+   "Obfuscated (2).mkv",
+   "YX2UHprhmsEzf5sg9Bxb0tXYjAFKOJfEe9ixlOccB",
+   "thumbnail.jpg",
+   "xQlsN0ZIjfWD1xOyZbCUYjeU85elnxr0iDwZGsoFUo7Er2Uo1"
+  ],
+  "file_paths": [
+   "Obfuscated (2)/2GakUdPS8XKgPLp20S4yY26JtIhDzkpeIRNyPSzklKkuwF",
+   "Obfuscated (2)/9kwjjb5fIpYc2hWp8e54D986q2Z2QckXasLJrfQY32IFzInzTr1gUC",
+   "Obfuscated (2)/G8q5Ca8mz9xsfSLlFx1YxEnE2gZPLjyY6JiM",
+   "Obfuscated (2)/Obfuscated (2).mkv",
+   "Obfuscated (2)/YX2UHprhmsEzf5sg9Bxb0tXYjAFKOJfEe9ixlOccB",
+   "Obfuscated (2)/thumbnail.jpg",
+   "Obfuscated (2)/xQlsN0ZIjfWD1xOyZbCUYjeU85elnxr0iDwZGsoFUo7Er2Uo1"
+  ],
+  "subdirs": [],
+  "probed_url": "http://127.0.0.1:8092/content/uncategorized/Obfuscated%20(2)/Obfuscated%20(2).mkv",
+  "content_length": 6608994141,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 8388608,
+   "asked": 8388608,
+   "complete": true,
+   "s": 2.24,
+   "MBps": 3.74,
+   "md5": "0354005fcf952920f64cebbae0c3d6d1",
+   "all_zero": false
+  }
+ },
+ {
+  "target": "nzbdav-og",
+  "test": "obfuscated",
+  "import": "{\"nzo_ids\":[\"179b571f-b3f5-4c5e-9a8f-5fb97cb8c604\"],\"status\":true,\"error\":null} || HIST {\"history\":{\"slots\":[{\"nzo_id\":\"179b571f-b3f5-4c5e-9a8f-5fb97cb8c604\",\"nzb_name\":\"Obfuscated.nzb\",\"name\":\"Obfuscated\",\"category\":\"uncategorized\",\"status\":\"Completed\",\"bytes\":7164735989,\"storage\":\"/mnt/nzbdav/completed-symlinks/uncategorized/Obfuscated (2)\",\"download_time\":2,\"fail_message\":\"\",\"nzb_blob_id\":\"179b571f-b3f5-4c5e-9a8f-5fb97cb8c604\"},{\"nzo_id\":\"138063a8-8041-4b60-bd76-5ae267e15df2\",\"nzb_name\":\"ToyStory5Damaged.nzb\",\"name\":\"ToyStory5Damaged\",\"category\":\"uncategorized\",\"status\":\"Completed\",\"bytes\":7164735989,\"storage\":\"/mnt/nzbdav/completed-symlinks/uncategorized/ToyStory5Damaged (2)\",\"download_time\":2,\"fail_message\":\"\",\"nzb_blob_id\":\"138063a8-8041-4b60-bd76-5ae267e15df2\"},{\"nzo_id\"",
+  "new_entries": [
+   "Obfuscated (2)"
+  ],
+  "listing": [
+   "FatherBrown",
+   "Obfuscated",
+   "Obfuscated (2)",
+   "ToyStory5",
+   "ToyStory5Damaged",
+   "ToyStory5Damaged (2)"
+  ],
+  "release_dir": [
+   "Obfuscated (2)"
+  ],
+  "files": [
+   "2GakUdPS8XKgPLp20S4yY26JtIhDzkpeIRNyPSzklKkuwF",
+   "9kwjjb5fIpYc2hWp8e54D986q2Z2QckXasLJrfQY32IFzInzTr1gUC",
+   "G8q5Ca8mz9xsfSLlFx1YxEnE2gZPLjyY6JiM",
+   "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+   "YX2UHprhmsEzf5sg9Bxb0tXYjAFKOJfEe9ixlOccB",
+   "thumbnail.jpg",
+   "xQlsN0ZIjfWD1xOyZbCUYjeU85elnxr0iDwZGsoFUo7Er2Uo1"
+  ],
+  "file_paths": [
+   "Obfuscated (2)/2GakUdPS8XKgPLp20S4yY26JtIhDzkpeIRNyPSzklKkuwF",
+   "Obfuscated (2)/9kwjjb5fIpYc2hWp8e54D986q2Z2QckXasLJrfQY32IFzInzTr1gUC",
+   "Obfuscated (2)/G8q5Ca8mz9xsfSLlFx1YxEnE2gZPLjyY6JiM",
+   "Obfuscated (2)/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+   "Obfuscated (2)/YX2UHprhmsEzf5sg9Bxb0tXYjAFKOJfEe9ixlOccB",
+   "Obfuscated (2)/thumbnail.jpg",
+   "Obfuscated (2)/xQlsN0ZIjfWD1xOyZbCUYjeU85elnxr0iDwZGsoFUo7Er2Uo1"
+  ],
+  "subdirs": [],
+  "probed_url": "http://127.0.0.1:8093/content/uncategorized/Obfuscated%20(2)/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+  "content_length": 6608994141,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 8388608,
+   "asked": 8388608,
+   "complete": true,
+   "s": 4.82,
+   "MBps": 1.74,
+   "md5": "0354005fcf952920f64cebbae0c3d6d1",
+   "all_zero": false
+  }
+ }
+]

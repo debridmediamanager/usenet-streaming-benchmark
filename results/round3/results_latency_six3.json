@@ -1,0 +1,80 @@
+[
+ {
+  "target": "zurg",
+  "cold_open_s": 1.816,
+  "cold_open_http": "206",
+  "ttfb_s": 1.603,
+  "big_read_MBps": 15.68,
+  "warm_reread_s": 0.073,
+  "scrub_median_s": 0.504,
+  "scrub_n": 8,
+  "ffprobe_s": 1.47,
+  "ffprobe_duration": "6206.752000",
+  "rss_MB": 446
+ },
+ {
+  "target": "decypharr",
+  "cold_open_s": 3.584,
+  "cold_open_http": "206",
+  "ttfb_s": 2.471,
+  "big_read_MBps": 25.53,
+  "warm_reread_s": 0.056,
+  "scrub_median_s": 2.494,
+  "scrub_n": 8,
+  "ffprobe_s": 6.72,
+  "ffprobe_duration": "6206.752000",
+  "rss_MB": 44
+ },
+ {
+  "target": "altmount",
+  "cold_open_s": 1.958,
+  "cold_open_http": "206",
+  "ttfb_s": 0.83,
+  "big_read_MBps": 22.56,
+  "warm_reread_s": 1.434,
+  "scrub_median_s": 0.512,
+  "scrub_n": 8,
+  "ffprobe_s": 2.62,
+  "ffprobe_duration": "6206.752000",
+  "rss_MB": 211
+ },
+ {
+  "target": "infinidysk",
+  "cold_open_s": 1.36,
+  "cold_open_http": "206",
+  "ttfb_s": 0.522,
+  "big_read_MBps": 20.48,
+  "warm_reread_s": 3.203,
+  "scrub_median_s": 1.052,
+  "scrub_n": 8,
+  "ffprobe_s": 4.55,
+  "ffprobe_duration": "6206.752000",
+  "rss_MB": 877
+ },
+ {
+  "target": "nzbdav-og",
+  "cold_open_s": 5.003,
+  "cold_open_http": "206",
+  "ttfb_s": 1.949,
+  "big_read_MBps": 9.16,
+  "warm_reread_s": 6.458,
+  "scrub_median_s": 2.676,
+  "scrub_n": 8,
+  "ffprobe_s": 4.62,
+  "ffprobe_duration": "6206.752000",
+  "rss_MB": 483
+ },
+ {
+  "target": "streamnzb",
+  "cold_open_s": 4.791,
+  "cold_open_http": "206",
+  "ttfb_s": 0.722,
+  "big_read_MBps": 28.07,
+  "warm_reread_s": 0.072,
+  "scrub_median_s": 0.556,
+  "scrub_n": 8,
+  "ffprobe_s": 0.09,
+  "ffprobe_duration": "6206.752000",
+  "rss_MB": 514
+ }
+]

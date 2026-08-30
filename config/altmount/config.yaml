@@ -1,0 +1,48 @@
+webdav:
+  port: 8081
+  user: 'usenet'
+  password: 'usenet'
+api:
+  prefix: '/api'
+  key_override: 'benchbenchbenchbenchbenchbench12'
+  allowed_origins:
+    - 'http://localhost:8081'
+auth:
+  login_required: false
+database:
+  path: '/home/ben/bench/altmount/cfg/altmount.db'
+metadata:
+  root_path: '/home/ben/bench/altmount/cfg/metadata'
+streaming:
+  max_prefetch: 30
+  failure_masking:
+    enabled: false
+    threshold: 3
+rclone:
+  mount_enabled: false
+import:
+  max_processor_workers: 2
+  queue_processing_interval_seconds: 5
+  segment_sample_percentage: 1
+  import_strategy: 'NONE'
+  max_concurrent_imports: 0
+health:
+  enabled: false
+sabnzbd:
+  enabled: false
+arrs:
+  enabled: false
+log:
+  file: '/home/ben/bench/altmount/cfg/altmount.log'
+  level: 'info'
+log_level: 'info'
+providers:
+  - host: 'news.news-provider.example'
+    port: 563
+    username: 'YOUR_USENET_USERNAME'
+    password: 'YOUR_USENET_PASSWORD'
+    max_connections: 20
+    tls: true
+    insecure_tls: false
+    enabled: true
+    is_backup_provider: false

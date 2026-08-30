@@ -1,0 +1,205 @@
+[
+ {
+  "target": "zurg",
+  "test": "damage",
+  "import": "present in nzbs/",
+  "new_entries": [],
+  "listing": [
+   "DoomsdayRar",
+   "FatherBrown",
+   "MandaloriaREMUX",
+   "OnePiece-1174",
+   "Servant.S01.2160p.ATVP.WEB-DL",
+   "TLOU-S02E01-FLUX",
+   "The.Wild.Robot.2024.BluRay.1080p.DD5.1.x264-TiGER",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "release_dir": [
+   "ToyStory5Damaged"
+  ],
+  "files": [
+   "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+   "thumbnail.jpg"
+  ],
+  "file_paths": [
+   "ToyStory5Damaged/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+   "ToyStory5Damaged/thumbnail.jpg"
+  ],
+  "subdirs": [],
+  "probed_url": "http://localhost:9998/dav/all/ToyStory5Damaged/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+  "content_length": 6608994141,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 4194304,
+   "asked": 4194304,
+   "complete": true,
+   "s": 1.98,
+   "MBps": 2.12,
+   "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+   "all_zero": true
+  }
+ },
+ {
+  "target": "decypharr",
+  "test": "damage",
+  "import": "/sabnzbd/api -> {\n  \"status\": false,\n  \"error\": \"No files uploaded\"\n}",
+  "new_entries": [],
+  "listing": [
+   "FatherBrown",
+   "MandaloriaREMUX",
+   "OnePiece-1174",
+   "Servant.S01.2160p.ATVP.WEB-DL",
+   "TLOU-S02E01-FLUX",
+   "The.Wild.Robot.2024.BluRay.1080p.DD5.1.x264-TiGER",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "release_dir": [
+   "ToyStory5Damaged"
+  ],
+  "files": [
+   "ToyStory5Damaged.mkv"
+  ],
+  "file_paths": [
+   "ToyStory5Damaged/ToyStory5Damaged.mkv"
+  ],
+  "subdirs": [],
+  "probed_url": "http://localhost:8282/webdav/__all__/ToyStory5Damaged/ToyStory5Damaged.mkv",
+  "content_length": 6608994141,
+  "probe": {
+   "curl_exit": 18,
+   "http": "206",
+   "bytes": 0,
+   "asked": 4194304,
+   "complete": false,
+   "s": 4.85,
+   "MBps": 0,
+   "md5": null,
+   "all_zero": null
+  }
+ },
+ {
+  "target": "altmount",
+  "test": "damage",
+  "import": "{\"data\":{\"queue_id\":12,\"message\":\"File successfully added to import queue with ID 12\"},\"success\":true}",
+  "new_entries": [],
+  "listing": [
+   "FatherBrown",
+   "Obfuscated",
+   "ToyStory5",
+   "ToyStory5Damaged",
+   "anime-OnePiece-1174",
+   "movie-direct-The.Wild.Robot.2024.BluRay.1080p.DD5.1.x264-TiGER",
+   "movie-obfuscated-Obfuscated",
+   "movie-scene-rar-DoomsdayRar",
+   "tv-episode-direct-TLOU-S02E01-FLUX",
+   "tv-episode-obf-rar-FatherBrown",
+   "tv-season-pack-Servant.S01.2160p.ATVP.WEB-DL"
+  ],
+  "release_dir": [
+   "ToyStory5Damaged"
+  ],
+  "files": [
+   "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv"
+  ],
+  "file_paths": [
+   "ToyStory5Damaged/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv"
+  ],
+  "subdirs": [],
+  "probed_url": "http://localhost:8081/webdav/complete/ToyStory5Damaged/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+  "content_length": 6608994141,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 4194304,
+   "asked": 4194304,
+   "complete": true,
+   "s": 0.54,
+   "MBps": 7.84,
+   "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+   "all_zero": true
+  }
+ },
+ {
+  "target": "infinidysk",
+  "test": "damage",
+  "import": "{\"nzo_ids\":[\"656b4bf5-e5dc-44c9-98f6-6f399e89a9d3\"],\"status\":true,\"error\":null} || HIST {\"history\":{\"slots\":[{\"nzo_id\":\"656b4bf5-e5dc-44c9-98f6-6f399e89a9d3\",\"nzb_name\":\"ToyStory5Damaged.nzb\",\"name\":\"ToyStory5Damaged\",\"category\":\"uncategorized\",\"status\":\"Completed\",\"bytes\":7164735989,\"storage\":\"/mnt/nzbdav/completed-symlinks/uncategorized/ToyStory5Damaged (2)\",\"download_time\":10,\"completed\":1788012785,\"fail_message\":\"\",\"nzb_blob_id\":\"656b4bf5-e5dc-44c9-98f6-6f399e89a9d3\",\"indexer\":null,\"providers\":[{\"host\":\"news.news-provider.example\",\"nickname\":null,\"segments\":14}]},{\"nzo_id\":\"f6ca8bb8-5cb7-4cf2-bdf1-38d75b02862d\",\"nzb_name\":\"OnePiece-1174.nzb\",\"name\":\"OnePiece-1174\",\"category\":\"tv\",\"status\":\"Completed\",\"bytes\":1625011968,\"storage\":\"/mnt/nzbdav/completed-symlinks/tv/OnePiece-1174 (",
+  "new_entries": [
+   "ToyStory5Damaged (2)"
+  ],
+  "listing": [
+   "FatherBrown",
+   "Obfuscated",
+   "ToyStory5",
+   "ToyStory5Damaged",
+   "ToyStory5Damaged (2)"
+  ],
+  "release_dir": [
+   "ToyStory5Damaged (2)"
+  ],
+  "files": [
+   "ToyStory5Damaged (2).mkv",
+   "thumbnail.jpg"
+  ],
+  "file_paths": [
+   "ToyStory5Damaged (2)/ToyStory5Damaged (2).mkv",
+   "ToyStory5Damaged (2)/thumbnail.jpg"
+  ],
+  "subdirs": [],
+  "probed_url": "http://127.0.0.1:8092/content/uncategorized/ToyStory5Damaged%20(2)/ToyStory5Damaged%20(2).mkv",
+  "content_length": 6608994141,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 4194304,
+   "asked": 4194304,
+   "complete": true,
+   "s": 0.69,
+   "MBps": 6.12,
+   "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+   "all_zero": true
+  }
+ },
+ {
+  "target": "nzbdav-og",
+  "test": "damage",
+  "import": "{\"nzo_ids\":[\"138063a8-8041-4b60-bd76-5ae267e15df2\"],\"status\":true,\"error\":null} || HIST {\"history\":{\"slots\":[{\"nzo_id\":\"138063a8-8041-4b60-bd76-5ae267e15df2\",\"nzb_name\":\"ToyStory5Damaged.nzb\",\"name\":\"ToyStory5Damaged\",\"category\":\"uncategorized\",\"status\":\"Completed\",\"bytes\":7164735989,\"storage\":\"/mnt/nzbdav/completed-symlinks/uncategorized/ToyStory5Damaged (2)\",\"download_time\":2,\"fail_message\":\"\",\"nzb_blob_id\":\"138063a8-8041-4b60-bd76-5ae267e15df2\"},{\"nzo_id\":\"2679bd09-33be-4b91-94b9-39f4c5eeea14\",\"nzb_name\":\"OnePiece-1174.nzb\",\"name\":\"OnePiece-1174\",\"category\":\"tv\",\"status\":\"Completed\",\"bytes\":1625011968,\"storage\":\"/mnt/nzbdav/completed-symlinks/tv/OnePiece-1174\",\"download_time\":1,\"fail_message\":\"\",\"nzb_blob_id\":\"2679bd09-33be-4b91-94b9-39f4c5eeea14\"},{\"nzo_id\":\"00da100e-1816-4",
+  "new_entries": [
+   "ToyStory5Damaged (2)"
+  ],
+  "listing": [
+   "FatherBrown",
+   "Obfuscated",
+   "ToyStory5",
+   "ToyStory5Damaged",
+   "ToyStory5Damaged (2)"
+  ],
+  "release_dir": [
+   "ToyStory5Damaged (2)"
+  ],
+  "files": [
+   "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+   "thumbnail.jpg"
+  ],
+  "file_paths": [
+   "ToyStory5Damaged (2)/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+   "ToyStory5Damaged (2)/thumbnail.jpg"
+  ],
+  "subdirs": [],
+  "probed_url": "http://127.0.0.1:8093/content/uncategorized/ToyStory5Damaged%20(2)/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+  "content_length": 6608994141,
+  "probe": {
+   "curl_exit": 0,
+   "http": "404",
+   "bytes": 0,
+   "asked": 4194304,
+   "complete": false,
+   "s": 1.64,
+   "MBps": 0,
+   "md5": null,
+   "all_zero": null
+  }
+ }
+]

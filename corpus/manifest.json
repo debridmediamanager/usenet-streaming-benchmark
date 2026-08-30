@@ -1,0 +1,37 @@
+[
+ {
+  "nzb": "ToyStory5.nzb",
+  "sha256": "9add0ee889f54187",
+  "files": 7,
+  "articles": 1669,
+  "approx_bytes": 7164735989
+ },
+ {
+  "nzb": "ToyStory5Damaged.nzb",
+  "sha256": "90b9bdccb56a8f91",
+  "files": 7,
+  "articles": 1669,
+  "approx_bytes": 7164735989
+ },
+ {
+  "nzb": "Obfuscated.nzb",
+  "sha256": "6794d1464e7cb28c",
+  "files": 7,
+  "articles": 1669,
+  "approx_bytes": 7164735989
+ },
+ {
+  "nzb": "FatherBrown.nzb",
+  "sha256": "55ed581204b3d83b",
+  "files": 17,
+  "articles": 1027,
+  "approx_bytes": 394141285
+ },
+ {
+  "nzb": "Bosch.S01.nzb",
+  "sha256": "c9b60371473825b0",
+  "files": 20,
+  "articles": 32870,
+  "approx_bytes": 24290014587
+ }
+]

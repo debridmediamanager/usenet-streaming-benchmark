@@ -1,0 +1,40 @@
+{
+  "bind_address": "0.0.0.0",
+  "port": "8282",
+  "log_level": "info",
+  "use_auth": false,
+  "disable_webdav": false,
+  "download_folder": "/home/ben/bench/decyrun/downloads",
+  "max_active_downloads": 5,
+  "usenet": {
+    "providers": [
+      {
+        "host": "news.news-provider.example",
+        "port": 563,
+        "username": "YOUR_USENET_USERNAME",
+        "password": "YOUR_USENET_PASSWORD",
+        "ssl": true,
+        "max_connections": 20,
+        "priority": 1
+      }
+    ],
+    "max_connections": 20,
+    "processing_max_connections": 20,
+    "disk_buffer_path": "/home/ben/bench/decyrun/streams",
+    "read_ahead": "16MB"
+  },
+  "mount": {
+    "type": "dfs",
+    "mount_path": "/home/ben/bench/dmnt",
+    "dfs": {
+      "cache_dir": "/home/ben/bench/dfscache",
+      "disk_cache_size": "20GB",
+      "uid": 1000,
+      "gid": 1000
+    }
+  },
+  "categories": [
+    "movies",
+    "tv"
+  ]
+}

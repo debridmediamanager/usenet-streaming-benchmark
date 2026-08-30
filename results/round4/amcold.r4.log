@@ -1,0 +1,10 @@
+{"arm": "cold", "offset": 1200000000, "curl_exit": 18, "http": "206", "got_MB": 95.6, "complete": false, "s": 4.13}
+{"arm": "warmed", "offset": 1200000000, "curl_exit": 0, "http": "206", "got_MB": 256.0, "complete": true, "s": 6.32}
+{"arm": "cold", "offset": 2200000000, "curl_exit": 0, "http": "206", "got_MB": 256.0, "complete": true, "s": 7.44}
+{"arm": "warmed", "offset": 2200000000, "curl_exit": 0, "http": "206", "got_MB": 256.0, "complete": true, "s": 5.85}
+{"arm": "cold", "offset": 3200000000, "curl_exit": 0, "http": "206", "got_MB": 256.0, "complete": true, "s": 7.4}
+{"arm": "warmed", "offset": 3200000000, "curl_exit": 0, "http": "206", "got_MB": 256.0, "complete": true, "s": 4.73}
+{"arm": "cold", "offset": 4200000000, "curl_exit": 0, "http": "206", "got_MB": 256.0, "complete": true, "s": 6.35}
+{"arm": "warmed", "offset": 4200000000, "curl_exit": 0, "http": "206", "got_MB": 256.0, "complete": true, "s": 4.52}
+cold   : 3/4 complete
+warmed : 4/4 complete

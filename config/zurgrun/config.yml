@@ -1,0 +1,30 @@
+zurg: v1
+providers:
+  - type: nzb
+    nntp:
+      host: news.news-provider.example
+      port: 563
+      tls: true
+      username: YOUR_USENET_USERNAME
+      password: "YOUR_USENET_PASSWORD"
+      connections: 20
+port: 9998
+host: "[::]"
+base_url: "http://localhost:9998"
+check_for_changes_every_secs: 10
+enable_repair: true
+load_dumped_torrents: false
+serve_strm_files: false
+save_strm_files: false
+disable_stream_proxy: false
+rclone_enabled: true
+force_select_playable_files: false
+network_test_every_mins: 100000
+directories:
+  all:
+    group_order: 1
+    filters:
+      - regex: /.*/
+
+rclone_binary: /home/ben/bench/bin/rclone
+mount_path: /home/ben/bench/zmnt

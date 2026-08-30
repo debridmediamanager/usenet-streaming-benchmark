@@ -1,0 +1,11 @@
+# never commit a filled-in credential
+*.local.yml
+*.local.json
+.env
+# extracted corpus
+corpus/*.nzb
+# runtime state
+__pycache__/
+*.pyc
+*.db
+*.sqlite
