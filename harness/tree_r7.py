@@ -34,6 +34,8 @@ MNT = f"{BENCH}/r7mnt"
 RCLONE = f"{BENCH}/bin/rclone"
 AUTH = ("usenet", "usenet")
 API_KEY = "benchbenchbenchbenchbenchbench12"
+# The bench news host, replaced by a reproducer the same way prep-r7.sh's $HOST is.
+HOST = "news.news-provider.example"
 
 # The corpus is a file rather than a literal so the run and the report always
 # name the same five releases. Every entry is a release that STAT-probed clean
@@ -113,18 +115,44 @@ def pid_on(port):
 PROD_ZURG_PID = sh("systemctl show -p MainPID --value zurg.service") or "0"
 
 
-def nntp_sockets():
-    """Sockets on :563 that belong to a bench target.
+def nntp_socket_lines():
+    """`ss -tnp` lines for NNTP sockets that belong to a bench target.
 
     zen runs a production zurg.service on the same account and keeps a couple
     warm at idle, so a plain count never reaches zero. Exclude that one PID.
+
+    The PEER field is parsed rather than grepping the whole line for ':563': as
+    a substring that also matches an ephemeral LOCAL port like :56312, and one
+    of those is enough to burn the entire drain wait below on a socket that has
+    nothing to do with Usenet.
     """
-    out = sh("ss -tnp 2>/dev/null | grep ':563'")
-    return sum(1 for line in out.splitlines()
-               if line.strip() and f"pid={PROD_ZURG_PID}," not in line)
+    keep = []
+    for line in sh("ss -tnp 2>/dev/null").splitlines():
+        f = line.split()
+        # State Recv-Q Send-Q Local:Port Peer:Port Process
+        if len(f) < 5 or f[0] == "State":
+            continue
+        if not f[4].endswith(":563"):
+            continue
+        if f"pid={PROD_ZURG_PID}," in line:
+            continue
+        keep.append(line.strip())
+    return keep
+
+
+def nntp_sockets():
+    return len(nntp_socket_lines())
 
 
 def stop(name):
+    """Stop a target and prove it let go of the port and of the news account.
+
+    Both waits used to fall through silently once exhausted. A target still
+    listening -- or still holding NNTP sockets -- then kept the shared news
+    account while the NEXT target imported, which breaks the one-server-at-a-time
+    rule this whole round rests on, invisibly, and charges the damage to the
+    innocent target's numbers. So escalate, then raise rather than continue.
+    """
     s = SPEC[name]
     if s["kind"] == "docker":
         sh(f"docker stop {s['container']} >/dev/null 2>&1", timeout=120)
@@ -132,14 +160,36 @@ def stop(name):
         pid = pid_on(s["port"])
         if pid:
             sh(f"kill {pid}")
-    for _ in range(60):
+
+    # SIGTERM gets 20s. All five shut down in a few seconds when healthy, so
+    # past that it is wedged rather than slow, and waiting out the full minute
+    # only delays the same kill.
+    t0 = time.time()
+    escalated = False
+    while time.time() - t0 < 60:
         if not pid_on(s["port"]):
             break
+        if not escalated and time.time() - t0 >= 20:
+            escalated = True
+            if s["kind"] == "docker":
+                sh(f"docker kill {s['container']} >/dev/null 2>&1", timeout=60)
+            else:
+                pid = pid_on(s["port"])
+                if pid:
+                    sh(f"kill -9 {pid}")
         time.sleep(1)
+
     for _ in range(60):
         if nntp_sockets() == 0:
             break
         time.sleep(1)
+
+    held = pid_on(s["port"])
+    left = nntp_socket_lines()
+    if held or left:
+        raise RuntimeError(
+            f"{name}: still holding resources after SIGKILL -- port {s['port']} "
+            f"pid={held}, {len(left)} NNTP socket(s) open:\n" + "\n".join(left[:10]))
     time.sleep(2)
 
 
@@ -264,10 +314,16 @@ def reset(name):
         row = c.execute("select ConfigValue from ConfigItems "
                         "where ConfigName='usenet.providers'").fetchone()
         if row:
+            # Pin the host on every provider. This was a string replace of one
+            # hostname, which is a no-op against a master db holding any other
+            # value -- the reseeded copy then quietly dials whatever host that
+            # db was built with, on an account this round assumes is exclusive.
+            cfg = json.loads(row[0])
+            for prov in cfg.get("Providers", []):
+                prov["Host"] = HOST
             c.execute("update ConfigItems set ConfigValue=? "
                       "where ConfigName='usenet.providers'",
-                      (row[0].replace("news.news-provider.example",
-                                      "news.news-provider.example"),))
+                      (json.dumps(cfg),))
         c.commit()
         n = c.execute("select count(*) from DavItems").fetchone()[0]
         c.close()
@@ -421,18 +477,31 @@ def settle(name, root, cap=1800, quiet=120, hard_quiet=420, expect=None):
     """
     t0 = time.time()
     last, stable_since = None, time.time()
+    last_q, q_since = None, time.time()
     while time.time() - t0 < cap:
         now = children(name, root)
         if now != last:
             last, stable_since = now, time.time()
         q = queue_len(name)
         drained = not q  # 0 or None
+        # hard_quiet exists to escape a wedged queue, but a queue that is
+        # working looks identical from the listing: infinidysk imports serially
+        # and publishes a release only when its import finishes, so it goes
+        # quiet for minutes at a time while making real progress. Only count
+        # the hard-quiet clock while the queue itself is not moving.
+        if q != last_q:
+            last_q, q_since = q, time.time()
+        working = (not drained) and (time.time() - q_since) < hard_quiet
         still = time.time() - stable_since
         if last and drained and (expect is not None and len(last) >= expect):
             break
-        if last and drained and still >= quiet:
+        # `last` may legitimately be an empty list: a server that imported
+        # nothing publishes nothing. Requiring it to be truthy meant an empty
+        # listing satisfied no exit condition and spun to `cap`, which cost 30
+        # minutes per affected target. Empty and quiet and drained is an answer.
+        if last is not None and drained and still >= quiet:
             break
-        if last and still >= hard_quiet:
+        if last is not None and still >= hard_quiet and not working:
             break
         time.sleep(10)
     return {"settle_s": round(time.time() - t0), "root_entries": last or [],
@@ -616,7 +685,14 @@ def main():
                           if k not in ("root_before",)})[:1500], flush=True)
         with open(f"{RUN}/results_tree_r7.json", "w") as f:
             json.dump(out, f, indent=1)
-    stop_all()
+    # Only this last one is caught. A wedged target inside run_one has to raise
+    # -- it is recorded as that target's "fatal" and the next target must not
+    # start on top of it -- but here every result is already written, and losing
+    # the whole report to one target that will not drain buys nothing.
+    try:
+        stop_all()
+    except Exception as e:
+        print(f"WARN final stop_all: {str(e)[:300]}", flush=True)
     print("TREE_R6_DONE", flush=True)
 
 
