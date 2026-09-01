@@ -1,0 +1,218 @@
+[
+ {
+  "target": "zurg",
+  "test": "rar",
+  "import": "present in nzbs/ (ready in 10s)",
+  "new_entries": [
+   "Obfuscated"
+  ],
+  "listing": [
+   "Bosch.S01",
+   "FatherBrown",
+   "MandaloriaREMUX",
+   "Obfuscated",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "release_dir": [
+   "Obfuscated"
+  ],
+  "files": [
+   "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+   "thumbnail.jpg"
+  ],
+  "file_paths": [
+   "Obfuscated/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+   "Obfuscated/thumbnail.jpg"
+  ],
+  "subdirs": [],
+  "probed_url": "http://localhost:9998/dav/all/Obfuscated/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+  "content_length": 6608994141,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 16777216,
+   "asked": 16777216,
+   "complete": true,
+   "s": 0.94,
+   "MBps": 17.94,
+   "md5": "813e88366b89ac934782894a51a5b3da",
+   "all_zero": false
+  }
+ },
+ {
+  "target": "decypharr",
+  "test": "rar",
+  "import": "{\n  \"status\": true,\n  \"nzo_ids\": [\n    \"89e698d0-8b25-470f-844d-adc7719949ac\"\n  ]\n} || READY 10s",
+  "new_entries": [],
+  "listing": [
+   "Bosch.S01",
+   "FatherBrown",
+   "MandaloriaREMUX",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "release_dir": [
+   "FatherBrown"
+  ],
+  "files": [
+   "Father.Brown.2013.S02E05.HDTV.x264-TLAfather.brown.2013.s02e05.hdtv.x264-tla.mp4"
+  ],
+  "file_paths": [
+   "FatherBrown/Father.Brown.2013.S02E05.HDTV.x264-TLAfather.brown.2013.s02e05.hdtv.x264-tla.mp4"
+  ],
+  "subdirs": [],
+  "probed_url": "http://localhost:8282/webdav/__all__/FatherBrown/Father.Brown.2013.S02E05.HDTV.x264-TLAfather.brown.2013.s02e05.hdtv.x264-tla.mp4",
+  "content_length": 321905886,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 16777216,
+   "asked": 16777216,
+   "complete": true,
+   "s": 2.06,
+   "MBps": 8.16,
+   "md5": "79d1e148021c44ce018c9c47eb504d39",
+   "all_zero": false
+  }
+ },
+ {
+  "target": "altmount",
+  "test": "rar",
+  "import": "{\"data\":{\"queue_id\":8,\"message\":\"File successfully added to import queue with ID 8\"},\"success\":true} || READY 10s",
+  "new_entries": [],
+  "listing": [
+   "FatherBrown",
+   "Obfuscated",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "release_dir": [
+   "FatherBrown"
+  ],
+  "files": [
+   "8-FatherBrown.mp4",
+   "FatherBrown.mp4"
+  ],
+  "file_paths": [
+   "FatherBrown/8-FatherBrown.mp4",
+   "FatherBrown/FatherBrown.mp4"
+  ],
+  "subdirs": [],
+  "probed_url": "http://localhost:8081/webdav/complete/FatherBrown/8-FatherBrown.mp4",
+  "content_length": 321905886,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 16777216,
+   "asked": 16777216,
+   "complete": true,
+   "s": 0.63,
+   "MBps": 26.54,
+   "md5": "79d1e148021c44ce018c9c47eb504d39",
+   "all_zero": false
+  }
+ },
+ {
+  "target": "infinidysk",
+  "test": "rar",
+  "import": "{\"nzo_ids\":[\"5a3e4d21-4fc5-4f7c-9646-c28941526967\"],\"status\":true,\"error\":null} || READY 10s || HIST {\"history\":{\"slots\":[{\"nzo_id\":\"6424cbb7-9a41-4b7f-a980-fa0d3f2367a4\",\"nzb_name\":\"Obfuscated.nzb\",\"name\":\"Obfuscated\",\"category\":\"uncategorized\",\"status\":\"Completed\",\"bytes\":7164735989,\"storage\":\"/mnt/nzbdav/completed-symlinks/uncategorized/Obfuscated (2)\",\"download_time\":12,\"completed\":1788262734,\"fail_message\":\"\",\"nzb_blob_id\":\"6424cbb7-9a41-4b7f-a980-fa0d3f2367a4\",\"indexer\":null,\"providers\":[{\"host\":\"news.news-provider.example\",\"nickname\":null,\"segments\":21},{\"host\":\"segment-cache\",\"nickname\":null,\"segments\":5}]},{\"nzo_id\":\"6b9694e6-14da-4cbb-a5fa-c8b143e7d718\",\"nzb_name\":\"ToyStory5Damaged.nzb\",\"name\":\"ToyStory5Damaged\",\"category\":\"uncatego",
+  "new_entries": [
+   "Obfuscated (2)"
+  ],
+  "listing": [
+   "Bosch.S01",
+   "FatherBrown",
+   "MandaloriaREMUX",
+   "Obfuscated",
+   "Obfuscated (2)",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "release_dir": [
+   "Obfuscated (2)"
+  ],
+  "files": [
+   "2GakUdPS8XKgPLp20S4yY26JtIhDzkpeIRNyPSzklKkuwF",
+   "9kwjjb5fIpYc2hWp8e54D986q2Z2QckXasLJrfQY32IFzInzTr1gUC",
+   "G8q5Ca8mz9xsfSLlFx1YxEnE2gZPLjyY6JiM",
+   "Obfuscated (2).mkv",
+   "YX2UHprhmsEzf5sg9Bxb0tXYjAFKOJfEe9ixlOccB",
+   "thumbnail.jpg",
+   "xQlsN0ZIjfWD1xOyZbCUYjeU85elnxr0iDwZGsoFUo7Er2Uo1"
+  ],
+  "file_paths": [
+   "Obfuscated (2)/2GakUdPS8XKgPLp20S4yY26JtIhDzkpeIRNyPSzklKkuwF",
+   "Obfuscated (2)/9kwjjb5fIpYc2hWp8e54D986q2Z2QckXasLJrfQY32IFzInzTr1gUC",
+   "Obfuscated (2)/G8q5Ca8mz9xsfSLlFx1YxEnE2gZPLjyY6JiM",
+   "Obfuscated (2)/Obfuscated (2).mkv",
+   "Obfuscated (2)/YX2UHprhmsEzf5sg9Bxb0tXYjAFKOJfEe9ixlOccB",
+   "Obfuscated (2)/thumbnail.jpg",
+   "Obfuscated (2)/xQlsN0ZIjfWD1xOyZbCUYjeU85elnxr0iDwZGsoFUo7Er2Uo1"
+  ],
+  "subdirs": [],
+  "probed_url": "http://127.0.0.1:8092/content/uncategorized/Obfuscated%20(2)/Obfuscated%20(2).mkv",
+  "content_length": 6608994141,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 16777216,
+   "asked": 16777216,
+   "complete": true,
+   "s": 0.23,
+   "MBps": 72.41,
+   "md5": "813e88366b89ac934782894a51a5b3da",
+   "all_zero": false
+  }
+ },
+ {
+  "target": "nzbdav-og",
+  "test": "rar",
+  "import": "{\"nzo_ids\":[\"d332630b-3076-4957-aa29-1da993a43e36\"],\"status\":true,\"error\":null} || READY 10s || HIST {\"history\":{\"slots\":[{\"nzo_id\":\"d332630b-3076-4957-aa29-1da993a43e36\",\"nzb_name\":\"FatherBrown.nzb\",\"name\":\"FatherBrown\",\"category\":\"uncategorized\",\"status\":\"Completed\",\"bytes\":394141285,\"storage\":\"/mnt/nzbdav/completed-symlinks/uncategorized/FatherBrown (2)\",\"download_time\":3,\"fail_message\":\"\",\"nzb_blob_id\":\"d332630b-3076-4957-aa29-1da993a43e36\"},{\"nzo_id\":\"472cbdb5-9db6-42aa-807b-3d265ee13a69\",\"nzb_name\":\"Obfuscated.nzb\",\"name\":\"Obfuscated\",\"category\":\"uncategorized\",\"status\":\"Completed\",\"bytes\":7164735989,\"storage\":\"/mnt/nzbdav/completed-symlinks/uncategorized/Obfuscated (2)\",\"download_time\":3,\"fail_message\":\"\",\"nzb_blob_id\":\"472cbdb5-9db6-",
+  "new_entries": [
+   "FatherBrown (2)"
+  ],
+  "listing": [
+   "Bosch.S01",
+   "FatherBrown",
+   "FatherBrown (2)",
+   "MandaloriaREMUX",
+   "Obfuscated",
+   "Obfuscated (2)",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "release_dir": [
+   "FatherBrown (2)"
+  ],
+  "files": [
+   "father.brown.2013.s02e05.hdtv.x264-tla-sample.mp4",
+   "father.brown.2013.s02e05.hdtv.x264-tla.mp4",
+   "TOWN - NZB FORUM - KLICK IT.url",
+   "Top Usenet Provider - CHEAP - FULL SPEED.url"
+  ],
+  "file_paths": [
+   "FatherBrown (2)/Father.Brown.2013.S02E05.HDTV.x264-TLA/Sample/father.brown.2013.s02e05.hdtv.x264-tla-sample.mp4",
+   "FatherBrown (2)/Father.Brown.2013.S02E05.HDTV.x264-TLA/father.brown.2013.s02e05.hdtv.x264-tla.mp4",
+   "FatherBrown (2)/TOWN - NZB FORUM - KLICK IT.url",
+   "FatherBrown (2)/Top Usenet Provider - CHEAP - FULL SPEED.url"
+  ],
+  "subdirs": [
+   "FatherBrown (2)/Father.Brown.2013.S02E05.HDTV.x264-TLA",
+   "FatherBrown (2)/Father.Brown.2013.S02E05.HDTV.x264-TLA/Sample"
+  ],
+  "probed_url": "http://127.0.0.1:8093/content/uncategorized/FatherBrown%20(2)/Father.Brown.2013.S02E05.HDTV.x264-TLA/Sample/father.brown.2013.s02e05.hdtv.x264-tla-sample.mp4",
+  "content_length": 9538724,
+  "probe": {
+   "curl_exit": 0,
+   "http": "416",
+   "bytes": 0,
+   "asked": 16777216,
+   "complete": false,
+   "s": 0.21,
+   "MBps": 0,
+   "md5": null,
+   "all_zero": null
+  }
+ }
+]

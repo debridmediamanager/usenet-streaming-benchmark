@@ -1,8 +1,36 @@
 # Usenet streaming benchmark
 
-Five servers that stream Usenet content on demand. All measured on 30 August 2026. One host. One news account. One server running at a time.
+Five servers that stream Usenet content on demand. This round was measured on 1 September 2026. One host. One news account. One server running at a time. Every target on the same connection count and with repair switched on wherever the feature exists.
 
 The targets are zurg and AltMount and InfiniDysk and nzbdav and decypharr. Every one of them was built from its repository main HEAD on the day of the run. The harness that produced every number here is in `harness/`. The raw output is in `results/`.
+
+Round 4 of 30 August 2026 is kept in `results/round4/` and its report is in `docs/round4.md`. Read the section on what changed before comparing the two.
+
+## What changed in this round
+
+Two things, and both of them make the comparison harder for zurg rather than easier.
+
+**Every target now gets exactly 20 NNTP connections.** Round 4 did not verify this and round 6 was measurably wrong about it. In three of the five servers the provider connection cap and the read budget are separate settings, so a config that says 20 in the obvious place can still be reading on 15 or on 50.
+
+| | provider pool | read budget | what round 6 actually ran |
+|---|---|---|---|
+| zurg | `connections` | same | 20 |
+| AltMount | `max_connections` | same | 20 |
+| InfiniDysk | `MaxConnections` | `usenet.max-download-connections` | **50**, because the read budget was unset and unset means auto, and auto resolves to the pool total |
+| decypharr | `providers[].max_connections` | `usenet.max_connections` | 20 pool but **15** per streaming file |
+| nzbdav | `providers[].MaxConnections` | `usenet.max-download-connections` | 20 pool but **15** reading |
+
+That matters more than any difference between these programs. InfiniDysk ships a connection tuner and on this account it measures about 25 MB/s at 20 connections and about 44 MB/s at 40. Throughput scales close to linearly with the count. A benchmark that lets one target hold 50 while the others hold 20 is measuring the connection count.
+
+**Repair is now enabled on every target that has the feature.** In round 4 AltMount and decypharr ran with repair off, so "only zurg repaired the damage" was partly a statement about configuration. This round enables it everywhere and gives decypharr a schedule that can actually fire inside the measurement window, because its defaults are a nightly sweep with a 168 hour recheck interval and nothing would ever have run.
+
+| | repair in this round | how |
+|---|---|---|
+| zurg | on | `enable_repair: true` |
+| InfiniDysk | on, with PAR2 | `REPAIR__ENABLE`, `REPAIR__PAR2_ENABLED` |
+| AltMount | on | repair is nested under `health`, so `health.enabled` must be true as well |
+| decypharr | on | `repair.enabled` with `source: managed`, a 5 minute schedule and a 1 minute recheck |
+| nzbdav | no such feature | its PAR2 code only recovers obfuscated filenames |
 
 ## Versions
 
@@ -10,20 +38,16 @@ Each target was built from main rather than from a release tag. The point was to
 
 | | version under test | source |
 |---|---|---|
-| **zurg** | `b834f902` | private repository, source access is sponsor-only |
-| **AltMount** | `3ed4c479` | `javi11/altmount` |
-| **InfiniDysk** | image `dev-260830.0121`, commit `5e89125a` | `infinidysk/infinidysk` |
+| **zurg** | `3d9fbcc4` | private repository, source access is sponsor-only |
+| **AltMount** | `7ab04352` | `javi11/altmount` |
+| **InfiniDysk** | `cd9b1205` | `infinidysk/infinidysk` |
 | **nzbdav** | `794948be` | `nzbdav-dev/nzbdav` |
 | **decypharr** | `0dd1cbbd` | `sirrobot01/decypharr` |
 | Host | zen, 2 cores, 7.6 GB RAM | |
 
-Two caveats belong here rather than in a footnote.
+nzbdav main has had no commit since 27 May 2026 and its published `pre-release` image is that same commit. Nothing about nzbdav changed between rounds.
 
-The InfiniDysk image was one commit behind main when the run started. That commit was a user interface fix and touches nothing on the streaming path.
-
-nzbdav main has had no commit since 27 May 2026. Its published `pre-release` image is that same commit. Nothing about nzbdav changed between rounds.
-
-streamnzb was dropped from this round. Its public repository has main at v4.11.0 while the binary it ships is v5.14.0-abaee98. That commit is on no public branch and there are no GitHub releases. There was no verifiable latest main to test so it was excluded rather than guessed at.
+`results/round7/results_r7_versions.json` carries the same table plus the build timestamp.
 
 ## Method
 
@@ -31,11 +55,11 @@ The isolation rule is the whole basis of the comparison. Every target keeps a po
 
 Order rotates by repetition. Provider throughput drifts over an evening. Rotating the order means drift cannot favour whoever always goes first.
 
-Byte offsets were chosen so that no read overlapped any read from an earlier round. Every measurement here is genuinely cold. On-disk segment caches were cleared before the run for the one target that keeps them.
+Byte offsets were chosen so that no read overlapped any read from an earlier round. Every measurement here is genuinely cold.
 
-The host runs a production zurg against the same news account. It holds about 2 idle sockets. `bench5.py` excludes that process id from its drain check so a stop does not wait forever on sockets that will never close. During measurement the target under test held between 9 and 23 sockets against those 2.
+The host runs a production zurg against the same account but against a different server of that provider. Connection caps on this provider are per server, so it contends with nothing here. `bench5.py` excludes that process id from its drain check so a stop does not wait forever on sockets that will never close.
 
-Byte identity was verified two ways. All five servers reported the same ffprobe duration of 6206.752 seconds for the throughput file. All five reported byte-identical sizes for all ten episodes of the Plex corpus. The one exception is described below and it is a missing file rather than a wrong size.
+Byte identity was verified. All five servers reported the same ffprobe duration of 6206.752 seconds for the throughput file. On the RAR release all five returned the same md5 `79d1e148021c44ce018c9c47eb504d39` for the same 16 MB range, and all five advertised the same content length of 321905886 bytes.
 
 ## Throughput
 
@@ -43,159 +67,148 @@ Byte identity was verified two ways. All five servers reported the same ffprobe 
 
 | | zurg | AltMount | InfiniDysk | nzbdav | decypharr |
 |---|---|---|---|---|---|
-| Mean MB/s | **48.42** | 36.65 | 25.58 | 18.51 | 12.94 |
-| Median MB/s | 49.09 | 36.65 | 25.56 | 18.46 | 13.24 |
-| Min to max | 43.28-52.03 | 33.95-39.35 | 23.98-27.09 | 17.71-19.03 | 8.66-16.31 |
-| **Reads completed** | **6 of 6** | **2 of 6** | 6 of 6 | 6 of 6 | 6 of 6 |
-| Mean TTFB, s | **0.85** | 2.89 | 1.50 | 3.81 | 3.61 |
-| CPU seconds per GB | 7.6 | **7.5** | 36.1 | 61.7 | 24.4 |
-| RSS, MB | 353 | 172 | 466 | 559 | **51** |
+| Mean MB/s | **36.54** | 30.38 | 19.18 | 17.66 | 8.28 |
+| Median MB/s | **37.70** | 28.55 | 19.20 | 17.74 | 8.83 |
+| Slowest to fastest | 20.5-47.1 | 27.0-36.5 | 13.1-26.4 | 15.5-19.2 | 3.1-13.9 |
+| Wait before data arrives | **0.63 s** | 3.33 s | 1.44 s | 4.92 s | 5.24 s |
+| CPU seconds per GB | **8.8** | 9.7 | 48.4 | 60.6 | 31.0 |
+| Peak RSS | 360 MB | 272 MB | 540 MB | 546 MB | 50 MB |
+| Reads that finished | 6 of 6 | 6 of 6 | 6 of 6 | 6 of 6 | 6 of 6 |
 
-The AltMount mean is computed over the two reads that finished. Four of six did not.
+Per repetition, in MB/s. The first repetition is not representative of anything and is included because leaving it out would be dishonest.
 
-Per repetition in MB/s. `FAILED` is a read that did not deliver the bytes it promised.
+| rep | zurg | AltMount | InfiniDysk | nzbdav | decypharr |
+|---|---|---|---|---|---|
+| 0 | 20.50 | 33.96 | 13.71 | 15.46 | 9.31 |
+| 1 | 35.81 | 27.62 | 21.99 | 17.68 | 3.14 |
+| 2 | 47.08 | 27.04 | 16.40 | 18.54 | 9.32 |
+| 3 | 36.30 | 28.91 | 13.11 | 19.16 | 5.68 |
+| 4 | 40.44 | 36.53 | 23.52 | 17.34 | 8.35 |
+| 5 | 39.10 | 28.19 | 26.38 | 17.80 | 13.86 |
 
-| rep | offset | zurg | AltMount | InfiniDysk | nzbdav | decypharr |
-|---|---|---|---|---|---|---|
-| 0 | 1.5 GB | 49.35 | FAILED | 24.89 | 18.44 | 8.66 |
-| 1 | 2.3 GB | 52.03 | FAILED | 27.09 | 19.03 | 10.35 |
-| 2 | 3.1 GB | 50.56 | FAILED | 24.59 | 18.41 | 15.81 |
-| 3 | 3.9 GB | 43.28 | 39.35 | 23.98 | 17.71 | 12.39 |
-| 4 | 4.7 GB | 46.46 | FAILED | 26.23 | 18.49 | 16.31 |
-| 5 | 5.5 GB | 48.83 | 33.95 | 26.71 | 19.00 | 14.09 |
+Every target finished every read this round. Round 4 had one target truncating four of six.
 
-Source is `results/round4/results_six4.json` and `results/round4/six4.log`.
+The CPU spread is wider than the throughput spread and gets less attention than it deserves. InfiniDysk and nzbdav spend 48 and 61 CPU seconds per GB against zurg's 8.8, for less than half the throughput. On a two core box that is a real ceiling.
+
+Source is `results/round7/results_six7.json` and `results/round7/six7.log`.
 
 ## Latency
 
-What pressing play and seeking and scanning actually feel like. Each shape runs against a freshly started server so nothing is warm.
-
-| seconds, lower is better | zurg | InfiniDysk | AltMount | decypharr | nzbdav |
+| | zurg | InfiniDysk | AltMount | nzbdav | decypharr |
 |---|---|---|---|---|---|
-| Cold open, first MB | **0.301** | 1.328 | 1.722 | 3.496 | 5.299 |
-| Time to first byte | **0.350** | 1.122 | 0.436 | 2.479 | 2.366 |
-| Scrub, median of 8 x 2 MB | **0.396** | 0.604 | 0.493 | 2.499 | 2.302 |
-| Warm re-read, 64 MB | 0.098 | 4.977 | 1.548 | **0.065** | 6.637 |
-| ffprobe over HTTP | **1.33** | 2.72 | 2.70 | 4.09 | 3.82 |
-| Large read MB/s | 24.20 | 14.55 | **24.38** | 17.73 | 9.10 |
-| RSS, MB | 437 | 949 | 225 | **53** | 439 |
+| Cold open, first MB | **0.55 s** | 0.777 s | 2.591 s | 4.983 s | 5.413 s |
+| Time to first byte | 0.257 s | **0.077 s** | 2.616 s | 1.409 s | 3.647 s |
+| Large sequential read | 21.03 MB/s | 19.03 MB/s | **22.48 MB/s** | 8.54 MB/s | 12.70 MB/s |
+| Warm re-read | 0.079 s | 0.496 s | 1.533 s | 6.48 s | **0.068 s** |
+| Scrub, median of 8 | 0.801 s | **0.492 s** | 0.521 s | 2.187 s | 3.768 s |
+| Full ffprobe | **2.42 s** | 4.00 s | 6.92 s | 4.69 s | 10.60 s |
+| RSS | 475 MB | 856 MB | 228 MB | 479 MB | 51 MB |
 
-Cold open is the number that matters when someone presses play. The gap there is 4.4x between first and second place.
+Nine point eight times separates the fastest cold open from the slowest. That is the number a viewer feels when they press play.
 
-Three of the five are slower re-reading a range than reading it the first time. That is what a missing cache looks like. It costs on every Plex rescan.
+InfiniDysk is much closer here than it is on throughput, and that is coherent rather than contradictory. Latency is one round trip. Sustained throughput is where a connection budget shows up, and this round took its budget down from an effective 50 to the same 20 as everyone else.
 
-Source is `results/round4/results_latency_r4.json`.
+One result to treat with suspicion rather than quote. nzbdav's warm re-read of 6.48 s is slower than its own cold open of 4.98 s. That should not happen and it has not been reproduced.
 
-## Plex press play and next episode
-
-This is the part a viewer actually experiences. The measurement runs through the real Plex web application driven over the Chrome DevTools Protocol. It is not a synthetic HTTP read.
-
-Two numbers per repetition. `press play` is from clicking an episode's Play control to the first rendered frame. `next episode` is from clicking the player's Next control to the first rendered frame of the following episode.
-
-Each repetition uses an untouched pair of episodes so nothing is ever served warm. Four pairs were used. E01 to E02 then E03 to E04 then E05 to E06 then E09 to E10.
-
-| seconds, lower is better | zurg | AltMount | nzbdav | decypharr | InfiniDysk |
-|---|---|---|---|---|---|
-| Press play, mean | **3.43** | 4.37 | 5.49 | 5.52 | 5.83 |
-| Press play, median | **3.36** | 4.54 | 5.24 | 5.56 | 5.55 |
-| Press play, min to max | 3.22-3.76 | 3.36-5.02 | 4.82-6.64 | 4.68-6.32 | 5.18-7.04 |
-| Next episode, mean | **4.19** | 5.26 | 5.94 | 5.57 | 5.92 |
-| Next episode, median | **3.93** | 4.51 | 5.56 | 5.06 | 5.68 |
-| Next episode, min to max | 2.42-6.49 | 4.24-7.76 | 4.45-8.20 | 3.61-8.04 | 5.22-7.10 |
-| Repetitions completed | 4 of 4 | 4 of 4 | 4 of 4 | 3 of 4 | 4 of 4 |
-
-Every repetition on every server direct-streamed the video. Plex reported `video=copy audio=transcode` in every one of the 19 completed repetitions and for both episodes in each. The video was never re-encoded. So these numbers measure the backend and not the transcoder. The constant audio transcode cost is present in every cell and cancels out of the comparison.
-
-The one decypharr repetition that is missing was a harness fault and not a server fault. The episode row had not refreshed from Resume back to Play in time.
-
-Source is `results/round4/plex_ttp_*.json`.
+Source is `results/round7/results_latency_r7.json`.
 
 ## Damaged article and obfuscated release and multi-volume RAR
 
-Three behaviour phases run from `corpus5b.py` through `chain3.sh`. They ask what a server does when the content is not clean.
+Three behaviour phases run from `corpus5b.py` through `chain7.sh`. They ask what a server does when the content is not clean.
 
 - **damage** reads 4 MB at offset 80 MB of a release where one article is gone from the server. The question is whether the server repairs the hole or zero-fills it or truncates or refuses the file.
 - **obfuscated** reads 8 MB at offset 400 MB of a fully obfuscated release. The question is whether the server can identify the video at all when every filename is a hash.
 - **rar** reads 16 MB at offset 100 MB inside a multi-volume RAR set. The question is whether the server can stream out of the archive without extracting it.
 
-`reprobe_r4.py` re-runs the same probes and selects the release by name. Use that one. See the harness gotchas below for why.
+**Use `reprobe_r7.py` and not the phase output.** It re-runs the same probes, selects the release by exact name and selects the largest non-sample video inside it. The phase output picks whatever appeared in the listing during the import and picks the first video it finds, and both of those produced wrong numbers in this round. See the harness corrections below.
 
 ### Damaged article
 
-One article of 1669 is gone from the news server. That is roughly 40 seconds of
-film. The read is 4 MB at offset 80 MB and it lands on the hole. Every server was
-read once immediately and then again every two minutes.
+One article of 1669 is gone from the news server. That is roughly 40 seconds of film. The read is 4 MB at offset 80 MB and it lands on the hole. Every server was read once immediately and then again every two minutes for eight minutes, staying up throughout.
 
-| | first read | then what |
-|---|---|---|
-| **zurg** | silence in 0.01 s | **Repairs it.** The span came back real at the four minute re-read. PAR2 rebuilt it in the background while reads were still being served |
-| AltMount | silence in 0.01 s | Zero-fills permanently. Byte-identical silence at 2 and 4 and 6 and 8 minutes |
-| InfiniDysk | silence in 0.97 s | Zero-fills permanently. Same md5 at every re-read |
-| decypharr | HTTP 206 with zero bytes in 4.70 s | Never recovers. Still zero bytes at 8 minutes |
-| nzbdav | HTTP 404 in 6.73 s | Refuses the whole file |
+| | first read | t+2 | t+4 | t+6 | t+8 | verdict |
+|---|---|---|---|---|---|---|
+| **zurg** | silence | silence | **real** | **real** | **real** | **Repairs it.** PAR2 rebuilt the span in the background while reads were still being served |
+| AltMount | silence | silence | silence | silence | silence | Zero-fills permanently, with repair enabled |
+| InfiniDysk | silence | silence | silence | silence | silence | Zero-fills permanently, with repair and PAR2 enabled |
+| decypharr | 206 with zero bytes | same | same | same | same | Never recovers, with repair enabled and a schedule that fires |
+| nzbdav | HTTP 404 | 404 | 404 | 404 | 404 | Refuses the whole file. It has no repair feature |
 
-zurg is the only one of the five that rebuilds the missing span. The others route
-around the damage or give up.
+zurg is the only one of the five that rebuilds the missing span.
 
-A single read at t0 cannot tell repair apart from permanent zero-fill. Both answer
-silence. Only the re-read separates them. The md5 `b5cfa9d6c8febd618f91ac2843d50a1c`
-is the md5 of 4 MB of zeros. It appears on three servers at t0 and stays on two of
-them forever.
+This is the same result round 4 reported and it is now a much stronger claim. In round 4 two of the four others had repair switched off, so the finding was partly about configuration. This round they were switched on, decypharr was given a schedule that fires inside the window, and all five held the same 20 connections. Nothing else repaired.
 
-Source is `results/round4/results_rar_damage_r4.json`.
+A single read at t0 cannot tell repair apart from permanent zero-fill. Both answer silence. Only the re-read separates them.
+
+Source is `results/round7/results_damage_timeline_r7.json`.
 
 ### Obfuscated release
 
 Every filename in the release is a hash. The read is 8 MB at offset 400 MB.
 
-| | result | MB/s |
+| | serves the video | how the listing looks |
 |---|---|---|
-| **zurg** | 206 with all 8 MB | **10.97** |
-| AltMount | 206 with all 8 MB | 4.20 |
-| InfiniDysk | 206 with all 8 MB | 1.24 |
-| nzbdav | 206 with all 8 MB | 0.56 |
-| decypharr | release absent from the listing | n/a |
+| **zurg** | 206 with all 8 MB | **clean.** The real filename and a thumbnail and nothing else |
+| AltMount | 206 with all 8 MB | real filename, plus a duplicate `..._1.mkv` |
+| InfiniDysk | 206 with all 8 MB | names the file after the NZB rather than the content, and leaves 5 raw hashed blobs visible |
+| nzbdav | 206 with all 8 MB | recovers the real filename but leaves 5 raw hashed blobs visible |
+| decypharr | release absent from the listing | never imported it |
 
-Four of five identify the video behind the hashed names and stream it. decypharr
-never imported the release at all.
+Four of five identify the video behind the hashed names and stream it. decypharr never imported the release at all, and that has now reproduced in every round it has been tried in.
 
-Source is `results/round4/results_reprobe_r4.json`.
+Only zurg produces a listing a media server can scan without tripping over the leftovers.
+
+Source is `results/round7/results_reprobe_r7.json`.
 
 ### Multi-volume RAR
 
-A 13 part RAR set with obfuscated volume names. The read is 16 MB at offset 100 MB
-inside the archive. No extraction.
+A 13 part RAR set with obfuscated volume names. The read is 16 MB at offset 100 MB inside the archive. No extraction.
 
-| | result | MB/s | preserves archive structure |
-|---|---|---|---|
-| **zurg** | 206 with all 16 MB | **9.13** | yes, including `Sample/` |
-| decypharr | 206 with all 16 MB | 7.19 | no, flattened to one concatenated name |
-| nzbdav | 206 with all 16 MB | 3.70 | yes |
-| InfiniDysk | 206 with all 16 MB | 3.14 | yes |
-| AltMount | release directory empty | n/a | n/a |
+All five serve it. All five return the same md5 for the same range. The difference is entirely in how they present it.
 
-The four that serve it all advertise the same content length of 321905886 bytes.
-That is the byte identity check for this phase.
+| | result | preserves the archive's structure |
+|---|---|---|
+| **zurg** | 206 with all 16 MB | **yes, completely.** Nested release directory, `Sample/`, the `.nfo` and both `.url` files |
+| nzbdav | 206 with all 16 MB | yes, except the `.nfo` is missing |
+| InfiniDysk | 206 with all 16 MB | no, flattened to `FatherBrown.mp4` |
+| AltMount | 206 with all 16 MB | no, flattened, and it emits a stray `8-FatherBrown.mp4` alongside |
+| decypharr | 206 with all 16 MB | no, flattened to one concatenated name `Father.Brown.2013.S02E05.HDTV.x264-TLAfather.brown.2013.s02e05.hdtv.x264-tla.mp4` |
 
-Source is `results/round4/results_rar_damage_r4.json`.
+The reference for this is what SABnzbd would have written to disk. It decompresses archives including nested ones, it hides PAR2 files, and the filenames are the ones inside the archive. No server here shows a PAR2 file, so all five meet that part. On the rest, zurg's output is the one that matches.
+
+Source is `results/round7/results_reprobe_r7_rar.json`.
 
 ## Findings
 
-**zurg leads on every speed measurement in this round.** 48.42 MB/s mean throughput with 6 of 6 reads complete. 0.301 s cold open. 3.43 s to press play through Plex and 4.19 s to the next episode. Its CPU cost of 7.6 seconds per GB is within noise of the cheapest.
+**zurg leads on throughput and on cold open and on CPU cost, at equal connections.** 36.54 MB/s mean with 6 of 6 reads complete, a 0.55 s cold open, and 8.8 CPU seconds per GB. The margins are narrower than round 4 reported, and part of that is real improvement by others rather than any change in zurg.
 
-**One server truncates its first long read after a restart.** The response is an HTTP 206 carrying the full Content-Length. The socket then closes partway through. curl exits 18 and 95.6 MB of the promised 256 MB arrive. Four of six reads in the throughput run failed this way. A dedicated probe in `results/round4/results_amcold.json` isolates the cause. Three of four cold reads completed. Four of four completed when an 8 MB warm-up read preceded the large one. The first read after every restart is the one at risk.
+**zurg is the only one of five that repairs a damaged release, and this round proves it properly.** Repair was enabled on every target that has the feature and the other three still zero-filled or refused for the full eight minutes.
 
-**One server silently discarded a healthy episode at import.** Importing a ten episode season it imported nine. Its log recorded `Skipping file due to early fast-fail segment check error` against episode 7. The other four servers imported all ten and agreed byte for byte on every size including that episode. A direct NNTP probe of episode 7 found all 68 sampled articles present. That sample included the first 8 articles which are exactly what a fast-fail check would look at. Its first segment returned 739244 bytes of real body. The file was not damaged. Nothing warned that it had been dropped. It simply was not in the listing.
+**Connection budgets were not equal in earlier rounds and nobody had checked.** One target was reading on an effective 50 connections while two were reading on 15. Anyone repeating this work should set both settings on every target and verify them after the servers start rather than trusting the config file.
 
-**The same server removed a second healthy release, and this one was measured exhaustively.** The multi-volume RAR release is served by the other four. On this one its directory is empty. Its own health API records the file as `corrupted` with `missing_articles: 1` of `total_articles: 848`. Every one of the 1010 articles in that NZB was then checked individually with NNTP STAT. All 1010 are present. Zero are missing. The detection is a false positive and the cost of it is the whole release rather than one span.
+**decypharr never imports the obfuscated release.** Absent from the listing rather than present and broken. It has reproduced every time.
 
-**One server never imported the obfuscated release at all.** It is absent from the listing rather than present and broken.
+**Presentation differs more than throughput does.** Three of five flatten a RAR release's internal structure, two leave undeobfuscated blobs in the listing, and one emits duplicate video files that would make a media server import the same episode twice.
 
-The full per episode size table is in `results/round4/results_plex_stage.json`.
+## Harness corrections
+
+Three bugs in this harness each produced a wrong number before being caught in this round. Two of them produced numbers that were wrong against zurg. They are listed here because a benchmark that hides its own errors is not worth reading.
+
+**Settle declared the library complete while imports were still running.** It waited for the WebDAV listing to stop changing for 90 seconds. At 20 connections InfiniDysk publishes one release and then takes longer than that to fetch the next release's first segments, so the detector called the library finished with 1 of 5 releases in it and the read that followed returned 0 bytes. Round 6 never saw this because it ran that target on 50 connections where the gaps were short. Settle now also requires the import queue to have drained.
+
+**The behaviour phases slept a fixed 55 seconds after an import.** That is a guess about connection count wearing a timer's clothes. It now polls for the release to appear or for the queue to drain, and reports how long that took, which is a useful number in itself. Actual import waits this round were 10 to 20 seconds.
+
+**Release and file selection picked the wrong thing twice.** The phase output picks whatever appeared in the listing during the import, so a late arriving unrelated release gets probed instead. And the re-probe picked the first video in the listing, which on a server that preserves `Sample/` is a 9.1 MB sample clip. A 16 MB read at offset 100 MB of a 9.1 MB file is a correct HTTP 416 and it reads as a server failure. Round 4 documented this trap in prose and no code ever implemented it. `reprobe_r7.py` now selects the release by exact name and the largest non-sample video inside it.
+
+## Not measured in this round
+
+**Plex press play and next episode.** Round 4 measured these through the real Plex web app over the DevTools Protocol. The browser host was unavailable when this round ran. The round 4 numbers are in `results/round4/plex_ttp_*.json` and they are not comparable to this round because the provider server differs.
+
+**Import and directory structure as a scored phase.** The tree phase needs a clean re-run under the corrected settle. Its raw per target listings are in `results/round7/` and the RAR and obfuscated structure findings above are taken from those listings, which are sound. What is not yet sound is import timing and completeness.
 
 ## Corpus
 
-`corpus/corpus.7z` holds the five NZBs the run used. It is a 7-Zip archive with encrypted headers. The password is `dmmbench`.
+`corpus/corpus.7z` holds the NZBs the run used. It is a 7-Zip archive with encrypted headers. The password is `dmmbench`.
 
 The password is not access control. The password is published right here. The archive exists so release names and message ids stay out of search indexes and automated scrapers. Anyone who wants the corpus can have it.
 
@@ -210,6 +223,8 @@ The password is not access control. The password is published right here. The ar
 | Bosch.S01.nzb | 20 | 32870 | 24290014587 | `c9b60371473825b0` |
 
 `corpus/manifest.json` carries the same table in machine readable form. `stat_probe.py` will tell you whether a given NZB is still retrievable from your provider before you waste a run on it.
+
+Provider spool quality is not uniform and it decides what the damage phase can even claim. On the account this round used, a sample of the twelve most damaged releases in a production library found 61.5 percent of content articles dead against 6.0 percent on a different backbone. Every NZB in this corpus was checked as fully retrievable before the run. Four other candidates were rejected for this reason and are not in the corpus.
 
 ## Reproducing this
 
@@ -231,6 +246,7 @@ Every credential in this repository is a placeholder. Nothing here is live. Repl
 | `config/decyrun/config.json` | `YOUR_USENET_USERNAME`, `YOUR_USENET_PASSWORD` |
 | `config/altmount/config.yaml` | `YOUR_USENET_USERNAME`, `YOUR_USENET_PASSWORD` |
 | `config/infinidysk.env.json` | `YOUR_USENET_USERNAME`, `YOUR_USENET_PASSWORD` |
+| `harness/prep-r7.sh` | `YOUR_USENET_USERNAME`, `YOUR_USENET_PASSWORD` |
 | `harness/stat_probe.py` | `YOUR_USENET_USERNAME`, `YOUR_USENET_PASSWORD` |
 | `harness/stat_one.py` | `YOUR_USENET_USERNAME`, `YOUR_USENET_PASSWORD` |
 | `harness/plex/plex_ttp3.py` | `YOUR_PLEX_HOST`, `YOUR_PLEX_TOKEN`, `YOUR_PLEX_MACHINE_IDENTIFIER` |
@@ -238,76 +254,80 @@ Every credential in this repository is a placeholder. Nothing here is live. Repl
 
 The provider hostname is `news.news-provider.example` everywhere. Replace it with your own.
 
-Paths are absolute and assume the layout the run used. `BENCH` in `bench5.py` and the paths in `plexmnt.sh` and `chain3.sh` will need to match wherever you put this.
+Paths are absolute and assume the layout the run used. `BENCH` in `bench5.py` and the paths in `plexmnt.sh` and `chain7.sh` will need to match wherever you put this.
 
 ### Run the phases
 
 ```bash
+# build every target from its main HEAD and record the commits
+./build-r7.sh
+
+# install the builds, set 20 connections everywhere, enable repair, create containers
+./prep-r7.sh
+
+# the whole round in order
+./chain7.sh
+```
+
+Or one phase at a time.
+
+```bash
 # throughput: tag, MB per read, base offset, gap in GB, reps, targets
-python3 bench5.py six4 256 1500000000 0.8 6 zurg,decypharr,altmount,infinidysk,nzbdav-og
+python3 bench5.py six7 256 1500000000 0.8 6 zurg,decypharr,altmount,infinidysk,nzbdav-og
 
 # latency: cold open, TTFB, scrub, warm re-read, ffprobe
-python3 phase2_5r4.py zurg,decypharr,altmount,infinidysk,nzbdav-og
+python3 phase2_5r7.py zurg,decypharr,altmount,infinidysk,nzbdav-og
 
 # behaviour: damage, obfuscated, rar
-./chain3.sh
-python3 reprobe_r4.py          # re-probe selecting the release by name
+python3 corpus5b.py damage zurg,decypharr,altmount,infinidysk,nzbdav-og
 
-# the truncation probe, cold arm against warmed arm
-python3 amcold.py
+# re-probe selecting the release by name and the largest non-sample video. use this one
+python3 reprobe_r7.py
+python3 reprobe_r7.py rar      # a single phase
+
+# does a server rebuild the hole while it stays up
+python3 damage_timeline_r7.py
 
 # is this NZB still retrievable
 python3 stat_probe.py corpus/Bosch.S01.nzb
-python3 stat_one.py corpus/Bosch.S01.nzb S01E07 60
-python3 stat_all.py corpus/FatherBrown.nzb   # every article, no sampling
-
-# summaries
-python3 summary6.py six4.log
 ```
 
-### Run the Plex phase
+### Verify the connection parity before trusting a run
 
-The Plex phase measures a real browser. It needs a Chrome started with `--remote-debugging-port` and reachable at the address in `plex_ttp3.py`.
+This is the step that round 6 skipped and it invalidated a whole round. After `prep-r7.sh`, both settings should read 20 on every target.
 
 ```bash
-./plexmnt.sh zurg              # mount one backend, rebuild the symlink farm
-./plex_all.sh                  # switch backend, remount and measure, per server
-python3 plex_summary.py .      # tabulate
+grep connections zurgrun/config.yml
+grep max_connections altmount/config.yaml
+python3 -c "import json;u=json.load(open('decyrun/config.json'))['usenet'];print(u['max_connections'],u['processing_max_connections'],[p['max_connections'] for p in u['providers']])"
+docker inspect infinidysk-r7 --format '{{json .Config.Env}}' | tr ',' '\n' | grep -i connection
+sqlite3 nzbdav-og/config/db.sqlite "select * from ConfigItems where ConfigName like 'usenet%'"
 ```
-
-`plexmnt.sh` mounts whichever backend is under test at one fixed path and rebuilds a symlink farm above it. Plex therefore sees identical paths whichever server is underneath. That is what lets one library section serve all five backends without a rescan. rclone VFS caching is off on purpose. A disk cache would hide exactly the cold open differences being measured.
 
 ## Harness gotchas
 
-Every item here is a bug that produced a wrong number before it was found. They are the most reusable part of this repository.
+**`corpus5b.py` picks the release under test as whatever appeared in the listing during the import.** That is wrong whenever a server is still loading its library when the baseline listing is taken. A late arriving unrelated release looks new and gets probed instead. Use `reprobe_r7.py` which selects by name.
 
-**Plex media transitions need a trusted click.** A synthetic `element.click()` starts the first episode. The Next control then does nothing at all. It is present and enabled and inert. Switching media requires user activation. Playwright's `.click()` goes through the DevTools Input domain and counts. A JavaScript click does not.
+**The first video in a listing is not the release.** A server that preserves an archive's internal structure lists `Sample/` before the feature. Selecting the first video picks a 9.1 MB sample clip and a large ranged read of it is a correct 416. Select the largest non-sample video.
 
-**Playing from an episode's details page builds a one item play queue.** Next is then present and enabled and useless. Play from the season page's episode row instead. That queues the whole season.
+**A single read cannot tell repair from permanent zero-fill.** Both answer silence at t0. Only a re-read minutes later separates them.
 
-**The Plex web player survives a hash change and a full reload and its own close button.** The overlay it leaves behind swallows pointer events so the next repetition cannot click anything. Every repetition needs a fresh page.
+**Sampling cannot disprove "one article missing".** One server removed a whole release claiming 1 missing of 848. `stat_all.py` checked every article and found 1010 of 1010 present. Use it and not the 3 per file sampler whenever a server blames the content.
 
-**An episode with a resume offset offers Resume and not Play.** Resuming starts mid file. That is not a cold open. Scrobble then unscrobble each episode first to clear the offset.
-
-**A page closed mid playback strands a Plex session.** That session loses its Session id and `terminate` cannot touch it. Only a stopped timeline posted as that player clears it. The harness must also read the session that is playing rather than the first session listed. Otherwise a stale paused session reports the wrong episode and the correctness check passes on the wrong thing.
-
-**`rclone mount --daemon` holds the ssh channel open.** Mounting on a remote host over ssh hangs the caller forever on a mount that actually succeeded. Use `ssh -n` and redirect on the remote side.
-
-**A blanket `find` over the WebDAV mount walks every release.** With virtualised RAR sets in the library that takes minutes. Locate the release directory first and search only inside it. This took one step from several minutes to 0.01 seconds.
-
-**`corpus5b.py` picks the release under test as whatever appeared in the listing during the import.** That is wrong whenever a server is still loading its library when the baseline listing is taken. A late arriving unrelated release looks new and gets probed instead. Use `reprobe_r4.py` which selects by name.
+**A fixed sleep after an import is a guess about connection count.** At 20 connections some targets need far longer than 55 seconds to publish a release. Poll for the release or for the queue to drain.
 
 **decypharr's SABnzbd mock is at `/sabnzbd/api` and the upload field is `name`.** A wrong field returns HTTP 200 with `{"status": false, "error": "No files uploaded"}`. A status code check treats that as success and then waits for an import that never happened.
+
+**`rclone mount --daemon` over ssh never returns.** It holds the ssh channel's stdout open. Use `ssh -n` and redirect on the remote side.
 
 ## Limitations
 
 Read these before quoting any number.
 
-- Single host with 2 cores. A larger box would move the ceiling and might reorder the CPU-bound targets.
-- Single interleaved run. Cross-run comparison is not valid because provider throughput drifts.
-- One news account and one provider. Results on a different backbone may differ.
-- The Plex numbers include an audio transcode in every case because the corpus is E-AC-3 and the browser cannot decode it. The video was direct-streamed every time.
-- The Plex phase used four episode pairs rather than five. Episode 7 was skipped because one server had not imported it.
+- Single host with 2 cores. A larger box would move the ceiling and might reorder the CPU-bound targets. The host also runs Plex and Jellyfin and a game server, which is constant background load across all rounds.
+- Single interleaved run. Cross-round comparison is not valid because provider throughput drifts and because this round used a different server of the same provider than round 4 did.
+- One news account and one provider. Results on a different backbone may differ. This provider's spool is measurably weaker than others available, which bounds what the damage phase can claim.
+- No Plex measurements in this round.
 - zurg is the author's own project. Every number here is reproducible from this repository against your own account. Do that rather than taking this at face value.
 
 ## Layout
@@ -317,6 +337,8 @@ harness/          the benchmark scripts
 harness/plex/     the Plex phase, which runs where the browser is
 config/           the server configs used, credentials replaced
 corpus/           the NZB corpus and its manifest
-results/round4/   this round
-results/round3/   the previous round, for comparison
+results/round7/   this round
+results/round4/   the previous published round
+results/round3/   the round before that
+docs/round4.md    the round 4 report
 ```

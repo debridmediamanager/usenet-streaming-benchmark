@@ -1,0 +1,337 @@
+[
+ {
+  "target": "zurg",
+  "reads": [
+   {
+    "curl_exit": 0,
+    "http": "206",
+    "bytes": 4194304,
+    "asked": 4194304,
+    "complete": true,
+    "s": 0.01,
+    "MBps": 503.58,
+    "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+    "all_zero": true,
+    "t": 0.0
+   },
+   {
+    "curl_exit": 0,
+    "http": "206",
+    "bytes": 4194304,
+    "asked": 4194304,
+    "complete": true,
+    "s": 0.01,
+    "MBps": 304.4,
+    "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+    "all_zero": true,
+    "t": 2.0
+   },
+   {
+    "curl_exit": 0,
+    "http": "206",
+    "bytes": 4194304,
+    "asked": 4194304,
+    "complete": true,
+    "s": 0.02,
+    "MBps": 278.64,
+    "md5": "64129aacaf7f58d8225fc8a46898ec08",
+    "all_zero": false,
+    "t": 4.01
+   },
+   {
+    "curl_exit": 0,
+    "http": "206",
+    "bytes": 4194304,
+    "asked": 4194304,
+    "complete": true,
+    "s": 0.01,
+    "MBps": 369.25,
+    "md5": "64129aacaf7f58d8225fc8a46898ec08",
+    "all_zero": false,
+    "t": 6.01
+   },
+   {
+    "curl_exit": 0,
+    "http": "206",
+    "bytes": 4194304,
+    "asked": 4194304,
+    "complete": true,
+    "s": 0.01,
+    "MBps": 423.24,
+    "md5": "64129aacaf7f58d8225fc8a46898ec08",
+    "all_zero": false,
+    "t": 8.01
+   }
+  ],
+  "video": "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+  "content_length": 6608994141
+ },
+ {
+  "target": "decypharr",
+  "reads": [
+   {
+    "curl_exit": 18,
+    "http": "206",
+    "bytes": 0,
+    "asked": 4194304,
+    "complete": false,
+    "s": 5.48,
+    "MBps": 0,
+    "md5": null,
+    "all_zero": null,
+    "t": 0.09
+   },
+   {
+    "curl_exit": 18,
+    "http": "206",
+    "bytes": 0,
+    "asked": 4194304,
+    "complete": false,
+    "s": 3.5,
+    "MBps": 0,
+    "md5": null,
+    "all_zero": null,
+    "t": 2.15
+   },
+   {
+    "curl_exit": 18,
+    "http": "206",
+    "bytes": 0,
+    "asked": 4194304,
+    "complete": false,
+    "s": 3.5,
+    "MBps": 0,
+    "md5": null,
+    "all_zero": null,
+    "t": 4.21
+   },
+   {
+    "curl_exit": 18,
+    "http": "206",
+    "bytes": 0,
+    "asked": 4194304,
+    "complete": false,
+    "s": 3.5,
+    "MBps": 0,
+    "md5": null,
+    "all_zero": null,
+    "t": 6.27
+   },
+   {
+    "curl_exit": 18,
+    "http": "206",
+    "bytes": 0,
+    "asked": 4194304,
+    "complete": false,
+    "s": 3.5,
+    "MBps": 0,
+    "md5": null,
+    "all_zero": null,
+    "t": 8.33
+   }
+  ],
+  "video": "ToyStory5Damaged.mkv",
+  "content_length": 6608994141
+ },
+ {
+  "target": "altmount",
+  "reads": [
+   {
+    "curl_exit": 0,
+    "http": "206",
+    "bytes": 4194304,
+    "asked": 4194304,
+    "complete": true,
+    "s": 0.01,
+    "MBps": 336.68,
+    "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+    "all_zero": true,
+    "t": 0.0
+   },
+   {
+    "curl_exit": 0,
+    "http": "206",
+    "bytes": 4194304,
+    "asked": 4194304,
+    "complete": true,
+    "s": 0.01,
+    "MBps": 414.54,
+    "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+    "all_zero": true,
+    "t": 2.0
+   },
+   {
+    "curl_exit": 0,
+    "http": "206",
+    "bytes": 4194304,
+    "asked": 4194304,
+    "complete": true,
+    "s": 0.02,
+    "MBps": 275.81,
+    "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+    "all_zero": true,
+    "t": 4.01
+   },
+   {
+    "curl_exit": 0,
+    "http": "206",
+    "bytes": 4194304,
+    "asked": 4194304,
+    "complete": true,
+    "s": 0.02,
+    "MBps": 244.32,
+    "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+    "all_zero": true,
+    "t": 6.01
+   },
+   {
+    "curl_exit": 0,
+    "http": "206",
+    "bytes": 4194304,
+    "asked": 4194304,
+    "complete": true,
+    "s": 0.01,
+    "MBps": 410.24,
+    "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+    "all_zero": true,
+    "t": 8.01
+   }
+  ],
+  "video": "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+  "content_length": 6608994141
+ },
+ {
+  "target": "infinidysk",
+  "reads": [
+   {
+    "curl_exit": 0,
+    "http": "206",
+    "bytes": 4194304,
+    "asked": 4194304,
+    "complete": true,
+    "s": 0.98,
+    "MBps": 4.3,
+    "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+    "all_zero": true,
+    "t": 0.02
+   },
+   {
+    "curl_exit": 0,
+    "http": "206",
+    "bytes": 4194304,
+    "asked": 4194304,
+    "complete": true,
+    "s": 0.03,
+    "MBps": 155.23,
+    "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+    "all_zero": true,
+    "t": 2.02
+   },
+   {
+    "curl_exit": 0,
+    "http": "206",
+    "bytes": 4194304,
+    "asked": 4194304,
+    "complete": true,
+    "s": 0.02,
+    "MBps": 249.02,
+    "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+    "all_zero": true,
+    "t": 4.02
+   },
+   {
+    "curl_exit": 0,
+    "http": "206",
+    "bytes": 4194304,
+    "asked": 4194304,
+    "complete": true,
+    "s": 0.01,
+    "MBps": 326.08,
+    "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+    "all_zero": true,
+    "t": 6.03
+   },
+   {
+    "curl_exit": 0,
+    "http": "206",
+    "bytes": 4194304,
+    "asked": 4194304,
+    "complete": true,
+    "s": 0.01,
+    "MBps": 471.43,
+    "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+    "all_zero": true,
+    "t": 8.03
+   }
+  ],
+  "video": "ToyStory5Damaged.mkv",
+  "content_length": 6608994141
+ },
+ {
+  "target": "nzbdav-og",
+  "reads": [
+   {
+    "curl_exit": 0,
+    "http": "404",
+    "bytes": 0,
+    "asked": 4194304,
+    "complete": false,
+    "s": 2.18,
+    "MBps": 0,
+    "md5": null,
+    "all_zero": null,
+    "t": 0.04
+   },
+   {
+    "curl_exit": 0,
+    "http": "404",
+    "bytes": 0,
+    "asked": 4194304,
+    "complete": false,
+    "s": 1.77,
+    "MBps": 0,
+    "md5": null,
+    "all_zero": null,
+    "t": 2.07
+   },
+   {
+    "curl_exit": 0,
+    "http": "404",
+    "bytes": 0,
+    "asked": 4194304,
+    "complete": false,
+    "s": 1.96,
+    "MBps": 0,
+    "md5": null,
+    "all_zero": null,
+    "t": 4.1
+   },
+   {
+    "curl_exit": 0,
+    "http": "404",
+    "bytes": 0,
+    "asked": 4194304,
+    "complete": false,
+    "s": 1.98,
+    "MBps": 0,
+    "md5": null,
+    "all_zero": null,
+    "t": 6.14
+   },
+   {
+    "curl_exit": 0,
+    "http": "404",
+    "bytes": 0,
+    "asked": 4194304,
+    "complete": false,
+    "s": 1.81,
+    "MBps": 0,
+    "md5": null,
+    "all_zero": null,
+    "t": 8.17
+   }
+  ],
+  "video": "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+  "content_length": 6608994141
+ }
+]
