@@ -1,0 +1,879 @@
+{
+ "targets": [
+  {
+   "target": "zurg",
+   "label": "zurg",
+   "dav_root": "http://localhost:9998/dav/all/",
+   "namespace": [
+    "__all__",
+    "__downloads__",
+    "__nzb__",
+    "__unplayable__",
+    "all",
+    "version.txt"
+   ],
+   "settle_s": 111,
+   "ready_s": 8,
+   "imports_accepted": 5,
+   "imports_total": 5,
+   "refused": [],
+   "tree_report": "7 directories, 21 files",
+   "native_tree_report": "28 directories, 64 files",
+   "entries_total": 28,
+   "releases": {
+    "ToyStory5": {
+     "present": true,
+     "files": 2,
+     "dirs": 1,
+     "max_depth": 2,
+     "videos": [
+      "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv"
+     ],
+     "video_n": 1,
+     "expected_video_n": 1,
+     "original_names": 1,
+     "names_preserved": true,
+     "renamed": [],
+     "welded_names": [],
+     "empty_dirs": [],
+     "classes": {
+      "image": 1,
+      "video": 1
+     },
+     "read": {
+      "bytes": 8388608,
+      "complete": true,
+      "all_zero": false,
+      "MBps": 2.99,
+      "file": "ToyStory5/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv"
+     }
+    },
+    "Obfuscated": {
+     "present": true,
+     "files": 2,
+     "dirs": 1,
+     "max_depth": 2,
+     "videos": [
+      "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv"
+     ],
+     "video_n": 1,
+     "expected_video_n": 1,
+     "original_names": 1,
+     "names_preserved": true,
+     "renamed": [],
+     "welded_names": [],
+     "empty_dirs": [],
+     "classes": {
+      "image": 1,
+      "video": 1
+     },
+     "read": {
+      "bytes": 8388608,
+      "complete": true,
+      "all_zero": false,
+      "MBps": 2.82,
+      "file": "Obfuscated/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv"
+     }
+    },
+    "FatherBrown": {
+     "present": true,
+     "files": 5,
+     "dirs": 3,
+     "max_depth": 4,
+     "videos": [
+      "father.brown.2013.s02e05.hdtv.x264-tla.mp4"
+     ],
+     "video_n": 1,
+     "expected_video_n": 1,
+     "original_names": 1,
+     "names_preserved": true,
+     "renamed": [],
+     "welded_names": [],
+     "empty_dirs": [],
+     "classes": {
+      "sample": 1,
+      "video": 1,
+      "junk": 3
+     },
+     "read": {
+      "bytes": 8388608,
+      "complete": true,
+      "all_zero": false,
+      "MBps": 4.58,
+      "file": "FatherBrown/Father.Brown.2013.S02E05.HDTV.x264-TLA/father.brown.2013.s02e05.hdtv.x264-tla.mp4"
+     }
+    },
+    "MandaloriaREMUX": {
+     "present": true,
+     "files": 2,
+     "dirs": 1,
+     "max_depth": 2,
+     "videos": [
+      "The.Mandalorian.and.Grogu.2026.iNTERNAL.BluRay.1080p.MULTi.REMUX.AVC.DTS-HD.MA.7.1-Aisha.mkv"
+     ],
+     "video_n": 1,
+     "expected_video_n": 1,
+     "original_names": 1,
+     "names_preserved": true,
+     "renamed": [],
+     "welded_names": [],
+     "empty_dirs": [],
+     "classes": {
+      "video": 1,
+      "image": 1
+     },
+     "read": {
+      "bytes": 8388608,
+      "complete": true,
+      "all_zero": false,
+      "MBps": 3.25,
+      "file": "MandaloriaREMUX/The.Mandalorian.and.Grogu.2026.iNTERNAL.BluRay.1080p.MULTi.REMUX.AVC.DTS-HD.MA.7.1-Aisha.mkv"
+     }
+    },
+    "Bosch.S01": {
+     "present": true,
+     "files": 10,
+     "dirs": 1,
+     "max_depth": 2,
+     "videos": [
+      "Bosch.S01E01.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E02.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E03.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E04.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E05.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E06.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E07.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E08.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E09.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E10.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv"
+     ],
+     "video_n": 10,
+     "expected_video_n": 10,
+     "original_names": 10,
+     "names_preserved": true,
+     "renamed": [],
+     "welded_names": [],
+     "empty_dirs": [],
+     "classes": {
+      "video": 10
+     },
+     "read": {
+      "bytes": 8388608,
+      "complete": true,
+      "all_zero": false,
+      "MBps": 2.36,
+      "file": "Bosch.S01/Bosch.S01E01.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv"
+     }
+    }
+   },
+   "published": 5,
+   "served": 5
+  },
+  {
+   "target": "altmount",
+   "label": "AltMount",
+   "dav_root": "http://localhost:8081/webdav/complete/",
+   "namespace": [
+    "complete"
+   ],
+   "settle_s": 121,
+   "ready_s": 8,
+   "imports_accepted": 5,
+   "imports_total": 5,
+   "refused": [],
+   "tree_report": "4 directories, 4 files",
+   "native_tree_report": null,
+   "entries_total": 8,
+   "releases": {
+    "ToyStory5": {
+     "present": true,
+     "files": 1,
+     "dirs": 1,
+     "max_depth": 2,
+     "videos": [
+      "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv"
+     ],
+     "video_n": 1,
+     "expected_video_n": 1,
+     "original_names": 1,
+     "names_preserved": true,
+     "renamed": [],
+     "welded_names": [],
+     "empty_dirs": [],
+     "classes": {
+      "video": 1
+     },
+     "read": {
+      "bytes": 8388608,
+      "complete": true,
+      "all_zero": false,
+      "MBps": 1.41,
+      "file": "ToyStory5/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv"
+     }
+    },
+    "Obfuscated": {
+     "present": true,
+     "files": 1,
+     "dirs": 1,
+     "max_depth": 2,
+     "videos": [
+      "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv"
+     ],
+     "video_n": 1,
+     "expected_video_n": 1,
+     "original_names": 1,
+     "names_preserved": true,
+     "renamed": [],
+     "welded_names": [],
+     "empty_dirs": [],
+     "classes": {
+      "video": 1
+     },
+     "read": {
+      "bytes": 8388608,
+      "complete": true,
+      "all_zero": false,
+      "MBps": 2.09,
+      "file": "Obfuscated/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv"
+     }
+    },
+    "FatherBrown": {
+     "present": true,
+     "files": 1,
+     "dirs": 1,
+     "max_depth": 2,
+     "videos": [
+      "FatherBrown.mp4"
+     ],
+     "video_n": 1,
+     "expected_video_n": 1,
+     "original_names": 0,
+     "names_preserved": false,
+     "renamed": [
+      "FatherBrown.mp4"
+     ],
+     "welded_names": [
+      "FatherBrown.mp4"
+     ],
+     "empty_dirs": [],
+     "classes": {
+      "video": 1
+     },
+     "read": {
+      "bytes": 8388608,
+      "complete": true,
+      "all_zero": false,
+      "MBps": 2.27,
+      "file": "FatherBrown/FatherBrown.mp4"
+     }
+    },
+    "MandaloriaREMUX": {
+     "present": true,
+     "files": 1,
+     "dirs": 1,
+     "max_depth": 2,
+     "videos": [
+      "The.Mandalorian.and.Grogu.2026.iNTERNAL.BluRay.1080p.MULTi.REMUX.AVC.DTS-HD.MA.7.1-Aisha.mkv"
+     ],
+     "video_n": 1,
+     "expected_video_n": 1,
+     "original_names": 1,
+     "names_preserved": true,
+     "renamed": [],
+     "welded_names": [],
+     "empty_dirs": [],
+     "classes": {
+      "video": 1
+     },
+     "read": {
+      "bytes": 8388608,
+      "complete": true,
+      "all_zero": false,
+      "MBps": 1.91,
+      "file": "MandaloriaREMUX/The.Mandalorian.and.Grogu.2026.iNTERNAL.BluRay.1080p.MULTi.REMUX.AVC.DTS-HD.MA.7.1-Aisha.mkv"
+     }
+    },
+    "Bosch.S01": {
+     "present": false,
+     "read": null
+    }
+   },
+   "published": 4,
+   "served": 4
+  },
+  {
+   "target": "infinidysk",
+   "label": "InfiniDysk",
+   "dav_root": "http://127.0.0.1:8092/content/uncategorized/",
+   "namespace": [
+    ".ids",
+    "README",
+    "completed-symlinks",
+    "content",
+    "nzbs"
+   ],
+   "settle_s": 262,
+   "ready_s": 18,
+   "imports_accepted": 5,
+   "imports_total": 5,
+   "refused": [],
+   "tree_report": "7 directories, 24 files",
+   "native_tree_report": null,
+   "entries_total": 31,
+   "releases": {
+    "ToyStory5": {
+     "present": true,
+     "files": 2,
+     "dirs": 1,
+     "max_depth": 2,
+     "videos": [
+      "ToyStory5.mkv"
+     ],
+     "video_n": 1,
+     "expected_video_n": 1,
+     "original_names": 0,
+     "names_preserved": false,
+     "renamed": [
+      "ToyStory5.mkv"
+     ],
+     "welded_names": [
+      "ToyStory5.mkv"
+     ],
+     "empty_dirs": [],
+     "classes": {
+      "image": 1,
+      "video": 1
+     },
+     "read": {
+      "bytes": 8388608,
+      "complete": true,
+      "all_zero": false,
+      "MBps": 3.34,
+      "file": "ToyStory5/ToyStory5.mkv"
+     }
+    },
+    "Obfuscated": {
+     "present": true,
+     "files": 7,
+     "dirs": 1,
+     "max_depth": 2,
+     "videos": [
+      "Obfuscated.mkv"
+     ],
+     "video_n": 1,
+     "expected_video_n": 1,
+     "original_names": 0,
+     "names_preserved": false,
+     "renamed": [
+      "Obfuscated.mkv"
+     ],
+     "welded_names": [
+      "Obfuscated.mkv"
+     ],
+     "empty_dirs": [],
+     "classes": {
+      "hash-named": 5,
+      "video": 1,
+      "image": 1
+     },
+     "read": {
+      "bytes": 8388608,
+      "complete": true,
+      "all_zero": false,
+      "MBps": 3.01,
+      "file": "Obfuscated/Obfuscated.mkv"
+     }
+    },
+    "FatherBrown": {
+     "present": true,
+     "files": 3,
+     "dirs": 3,
+     "max_depth": 3,
+     "videos": [
+      "FatherBrown.mp4"
+     ],
+     "video_n": 1,
+     "expected_video_n": 1,
+     "original_names": 0,
+     "names_preserved": false,
+     "renamed": [
+      "FatherBrown.mp4"
+     ],
+     "welded_names": [
+      "FatherBrown.mp4"
+     ],
+     "empty_dirs": [
+      "FatherBrown/Father.Brown.2013.S02E05.HDTV.x264-TLA/Sample"
+     ],
+     "classes": {
+      "video": 1,
+      "junk": 2
+     },
+     "read": {
+      "bytes": 8388608,
+      "complete": true,
+      "all_zero": false,
+      "MBps": 1.81,
+      "file": "FatherBrown/Father.Brown.2013.S02E05.HDTV.x264-TLA/FatherBrown.mp4"
+     }
+    },
+    "MandaloriaREMUX": {
+     "present": true,
+     "files": 2,
+     "dirs": 1,
+     "max_depth": 2,
+     "videos": [
+      "MandaloriaREMUX.mkv"
+     ],
+     "video_n": 1,
+     "expected_video_n": 1,
+     "original_names": 0,
+     "names_preserved": false,
+     "renamed": [
+      "MandaloriaREMUX.mkv"
+     ],
+     "welded_names": [
+      "MandaloriaREMUX.mkv"
+     ],
+     "empty_dirs": [],
+     "classes": {
+      "video": 1,
+      "image": 1
+     },
+     "read": {
+      "bytes": 8388608,
+      "complete": true,
+      "all_zero": false,
+      "MBps": 2.78,
+      "file": "MandaloriaREMUX/MandaloriaREMUX.mkv"
+     }
+    },
+    "Bosch.S01": {
+     "present": true,
+     "files": 10,
+     "dirs": 1,
+     "max_depth": 2,
+     "videos": [
+      "Bosch.S01E01.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E02.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E03.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E04.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E05.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E06.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E07.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E08.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E09.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E10.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv"
+     ],
+     "video_n": 10,
+     "expected_video_n": 10,
+     "original_names": 10,
+     "names_preserved": true,
+     "renamed": [],
+     "welded_names": [],
+     "empty_dirs": [],
+     "classes": {
+      "video": 10
+     },
+     "read": {
+      "bytes": 8388608,
+      "complete": true,
+      "all_zero": false,
+      "MBps": 1.74,
+      "file": "Bosch.S01/Bosch.S01E01.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv"
+     }
+    }
+   },
+   "published": 5,
+   "served": 5
+  },
+  {
+   "target": "nzbdav-og",
+   "label": "nzbdav",
+   "dav_root": "http://127.0.0.1:8093/content/uncategorized/",
+   "namespace": [
+    ".ids",
+    "README",
+    "completed-symlinks",
+    "content",
+    "nzbs"
+   ],
+   "settle_s": 113,
+   "ready_s": 10,
+   "imports_accepted": 5,
+   "imports_total": 5,
+   "refused": [],
+   "tree_report": "7 directories, 25 files",
+   "native_tree_report": null,
+   "entries_total": 32,
+   "releases": {
+    "ToyStory5": {
+     "present": true,
+     "files": 2,
+     "dirs": 1,
+     "max_depth": 2,
+     "videos": [
+      "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv"
+     ],
+     "video_n": 1,
+     "expected_video_n": 1,
+     "original_names": 1,
+     "names_preserved": true,
+     "renamed": [],
+     "welded_names": [],
+     "empty_dirs": [],
+     "classes": {
+      "image": 1,
+      "video": 1
+     },
+     "read": {
+      "bytes": 8388608,
+      "complete": true,
+      "all_zero": false,
+      "MBps": 2.01,
+      "file": "ToyStory5/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv"
+     }
+    },
+    "Obfuscated": {
+     "present": true,
+     "files": 7,
+     "dirs": 1,
+     "max_depth": 2,
+     "videos": [
+      "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv"
+     ],
+     "video_n": 1,
+     "expected_video_n": 1,
+     "original_names": 1,
+     "names_preserved": true,
+     "renamed": [],
+     "welded_names": [],
+     "empty_dirs": [],
+     "classes": {
+      "hash-named": 5,
+      "image": 1,
+      "video": 1
+     },
+     "read": {
+      "bytes": 8388608,
+      "complete": true,
+      "all_zero": false,
+      "MBps": 1.9,
+      "file": "Obfuscated/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv"
+     }
+    },
+    "FatherBrown": {
+     "present": true,
+     "files": 4,
+     "dirs": 3,
+     "max_depth": 4,
+     "videos": [
+      "father.brown.2013.s02e05.hdtv.x264-tla.mp4"
+     ],
+     "video_n": 1,
+     "expected_video_n": 1,
+     "original_names": 1,
+     "names_preserved": true,
+     "renamed": [],
+     "welded_names": [],
+     "empty_dirs": [],
+     "classes": {
+      "sample": 1,
+      "video": 1,
+      "junk": 2
+     },
+     "read": {
+      "bytes": 8388608,
+      "complete": true,
+      "all_zero": false,
+      "MBps": 3.03,
+      "file": "FatherBrown/Father.Brown.2013.S02E05.HDTV.x264-TLA/father.brown.2013.s02e05.hdtv.x264-tla.mp4"
+     }
+    },
+    "MandaloriaREMUX": {
+     "present": true,
+     "files": 2,
+     "dirs": 1,
+     "max_depth": 2,
+     "videos": [
+      "The.Mandalorian.and.Grogu.2026.iNTERNAL.BluRay.1080p.MULTi.REMUX.AVC.DTS-HD.MA.7.1-Aisha.mkv"
+     ],
+     "video_n": 1,
+     "expected_video_n": 1,
+     "original_names": 1,
+     "names_preserved": true,
+     "renamed": [],
+     "welded_names": [],
+     "empty_dirs": [],
+     "classes": {
+      "video": 1,
+      "image": 1
+     },
+     "read": {
+      "bytes": 8388608,
+      "complete": true,
+      "all_zero": false,
+      "MBps": 2.16,
+      "file": "MandaloriaREMUX/The.Mandalorian.and.Grogu.2026.iNTERNAL.BluRay.1080p.MULTi.REMUX.AVC.DTS-HD.MA.7.1-Aisha.mkv"
+     }
+    },
+    "Bosch.S01": {
+     "present": true,
+     "files": 10,
+     "dirs": 1,
+     "max_depth": 2,
+     "videos": [
+      "Bosch.S01E01.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E02.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E03.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E04.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E05.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E06.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E07.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E08.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E09.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E10.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv"
+     ],
+     "video_n": 10,
+     "expected_video_n": 10,
+     "original_names": 10,
+     "names_preserved": true,
+     "renamed": [],
+     "welded_names": [],
+     "empty_dirs": [],
+     "classes": {
+      "video": 10
+     },
+     "read": {
+      "bytes": 8388608,
+      "complete": true,
+      "all_zero": false,
+      "MBps": 1.93,
+      "file": "Bosch.S01/Bosch.S01E01.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv"
+     }
+    }
+   },
+   "published": 5,
+   "served": 5
+  },
+  {
+   "target": "decypharr",
+   "label": "decypharr",
+   "dav_root": "http://localhost:8282/webdav/__all__/",
+   "namespace": [
+    "__all__",
+    "__bad__",
+    "nzbs",
+    "torrents",
+    "version.txt"
+   ],
+   "settle_s": 171,
+   "ready_s": 8,
+   "imports_accepted": 5,
+   "imports_total": 5,
+   "refused": [],
+   "tree_report": "4 directories, 13 files",
+   "native_tree_report": "12 directories, 27 files",
+   "entries_total": 17,
+   "releases": {
+    "ToyStory5": {
+     "present": true,
+     "files": 1,
+     "dirs": 1,
+     "max_depth": 2,
+     "videos": [
+      "ToyStory5.mkv"
+     ],
+     "video_n": 1,
+     "expected_video_n": 1,
+     "original_names": 0,
+     "names_preserved": false,
+     "renamed": [
+      "ToyStory5.mkv"
+     ],
+     "welded_names": [
+      "ToyStory5.mkv"
+     ],
+     "empty_dirs": [],
+     "classes": {
+      "video": 1
+     },
+     "read": {
+      "bytes": 8388608,
+      "complete": true,
+      "all_zero": false,
+      "MBps": 1.03,
+      "file": "ToyStory5/ToyStory5.mkv"
+     }
+    },
+    "Obfuscated": {
+     "present": false,
+     "read": null
+    },
+    "FatherBrown": {
+     "present": true,
+     "files": 1,
+     "dirs": 1,
+     "max_depth": 2,
+     "videos": [
+      "Father.Brown.2013.S02E05.HDTV.x264-TLAfather.brown.2013.s02e05.hdtv.x264-tla.mp4"
+     ],
+     "video_n": 1,
+     "expected_video_n": 1,
+     "original_names": 0,
+     "names_preserved": false,
+     "renamed": [
+      "Father.Brown.2013.S02E05.HDTV.x264-TLAfather.brown.2013.s02e05.hdtv.x264-tla.mp4"
+     ],
+     "welded_names": [],
+     "empty_dirs": [],
+     "classes": {
+      "video": 1
+     },
+     "read": {
+      "bytes": 8388608,
+      "complete": true,
+      "all_zero": false,
+      "MBps": 1.11,
+      "file": "FatherBrown/Father.Brown.2013.S02E05.HDTV.x264-TLAfather.brown.2013.s02e05.hdtv.x264-tla.mp4"
+     }
+    },
+    "MandaloriaREMUX": {
+     "present": true,
+     "files": 1,
+     "dirs": 1,
+     "max_depth": 2,
+     "videos": [
+      "MandaloriaREMUX.mkv"
+     ],
+     "video_n": 1,
+     "expected_video_n": 1,
+     "original_names": 0,
+     "names_preserved": false,
+     "renamed": [
+      "MandaloriaREMUX.mkv"
+     ],
+     "welded_names": [
+      "MandaloriaREMUX.mkv"
+     ],
+     "empty_dirs": [],
+     "classes": {
+      "video": 1
+     },
+     "read": {
+      "bytes": 8388608,
+      "complete": true,
+      "all_zero": false,
+      "MBps": 0.95,
+      "file": "MandaloriaREMUX/MandaloriaREMUX.mkv"
+     }
+    },
+    "Bosch.S01": {
+     "present": true,
+     "files": 10,
+     "dirs": 1,
+     "max_depth": 2,
+     "videos": [
+      "Bosch.S01E01.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E02.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E03.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E04.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E05.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E06.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E07.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E08.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E09.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "Bosch.S01E10.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv"
+     ],
+     "video_n": 10,
+     "expected_video_n": 10,
+     "original_names": 10,
+     "names_preserved": true,
+     "renamed": [],
+     "welded_names": [],
+     "empty_dirs": [],
+     "classes": {
+      "video": 10
+     },
+     "read": {
+      "bytes": 8388608,
+      "complete": true,
+      "all_zero": false,
+      "MBps": 1.28,
+      "file": "Bosch.S01/Bosch.S01E01.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv"
+     }
+    }
+   },
+   "published": 4,
+   "served": 4
+  }
+ ],
+ "releases": [
+  "ToyStory5",
+  "Obfuscated",
+  "FatherBrown",
+  "MandaloriaREMUX",
+  "Bosch.S01"
+ ],
+ "truth": {
+  "ToyStory5": {
+   "packing": "plain",
+   "nzb_files": 7,
+   "articles": 1662,
+   "bytes": 7164735989,
+   "media": [
+    "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv"
+   ],
+   "media_n": 1
+  },
+  "Obfuscated": {
+   "packing": "obfuscated",
+   "nzb_files": 7,
+   "articles": 1662,
+   "bytes": 7164735989,
+   "media": [
+    "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv"
+   ],
+   "media_n": 1
+  },
+  "FatherBrown": {
+   "packing": "rar",
+   "nzb_files": 17,
+   "articles": 1010,
+   "bytes": 394141285,
+   "media": [
+    "father.brown.2013.s02e05.hdtv.x264-tla.mp4"
+   ],
+   "media_n": 1
+  },
+  "MandaloriaREMUX": {
+   "packing": "plain",
+   "nzb_files": 9,
+   "articles": 9514,
+   "bytes": 41128806912,
+   "media": [
+    "The.Mandalorian.and.Grogu.2026.iNTERNAL.BluRay.1080p.MULTi.REMUX.AVC.DTS-HD.MA.7.1-Aisha.mkv"
+   ],
+   "media_n": 1
+  },
+  "Bosch.S01": {
+   "packing": "plain",
+   "nzb_files": 20,
+   "articles": 32850,
+   "bytes": 24290014587,
+   "media": [
+    "Bosch.S01E01.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "Bosch.S01E02.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "Bosch.S01E03.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "Bosch.S01E04.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "Bosch.S01E05.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "Bosch.S01E06.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "Bosch.S01E07.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "Bosch.S01E08.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "Bosch.S01E09.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "Bosch.S01E10.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv"
+   ],
+   "media_n": 10
+  }
+ }
+}

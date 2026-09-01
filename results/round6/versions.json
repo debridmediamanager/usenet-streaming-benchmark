@@ -1,0 +1,15 @@
+{
+ "round": 6,
+ "built_at": "2026-09-01T03:59:18Z",
+ "commits": {
+  "zurg": "bda7e3c3",
+  "altmount": "0614008b",
+  "decypharr": "0dd1cbbd",
+  "infinidysk": "cd9b1205",
+  "nzbdav-og": "794948be"
+ },
+ "images": {
+  "infinidysk": "infinidysk:r6-cd9b1205",
+  "nzbdav-og": "nzbdav:r6-794948be"
+ }
+}

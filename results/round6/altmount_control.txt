@@ -1,0 +1,25 @@
+AltMount import outcomes across four runs of the same procedure.
+
+The question was whether AltMount's fast-fail segment check refuses large
+releases because of it, or because of the news server's STAT latency. Round 6
+moved to a host measuring 458ms median STAT against the 326ms of the host
+rounds 3-5 used, so the run was repeated against the older, faster host.
+
+run                     news host   refused
+pass A  (r6 corpus v1)  host B      DoomsdayRar (1 unverified), Bosch.S01 (196 unverified)
+re-run  (r6 corpus v1)  host B      DoomsdayRar, Bosch.S01
+final   (r6 corpus v2)  host B      Bosch.S01 (93 unverified)
+control (r6 corpus v2)  host A      MandaloriaREMUX (3), Bosch.S01 (76)
+
+On the FASTER host it refused more, not fewer. Latency is not the explanation.
+The unverified-segment count also varies run to run for the same release
+(196 / 93 / 76), so the check is not deterministic.
+
+Error text, identical in every case:
+  fast-fail segment check inconclusive: fast-fail validation inconclusive:
+  N segment(s) remained unverified after 3 attempts: context deadline exceeded
+
+Every article of every refused release was verified present by STAT before the
+run (see nzb_survey.log). The releases AltMount refused are the largest by
+article count; config is import.segment_sample_percentage: 1, so a bigger
+release means more STATs must land inside the deadline.

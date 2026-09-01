@@ -1,0 +1,786 @@
+[
+ {
+  "target": "zurg",
+  "started_utc": "2026-09-01T07:00:28Z",
+  "reset": "data/ nzbs/ dump/ emptied",
+  "staged": [
+   "Bosch.S01.nzb",
+   "FatherBrown.nzb",
+   "MandaloriaREMUX.nzb",
+   "Obfuscated.nzb",
+   "ToyStory5.nzb"
+  ],
+  "start": {
+   "ready": true,
+   "ready_s": 8
+  },
+  "up": true,
+  "api_key": {
+   "key": "benchbenchbenchbenchbenchbench12",
+   "source": "configured"
+  },
+  "dav_root": "http://localhost:9998/dav/all/",
+  "namespace_root": "http://localhost:9998/dav/",
+  "namespace_before": [
+   "__all__",
+   "__downloads__",
+   "__nzb__",
+   "__unplayable__",
+   "all",
+   "version.txt"
+  ],
+  "root_before": [],
+  "imports": [
+   {
+    "nzb": "ToyStory5.nzb",
+    "response": "dropped",
+    "accepted": true,
+    "s": 0.01
+   },
+   {
+    "nzb": "Obfuscated.nzb",
+    "response": "dropped",
+    "accepted": true,
+    "s": 0.01
+   },
+   {
+    "nzb": "FatherBrown.nzb",
+    "response": "dropped",
+    "accepted": true,
+    "s": 0.01
+   },
+   {
+    "nzb": "MandaloriaREMUX.nzb",
+    "response": "dropped",
+    "accepted": true,
+    "s": 0.01
+   },
+   {
+    "nzb": "Bosch.S01.nzb",
+    "response": "dropped",
+    "accepted": true,
+    "s": 0.01
+   }
+  ],
+  "settle_s": 111,
+  "root_entries": [
+   "Bosch.S01",
+   "FatherBrown",
+   "MandaloriaREMUX",
+   "Obfuscated",
+   "ToyStory5"
+  ],
+  "namespace_after": [
+   "__all__",
+   "__downloads__",
+   "__nzb__",
+   "__unplayable__",
+   "all",
+   "version.txt"
+  ],
+  "mounted": true,
+  "tree": {
+   "path": "/home/ben/bench/r6mnt",
+   "lines": 31,
+   "json_ok": true,
+   "tree_report": "7 directories, 21 files"
+  },
+  "reads": [
+   {
+    "release": "Bosch.S01",
+    "file": "Bosch.S01/Bosch.S01E01.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "file_bytes": 2210528776,
+    "offset_MB": 100,
+    "asked_MB": 8,
+    "got_bytes": 8388608,
+    "complete": true,
+    "all_zero": false,
+    "s": 3.56,
+    "MBps": 2.36
+   },
+   {
+    "release": "FatherBrown",
+    "file": "FatherBrown/Father.Brown.2013.S02E05.HDTV.x264-TLA/father.brown.2013.s02e05.hdtv.x264-tla.mp4",
+    "file_bytes": 321905886,
+    "offset_MB": 100,
+    "asked_MB": 8,
+    "got_bytes": 8388608,
+    "complete": true,
+    "all_zero": false,
+    "s": 1.83,
+    "MBps": 4.58
+   },
+   {
+    "release": "MandaloriaREMUX",
+    "file": "MandaloriaREMUX/The.Mandalorian.and.Grogu.2026.iNTERNAL.BluRay.1080p.MULTi.REMUX.AVC.DTS-HD.MA.7.1-Aisha.mkv",
+    "file_bytes": 37957843292,
+    "offset_MB": 100,
+    "asked_MB": 8,
+    "got_bytes": 8388608,
+    "complete": true,
+    "all_zero": false,
+    "s": 2.58,
+    "MBps": 3.25
+   },
+   {
+    "release": "Obfuscated",
+    "file": "Obfuscated/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+    "file_bytes": 6608994141,
+    "offset_MB": 100,
+    "asked_MB": 8,
+    "got_bytes": 8388608,
+    "complete": true,
+    "all_zero": false,
+    "s": 2.97,
+    "MBps": 2.82
+   },
+   {
+    "release": "ToyStory5",
+    "file": "ToyStory5/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+    "file_bytes": 6608994141,
+    "offset_MB": 100,
+    "asked_MB": 8,
+    "got_bytes": 8388608,
+    "complete": true,
+    "all_zero": false,
+    "s": 2.81,
+    "MBps": 2.99
+   }
+  ],
+  "native_tree": {
+   "path": "/home/ben/bench/zmnt",
+   "lines": 95,
+   "json_ok": true,
+   "tree_report": "28 directories, 64 files"
+  },
+  "native_reads": [
+   {
+    "release": "__all__",
+    "file": "__all__/MandaloriaREMUX/The.Mandalorian.and.Grogu.2026.iNTERNAL.BluRay.1080p.MULTi.REMUX.AVC.DTS-HD.MA.7.1-Aisha.mkv",
+    "file_bytes": 37957843292,
+    "offset_MB": 100,
+    "asked_MB": 8,
+    "got_bytes": 8388608,
+    "complete": true,
+    "all_zero": false,
+    "s": 0.18,
+    "MBps": 46.6
+   },
+   {
+    "release": "all",
+    "file": "all/MandaloriaREMUX/The.Mandalorian.and.Grogu.2026.iNTERNAL.BluRay.1080p.MULTi.REMUX.AVC.DTS-HD.MA.7.1-Aisha.mkv",
+    "file_bytes": 37957843292,
+    "offset_MB": 100,
+    "asked_MB": 8,
+    "got_bytes": 8388608,
+    "complete": true,
+    "all_zero": false,
+    "s": 0.2,
+    "MBps": 41.94
+   },
+   {
+    "release": "__nzb__",
+    "file": "__nzb__/MandaloriaREMUX/The.Mandalorian.and.Grogu.2026.iNTERNAL.BluRay.1080p.MULTi.REMUX.AVC.DTS-HD.MA.7.1-Aisha.mkv",
+    "file_bytes": 37957843292,
+    "offset_MB": 100,
+    "asked_MB": 8,
+    "got_bytes": 8388608,
+    "complete": true,
+    "all_zero": false,
+    "s": 0.17,
+    "MBps": 49.34
+   }
+  ],
+  "finished_utc": "2026-09-01T07:02:55Z"
+ },
+ {
+  "target": "altmount",
+  "started_utc": "2026-09-01T07:03:04Z",
+  "reset": "altmount.db metadata/ .nzbs/ removed",
+  "staged": [
+   "Bosch.S01.nzb",
+   "FatherBrown.nzb",
+   "MandaloriaREMUX.nzb",
+   "Obfuscated.nzb",
+   "ToyStory5.nzb"
+  ],
+  "start": {
+   "ready": true,
+   "ready_s": 8
+  },
+  "up": true,
+  "api_key": {
+   "key": "benchbenchbenchbenchbenchbench12",
+   "source": "configured"
+  },
+  "dav_root": "http://localhost:8081/webdav/complete/",
+  "namespace_root": "http://localhost:8081/webdav/",
+  "namespace_before": [],
+  "root_before": [],
+  "imports": [
+   {
+    "nzb": "ToyStory5.nzb",
+    "response": "{\"data\":{\"queue_id\":1,\"message\":\"File successfully added to import queue with ID 1\"},\"success\":true}",
+    "accepted": true,
+    "s": 0.01
+   },
+   {
+    "nzb": "Obfuscated.nzb",
+    "response": "{\"data\":{\"queue_id\":2,\"message\":\"File successfully added to import queue with ID 2\"},\"success\":true}",
+    "accepted": true,
+    "s": 0.01
+   },
+   {
+    "nzb": "FatherBrown.nzb",
+    "response": "{\"data\":{\"queue_id\":3,\"message\":\"File successfully added to import queue with ID 3\"},\"success\":true}",
+    "accepted": true,
+    "s": 0.01
+   },
+   {
+    "nzb": "MandaloriaREMUX.nzb",
+    "response": "{\"data\":{\"queue_id\":4,\"message\":\"File successfully added to import queue with ID 4\"},\"success\":true}",
+    "accepted": true,
+    "s": 0.01
+   },
+   {
+    "nzb": "Bosch.S01.nzb",
+    "response": "{\"data\":{\"queue_id\":5,\"message\":\"File successfully added to import queue with ID 5\"},\"success\":true}",
+    "accepted": true,
+    "s": 0.01
+   }
+  ],
+  "settle_s": 121,
+  "root_entries": [
+   "FatherBrown",
+   "MandaloriaREMUX",
+   "Obfuscated",
+   "ToyStory5"
+  ],
+  "namespace_after": [
+   "complete"
+  ],
+  "mounted": true,
+  "tree": {
+   "path": "/home/ben/bench/r6mnt",
+   "lines": 11,
+   "json_ok": true,
+   "tree_report": "4 directories, 4 files"
+  },
+  "reads": [
+   {
+    "release": "FatherBrown",
+    "file": "FatherBrown/FatherBrown.mp4",
+    "file_bytes": 321905886,
+    "offset_MB": 100,
+    "asked_MB": 8,
+    "got_bytes": 8388608,
+    "complete": true,
+    "all_zero": false,
+    "s": 3.7,
+    "MBps": 2.27
+   },
+   {
+    "release": "MandaloriaREMUX",
+    "file": "MandaloriaREMUX/The.Mandalorian.and.Grogu.2026.iNTERNAL.BluRay.1080p.MULTi.REMUX.AVC.DTS-HD.MA.7.1-Aisha.mkv",
+    "file_bytes": 37957843292,
+    "offset_MB": 100,
+    "asked_MB": 8,
+    "got_bytes": 8388608,
+    "complete": true,
+    "all_zero": false,
+    "s": 4.4,
+    "MBps": 1.91
+   },
+   {
+    "release": "Obfuscated",
+    "file": "Obfuscated/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+    "file_bytes": 6608994141,
+    "offset_MB": 100,
+    "asked_MB": 8,
+    "got_bytes": 8388608,
+    "complete": true,
+    "all_zero": false,
+    "s": 4.02,
+    "MBps": 2.09
+   },
+   {
+    "release": "ToyStory5",
+    "file": "ToyStory5/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+    "file_bytes": 6608994141,
+    "offset_MB": 100,
+    "asked_MB": 8,
+    "got_bytes": 8388608,
+    "complete": true,
+    "all_zero": false,
+    "s": 5.94,
+    "MBps": 1.41
+   }
+  ],
+  "finished_utc": "2026-09-01T07:05:45Z"
+ },
+ {
+  "target": "infinidysk",
+  "started_utc": "2026-09-01T07:05:48Z",
+  "reset": "config-r6/ recreated empty (provider comes from env)",
+  "staged": [
+   "Bosch.S01.nzb",
+   "FatherBrown.nzb",
+   "MandaloriaREMUX.nzb",
+   "Obfuscated.nzb",
+   "ToyStory5.nzb"
+  ],
+  "start": {
+   "ready": true,
+   "ready_s": 18
+  },
+  "up": true,
+  "api_key": {
+   "key": "benchbenchbenchbenchbenchbench12",
+   "source": "configured",
+   "probe": "{\"queue\":{\"paused\":false,\"slots\":[],\"noofslots\":0,\"speedlimit\":\"0\",\"speedlimit_abs\":\"0\",\"pause_int\":\"0\",\"speed\":\"0 \",\"kb"
+  },
+  "dav_root": "http://127.0.0.1:8092/content/uncategorized/",
+  "namespace_root": "http://127.0.0.1:8092/",
+  "namespace_before": [
+   ".ids",
+   "README",
+   "completed-symlinks",
+   "content",
+   "nzbs"
+  ],
+  "root_before": [],
+  "imports": [
+   {
+    "nzb": "ToyStory5.nzb",
+    "response": "{\"nzo_ids\":[\"a889103f-776a-4182-a4e9-5979361ebab3\"],\"status\":true,\"error\":null}",
+    "accepted": true,
+    "s": 0.29
+   },
+   {
+    "nzb": "Obfuscated.nzb",
+    "response": "{\"nzo_ids\":[\"d684f4cd-edcd-499a-90d0-78aec13468aa\"],\"status\":true,\"error\":null}",
+    "accepted": true,
+    "s": 0.04
+   },
+   {
+    "nzb": "FatherBrown.nzb",
+    "response": "{\"nzo_ids\":[\"5c7149ac-1e93-46cc-b372-5dfe4d88ffd7\"],\"status\":true,\"error\":null}",
+    "accepted": true,
+    "s": 0.04
+   },
+   {
+    "nzb": "MandaloriaREMUX.nzb",
+    "response": "{\"nzo_ids\":[\"a6e0c3f2-4cd1-4b7b-9553-9300c7a38fba\"],\"status\":true,\"error\":null}",
+    "accepted": true,
+    "s": 0.12
+   },
+   {
+    "nzb": "Bosch.S01.nzb",
+    "response": "{\"nzo_ids\":[\"ae3d1212-9dd5-4518-b67d-46113a2ce190\"],\"status\":true,\"error\":null}",
+    "accepted": true,
+    "s": 0.19
+   }
+  ],
+  "settle_s": 262,
+  "root_entries": [
+   "Bosch.S01",
+   "FatherBrown",
+   "MandaloriaREMUX",
+   "Obfuscated",
+   "ToyStory5"
+  ],
+  "namespace_after": [
+   ".ids",
+   "README",
+   "completed-symlinks",
+   "content",
+   "nzbs"
+  ],
+  "mounted": true,
+  "tree": {
+   "path": "/home/ben/bench/r6mnt",
+   "lines": 34,
+   "json_ok": true,
+   "tree_report": "7 directories, 24 files"
+  },
+  "reads": [
+   {
+    "release": "Bosch.S01",
+    "file": "Bosch.S01/Bosch.S01E01.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "file_bytes": 2210528776,
+    "offset_MB": 100,
+    "asked_MB": 8,
+    "got_bytes": 8388608,
+    "complete": true,
+    "all_zero": false,
+    "s": 4.82,
+    "MBps": 1.74
+   },
+   {
+    "release": "FatherBrown",
+    "file": "FatherBrown/Father.Brown.2013.S02E05.HDTV.x264-TLA/FatherBrown.mp4",
+    "file_bytes": 321905886,
+    "offset_MB": 100,
+    "asked_MB": 8,
+    "got_bytes": 8388608,
+    "complete": true,
+    "all_zero": false,
+    "s": 4.63,
+    "MBps": 1.81
+   },
+   {
+    "release": "MandaloriaREMUX",
+    "file": "MandaloriaREMUX/MandaloriaREMUX.mkv",
+    "file_bytes": 37957843292,
+    "offset_MB": 100,
+    "asked_MB": 8,
+    "got_bytes": 8388608,
+    "complete": true,
+    "all_zero": false,
+    "s": 3.02,
+    "MBps": 2.78
+   },
+   {
+    "release": "Obfuscated",
+    "file": "Obfuscated/Obfuscated.mkv",
+    "file_bytes": 6608994141,
+    "offset_MB": 100,
+    "asked_MB": 8,
+    "got_bytes": 8388608,
+    "complete": true,
+    "all_zero": false,
+    "s": 2.79,
+    "MBps": 3.01
+   },
+   {
+    "release": "ToyStory5",
+    "file": "ToyStory5/ToyStory5.mkv",
+    "file_bytes": 6608994141,
+    "offset_MB": 100,
+    "asked_MB": 8,
+    "got_bytes": 8388608,
+    "complete": true,
+    "all_zero": false,
+    "s": 2.51,
+    "MBps": 3.34
+   }
+  ],
+  "finished_utc": "2026-09-01T07:11:00Z"
+ },
+ {
+  "target": "nzbdav-og",
+  "started_utc": "2026-09-01T07:11:05Z",
+  "reset": "config-r6/db.sqlite reseeded, 5 system DavItems kept",
+  "staged": [
+   "Bosch.S01.nzb",
+   "FatherBrown.nzb",
+   "MandaloriaREMUX.nzb",
+   "Obfuscated.nzb",
+   "ToyStory5.nzb"
+  ],
+  "start": {
+   "ready": true,
+   "ready_s": 10
+  },
+  "up": true,
+  "api_key": {
+   "key": "benchbenchbenchbenchbenchbench12",
+   "source": "configured",
+   "probe": "{\"queue\":{\"paused\":false,\"slots\":[],\"noofslots\":0},\"status\":true,\"error\":null}"
+  },
+  "dav_root": "http://127.0.0.1:8093/content/uncategorized/",
+  "namespace_root": "http://127.0.0.1:8093/",
+  "namespace_before": [
+   ".ids",
+   "README",
+   "completed-symlinks",
+   "content",
+   "nzbs"
+  ],
+  "root_before": [],
+  "imports": [
+   {
+    "nzb": "ToyStory5.nzb",
+    "response": "{\"nzo_ids\":[\"5f22f22e-fd73-49ce-9d70-3c4cac7c4bf2\"],\"status\":true,\"error\":null}",
+    "accepted": true,
+    "s": 0.16
+   },
+   {
+    "nzb": "Obfuscated.nzb",
+    "response": "{\"nzo_ids\":[\"05111c1a-c102-4d97-9e8d-9c73d6e90e39\"],\"status\":true,\"error\":null}",
+    "accepted": true,
+    "s": 0.04
+   },
+   {
+    "nzb": "FatherBrown.nzb",
+    "response": "{\"nzo_ids\":[\"98a71c44-e3a6-42d0-8170-65d9f645c5b2\"],\"status\":true,\"error\":null}",
+    "accepted": true,
+    "s": 0.02
+   },
+   {
+    "nzb": "MandaloriaREMUX.nzb",
+    "response": "{\"nzo_ids\":[\"6a6963bf-4ec1-4726-9850-148cf0b0f3d2\"],\"status\":true,\"error\":null}",
+    "accepted": true,
+    "s": 0.07
+   },
+   {
+    "nzb": "Bosch.S01.nzb",
+    "response": "{\"nzo_ids\":[\"0dd2d0dd-2ed6-4fc4-946a-dc2f6a86d0c6\"],\"status\":true,\"error\":null}",
+    "accepted": true,
+    "s": 0.12
+   }
+  ],
+  "settle_s": 113,
+  "root_entries": [
+   "Bosch.S01",
+   "FatherBrown",
+   "MandaloriaREMUX",
+   "Obfuscated",
+   "ToyStory5"
+  ],
+  "namespace_after": [
+   ".ids",
+   "README",
+   "completed-symlinks",
+   "content",
+   "nzbs"
+  ],
+  "mounted": true,
+  "tree": {
+   "path": "/home/ben/bench/r6mnt",
+   "lines": 35,
+   "json_ok": true,
+   "tree_report": "7 directories, 25 files"
+  },
+  "reads": [
+   {
+    "release": "Bosch.S01",
+    "file": "Bosch.S01/Bosch.S01E01.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "file_bytes": 2210528776,
+    "offset_MB": 100,
+    "asked_MB": 8,
+    "got_bytes": 8388608,
+    "complete": true,
+    "all_zero": false,
+    "s": 4.34,
+    "MBps": 1.93
+   },
+   {
+    "release": "FatherBrown",
+    "file": "FatherBrown/Father.Brown.2013.S02E05.HDTV.x264-TLA/father.brown.2013.s02e05.hdtv.x264-tla.mp4",
+    "file_bytes": 321905886,
+    "offset_MB": 100,
+    "asked_MB": 8,
+    "got_bytes": 8388608,
+    "complete": true,
+    "all_zero": false,
+    "s": 2.77,
+    "MBps": 3.03
+   },
+   {
+    "release": "MandaloriaREMUX",
+    "file": "MandaloriaREMUX/The.Mandalorian.and.Grogu.2026.iNTERNAL.BluRay.1080p.MULTi.REMUX.AVC.DTS-HD.MA.7.1-Aisha.mkv",
+    "file_bytes": 37957843292,
+    "offset_MB": 100,
+    "asked_MB": 8,
+    "got_bytes": 8388608,
+    "complete": true,
+    "all_zero": false,
+    "s": 3.89,
+    "MBps": 2.16
+   },
+   {
+    "release": "Obfuscated",
+    "file": "Obfuscated/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+    "file_bytes": 6608994141,
+    "offset_MB": 100,
+    "asked_MB": 8,
+    "got_bytes": 8388608,
+    "complete": true,
+    "all_zero": false,
+    "s": 4.42,
+    "MBps": 1.9
+   },
+   {
+    "release": "ToyStory5",
+    "file": "ToyStory5/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+    "file_bytes": 6608994141,
+    "offset_MB": 100,
+    "asked_MB": 8,
+    "got_bytes": 8388608,
+    "complete": true,
+    "all_zero": false,
+    "s": 4.17,
+    "MBps": 2.01
+   }
+  ],
+  "finished_utc": "2026-09-01T07:13:44Z"
+ },
+ {
+  "target": "decypharr",
+  "started_utc": "2026-09-01T07:13:47Z",
+  "reset": "db/ usenet/ streams/ downloads/ dfscache/ emptied",
+  "staged": [
+   "Bosch.S01.nzb",
+   "FatherBrown.nzb",
+   "MandaloriaREMUX.nzb",
+   "Obfuscated.nzb",
+   "ToyStory5.nzb"
+  ],
+  "start": {
+   "ready": true,
+   "ready_s": 8
+  },
+  "up": true,
+  "api_key": {
+   "key": "benchbenchbenchbenchbenchbench12",
+   "source": "configured"
+  },
+  "dav_root": "http://localhost:8282/webdav/__all__/",
+  "namespace_root": "http://localhost:8282/webdav/",
+  "namespace_before": [
+   "__all__",
+   "__bad__",
+   "nzbs",
+   "torrents",
+   "version.txt"
+  ],
+  "root_before": [],
+  "imports": [
+   {
+    "nzb": "ToyStory5.nzb",
+    "response": "{\n  \"status\": true,\n  \"nzo_ids\": [\n    \"de0d6b39-3eb2-4d0a-9517-ec6fbd3286d2\"\n  ]\n}",
+    "accepted": true,
+    "s": 1.34
+   },
+   {
+    "nzb": "Obfuscated.nzb",
+    "response": "{\n  \"status\": true,\n  \"nzo_ids\": [\n    \"73a48649-6423-42f5-9093-4e7434fb0822\"\n  ]\n}",
+    "accepted": true,
+    "s": 6.12
+   },
+   {
+    "nzb": "FatherBrown.nzb",
+    "response": "{\n  \"status\": true,\n  \"nzo_ids\": [\n    \"76276601-4a65-4766-abac-e7226466291f\"\n  ]\n}",
+    "accepted": true,
+    "s": 0.19
+   },
+   {
+    "nzb": "MandaloriaREMUX.nzb",
+    "response": "{\n  \"status\": true,\n  \"nzo_ids\": [\n    \"a1ba5bb5-bad8-4efd-84b5-e0f5e3917d3e\"\n  ]\n}",
+    "accepted": true,
+    "s": 0.26
+   },
+   {
+    "nzb": "Bosch.S01.nzb",
+    "response": "{\n  \"status\": true,\n  \"nzo_ids\": [\n    \"8f873703-339a-490a-8c7e-a22c17bf445a\"\n  ]\n}",
+    "accepted": true,
+    "s": 0.44
+   }
+  ],
+  "settle_s": 171,
+  "root_entries": [
+   "Bosch.S01",
+   "FatherBrown",
+   "MandaloriaREMUX",
+   "ToyStory5"
+  ],
+  "namespace_after": [
+   "__all__",
+   "__bad__",
+   "nzbs",
+   "torrents",
+   "version.txt"
+  ],
+  "mounted": true,
+  "tree": {
+   "path": "/home/ben/bench/r6mnt",
+   "lines": 20,
+   "json_ok": true,
+   "tree_report": "4 directories, 13 files"
+  },
+  "reads": [
+   {
+    "release": "Bosch.S01",
+    "file": "Bosch.S01/Bosch.S01E01.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+    "file_bytes": 2210528776,
+    "offset_MB": 100,
+    "asked_MB": 8,
+    "got_bytes": 8388608,
+    "complete": true,
+    "all_zero": false,
+    "s": 6.53,
+    "MBps": 1.28
+   },
+   {
+    "release": "FatherBrown",
+    "file": "FatherBrown/Father.Brown.2013.S02E05.HDTV.x264-TLAfather.brown.2013.s02e05.hdtv.x264-tla.mp4",
+    "file_bytes": 321905886,
+    "offset_MB": 100,
+    "asked_MB": 8,
+    "got_bytes": 8388608,
+    "complete": true,
+    "all_zero": false,
+    "s": 7.54,
+    "MBps": 1.11
+   },
+   {
+    "release": "MandaloriaREMUX",
+    "file": "MandaloriaREMUX/MandaloriaREMUX.mkv",
+    "file_bytes": 37957843292,
+    "offset_MB": 100,
+    "asked_MB": 8,
+    "got_bytes": 8388608,
+    "complete": true,
+    "all_zero": false,
+    "s": 8.86,
+    "MBps": 0.95
+   },
+   {
+    "release": "ToyStory5",
+    "file": "ToyStory5/ToyStory5.mkv",
+    "file_bytes": 6608994141,
+    "offset_MB": 100,
+    "asked_MB": 8,
+    "got_bytes": 8388608,
+    "complete": true,
+    "all_zero": false,
+    "s": 8.16,
+    "MBps": 1.03
+   }
+  ],
+  "native_tree": {
+   "path": "/home/ben/bench/dmnt",
+   "lines": 42,
+   "json_ok": true,
+   "tree_report": "12 directories, 27 files"
+  },
+  "native_reads": [
+   {
+    "release": "__all__",
+    "file": "__all__/MandaloriaREMUX/MandaloriaREMUX.mkv",
+    "file_bytes": 37957843292,
+    "offset_MB": 100,
+    "asked_MB": 8,
+    "got_bytes": 8388608,
+    "complete": true,
+    "all_zero": false,
+    "s": 0.07,
+    "MBps": 119.84
+   },
+   {
+    "release": "nzbs",
+    "file": "nzbs/MandaloriaREMUX/MandaloriaREMUX.mkv",
+    "file_bytes": 37957843292,
+    "offset_MB": 100,
+    "asked_MB": 8,
+    "got_bytes": 8388608,
+    "complete": true,
+    "all_zero": false,
+    "s": 0.1,
+    "MBps": 83.89
+   }
+  ],
+  "finished_utc": "2026-09-01T07:17:39Z"
+ }
+]

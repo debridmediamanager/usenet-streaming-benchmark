@@ -1,0 +1,10 @@
+STAT round-trip latency, measured 2026-09-01 from zen, one connection, 60 STATs
+each, sampled from Bosch.S01. Run because AltMount refused two releases with
+"context deadline exceeded" and the news host this round moved to was the
+obvious suspect.
+
+host                     connect    auth   STAT n  ok   median    mean     p90     max
+host B (round 6)         1107ms   368ms       60  60   458.6ms 552.7ms 500.4ms 5479.0ms
+host A (rounds 3-5)      857ms   275ms       60  60   326.3ms 375.0ms 355.2ms 3194.2ms
+
+The faster host did not fix the refusal. See NOTE.md.
