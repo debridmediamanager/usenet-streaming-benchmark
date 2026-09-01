@@ -15,6 +15,16 @@ mkdir -p "$OUT" "$CACHE" "$CACHE_GLIBC"
 STAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 MANIFEST=$BENCH/results_r7_versions.json
 
+# mtime reference for the artifact check below. Each build here is non-fatal on
+# purpose (one broken target must not cost the other four), but the manifest
+# used to be written from the freshly pinned SHAs whether or not anything came
+# out of the containers. A failed build leaves the PREVIOUS round's binary at
+# the same $OUT/<name>-r7 path, so the bench ran a stale binary under a manifest
+# claiming the new commit -- a wrong result that reads as a clean one. Every
+# artifact must therefore be newer than this file before the manifest is written.
+START_REF=$(mktemp)
+trap 'rm -f "$START_REF"' EXIT
+
 pin () {  # dir -> checkout origin/main, echo short sha
   cd "$1" || return 1
   git fetch --quiet origin
@@ -66,6 +76,36 @@ docker build -q -t infinidysk:r7-$IC $BENCH/src/infinidysk-git 2>&1 | tail -4 &&
 
 echo "=== nzbdav $NC ==="
 docker build -q -t nzbdav:r7-$NC $BENCH/src/nzbdav-git 2>&1 | tail -4 && echo NZBDAV_OK
+
+# ---------------------------------------------------------------- verify
+# Nothing above fails the script, so this is the only thing standing between a
+# broken build and a manifest that lies about what the round ran.
+echo "=== verify artifacts ==="
+FAILED=""
+for b in zurg altmount decypharr; do
+  f=$OUT/$b-r7
+  if [ -f "$f" ] && [ "$f" -nt "$START_REF" ]; then
+    echo "   ok   $b -> $f"
+  else
+    echo "   FAIL $b -> $f (missing, or not rebuilt by this run: last round's binary)"
+    FAILED="$FAILED $b"
+  fi
+done
+# The two images carry the commit in the tag, so existence IS freshness: a stale
+# image from an earlier round sits under a different tag and cannot answer here.
+for img in "infinidysk:r7-$IC" "nzbdav:r7-$NC"; do
+  if docker image inspect "$img" >/dev/null 2>&1; then
+    echo "   ok   $img"
+  else
+    echo "   FAIL $img (no such image)"
+    FAILED="$FAILED $img"
+  fi
+done
+if [ -n "$FAILED" ]; then
+  echo "BUILD_R7_FAILED:$FAILED"
+  echo "manifest NOT written -- $MANIFEST still describes the previous build"
+  exit 1
+fi
 
 cat > "$MANIFEST" <<JSON
 {
