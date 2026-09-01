@@ -1,10 +1,12 @@
 # Usenet streaming benchmark
 
-Five servers that stream Usenet content on demand. All measured on 30 August 2026. One host. One news account. One server running at a time.
+Five servers that stream Usenet content on demand. One host. One news account. One server running at a time.
+
+Two rounds are published here. **Round 4**, measured 30 August 2026, is throughput and latency and time to press play in Plex, and is everything up to the Corpus section. **Round 6**, measured 1 September 2026, asks a different question: given identical NZBs, what does each server actually publish on the filesystem, under what names, and does it read back.
 
 The targets are zurg and AltMount and InfiniDysk and nzbdav and decypharr. Every one of them was built from its repository main HEAD on the day of the run. The harness that produced every number here is in `harness/`. The raw output is in `results/`.
 
-## Versions
+## Versions, round 4
 
 Each target was built from main rather than from a release tag. The point was to measure what the projects are today and not what they last shipped.
 
@@ -193,21 +195,222 @@ Source is `results/round4/results_rar_damage_r4.json`.
 
 The full per episode size table is in `results/round4/results_plex_stage.json`.
 
+## Round 6: what each server puts on the filesystem
+
+Measured 1 September 2026. Rounds 3 to 5 measured how fast a server serves
+bytes. This round asks what it publishes. Each target was given the same five
+healthy NZBs, then mounted read-only so `tree` could record the namespace it
+built. A media library is filenames as much as bytes, because Plex and the
+\*arrs match on release names.
+
+Every target was rebuilt from its repository main HEAD on the day of the run.
+
+| | version under test |
+|---|---|
+| **zurg** | `bda7e3c3` |
+| **AltMount** | `0614008b` |
+| **InfiniDysk** | `cd9b1205` |
+| **nzbdav** | `794948be` |
+| **decypharr** | `0dd1cbbd` |
+
+The corpus is five releases, deliberately varied in packing, each verified
+retrievable against the news account before the run.
+
+| release | packing | files | articles | size |
+|---|---|---|---|---|
+| ToyStory5 | plain | 7 | 1,662 | 7.16 GB |
+| Obfuscated | hash names, no extensions, same bytes as ToyStory5 | 7 | 1,662 | 7.16 GB |
+| FatherBrown | 12 part RAR | 17 | 1,010 | 0.39 GB |
+| MandaloriaREMUX | plain, one 35 GB file | 9 | 9,514 | 41.13 GB |
+| Bosch.S01 | plain season pack, 10 episodes | 20 | 32,850 | 24.29 GB |
+
+Pairing ToyStory5 with Obfuscated is the point of the corpus. They are the same
+bytes. Any difference in the output is the server's doing and not the content's.
+
+### What each server published
+
+`Nv / Nf` is video files over total files published for that release.
+
+| release | zurg | nzbdav | InfiniDysk | decypharr | AltMount |
+|---|---|---|---|---|---|
+| ToyStory5 | 1v/2f | 1v/2f | 1v/2f renamed | 1v/1f renamed | 1v/1f |
+| Obfuscated | 1v/2f | 1v/7f | 1v/7f renamed | **absent** | 1v/1f |
+| FatherBrown | 1v/5f | 1v/4f | 1v/3f renamed | 1v/1f malformed | 1v/1f renamed |
+| MandaloriaREMUX | 1v/2f | 1v/2f | 1v/2f renamed | 1v/1f renamed | 1v/1f |
+| Bosch.S01 | 10v/10f | 10v/10f | 10v/10f | 10v/10f | **absent** |
+
+### Scorecard
+
+Raw file counts flatter whoever publishes the most parity, so they are the wrong
+yardstick. Setting par2 aside, the corpus holds 21 real files: 14 media, 3
+thumbnails, 1 sample clip, 1 nfo, 2 url adverts.
+
+| server | releases | media files | content, par2 aside | served | renamed | par2 published | settle |
+|---|---|---|---|---|---|---|---|
+| **zurg** | 5/5 | **14/14** | **21/21** | 5/5 | 0 | 0 | 111s |
+| **nzbdav** | 5/5 | **14/14** | 20/21 | 5/5 | 0 | 5 | 113s |
+| **InfiniDysk** | 5/5 | **14/14** | 19/21 | 5/5 | 4 | 5 | 262s |
+| **decypharr** | 4/5 | 13/14 | 13/21 | 4/4 | 3 | 0 | 171s |
+| **AltMount** | 4/5 | 4/14 | 4/21 | 4/4 | 1 | 0 | 121s |
+
+`served` counts releases that returned 8 MB of real non-zero bytes read back
+through the mount. Every release that any server published also served. The
+failures in this round are refusals and omissions and never phantom files.
+
+Per class, against what the corpus actually contains:
+
+| corpus content | zurg | nzbdav | InfiniDysk | decypharr | AltMount |
+|---|---|---|---|---|---|
+| media files | 14/14 | 14/14 | 14/14 | 13/14 | 4/14 |
+| thumbnails | 3/3 | 3/3 | 3/3 | 0/3 | 0/3 |
+| sample clip | 1/1 | 1/1 | 0/1 | 0/1 | 0/1 |
+| nfo | 1/1 | 0/1 | 0/1 | 0/1 | 0/1 |
+| url adverts | 2/2 | 2/2 | 2/2 | 0/2 | 0/2 |
+| par2 published, not corpus content | 0 | 5 | 5 | 0 | 0 |
+
+Set par2 aside and the five stop being a spectrum. Three servers deliver every
+byte of media and differ only over how far into the archive they unpack. Two are
+missing media.
+
+### AltMount refuses the season pack and the news host is not why
+
+Bosch.S01 is 32,850 articles and every one of them was verified present before
+the run. AltMount accepted it into the import queue and then failed it:
+
+```
+fast-fail segment check inconclusive: fast-fail validation inconclusive:
+93 segment(s) remained unverified after 3 attempts: context deadline exceeded
+```
+
+It refused that release in all four runs. The obvious suspect was the news host,
+because this round moved to one measuring 458 ms median STAT latency against the
+326 ms of the host rounds 3 to 5 used. So the same run was repeated against the
+faster host. It refused **more**, not fewer: the season pack and the 41 GB
+remux. Latency is not the explanation. The count of unverified segments also
+varies between runs of the same release, coming back 196 then 93 then 76, so the
+check is not deterministic.
+
+`import.segment_sample_percentage: 1` samples 1% of segments, so a larger
+release means more STATs must land inside the deadline. The only releases
+AltMount ever refused are the largest by article count. Measurements in
+`results/round6/altmount_control.txt` and `results/round6/statlat.txt`.
+
+### decypharr welds the directory name onto the filename
+
+Unpacking FatherBrown produced one file whose name is the archive's directory
+name and the file's own name concatenated with no separator.
+
+```
+Father.Brown.2013.S02E05.HDTV.x264-TLAfather.brown.2013.s02e05.hdtv.x264-tla.mp4
+```
+
+It is the only malformed name in the round. decypharr also dropped the
+obfuscated release entirely, having accepted it and reported no error.
+
+### InfiniDysk renames the media file to the NZB's name
+
+Four of five releases came out as `ToyStory5.mkv`, `Obfuscated.mkv`,
+`FatherBrown.mp4` and `MandaloriaREMUX.mkv`. The release name is the string Plex
+and the \*arrs parse for quality and group and episode. Only the season pack
+kept its episode names. InfiniDysk also creates the archive's `Sample/`
+directory and leaves it empty, where zurg and nzbdav both put the clip inside.
+
+### par2 is hidden by extension and not by content
+
+All five hide the parity files when those files are named `.par2`. Hash the
+names and only zurg still does. The obfuscated release holds the same seven
+files as ToyStory5, and matching them by byte size identifies every one.
+
+```
+6818.03 MB  6fac37a859748fbece0d5fa4  ->  the .mkv
+   0.50 MB  09d7aa3fd2f6d9ce7e2f705e  ->  thumbnail.jpg
+   0.00 MB  fc9fe364ab4bcb59c5454736  ->  .par2 index
+  34.62 MB  f347e873c0ed4d9cd20927ba  ->  vol00-01.par2
+  69.24 MB  644f2e69a2b27bdb75de8f0f  ->  vol01-03.par2
+ 103.86 MB  7b6dfea3511b8d04145d2e8b  ->  vol07-10.par2
+ 138.48 MB  5c67611b6949cf5b5117dfcc  ->  vol03-07.par2
+```
+
+nzbdav and InfiniDysk publish all five parity volumes here while suppressing the
+identical files in every other release. They are matching an extension. zurg
+suppresses them in both cases, so it is reading what the file is. This is most
+of the distance between zurg's 21 published files and nzbdav's 25.
+
+### Running it
+
+```bash
+bash harness/build-r6.sh          # every target from its main HEAD
+bash harness/decy-r6.sh           # decypharr needs cgo, so glibc and not alpine
+bash harness/prep-r6.sh           # binaries, containers, per target corpus
+bash harness/setcorpus.sh ToyStory5.nzb Obfuscated.nzb FatherBrown.nzb \
+                          MandaloriaREMUX.nzb Bosch.S01.nzb
+python3 harness/survey_nzbs.py nzbs   # verify the corpus before trusting a run
+python3 harness/tree_r6.py            # the run
+python3 harness/tally_r6.py           # the tables above
+python3 harness/diff_nopar2.py        # the par2-aside comparison
+```
+
+### Round 6 harness gotchas
+
+**Three of these five report failure with HTTP 200.** A rejected InfiniDysk
+upload returns an empty body. decypharr returns `{"status": false}`. AltMount
+returns a `VALIDATION_ERROR` object. A status code check calls all three a
+success and then waits for an import that never happened.
+
+**A listening port is not a ready server.** InfiniDysk and nzbdav run 53
+database migrations the first time they see an empty library and answer an empty
+body throughout. Firing imports into that window made both measure as publishing
+nothing, twice, before the readiness check was changed to ask the endpoint that
+does the work.
+
+**AltMount moves the NZB it imports** out to `/tmp/.altmount-queue`. A second run
+against the same directory imports nothing and reports `File does not exist` for
+every release. Stage a fresh copy per target per run.
+
+**Retrievable is not complete.** A release can STAT at 100% of articles present
+and still be missing a third of its RAR volumes, because they were never posted.
+Check the volume sequence, not just the articles.
+
+**`<segment` also matches the `<segments>` container.** Counting articles with
+that pattern inflates every total by exactly the file count. This is why the
+round 3 and 4 manifest reported 1669 articles for ToyStory5 where the true count
+is 1662. Corrected in `corpus/manifest.json`; see the Corpus section.
+
 ## Corpus
 
-`corpus/corpus.7z` holds the five NZBs the run used. It is a 7-Zip archive with encrypted headers. The password is `dmmbench`.
+`corpus/corpus.7z` holds the seven NZBs the runs used. It is a 7-Zip archive with encrypted headers. The password is `dmmbench`.
 
 The password is not access control. The password is published right here. The archive exists so release names and message ids stay out of search indexes and automated scrapers. Anyone who wants the corpus can have it.
 
 `rar` was not available on the build host so 7-Zip with `-mhe=on` was used instead. Extract with `7z x -pdmmbench corpus.7z`.
 
-| NZB | files | articles | approx bytes | sha256 prefix |
-|---|---|---|---|---|
-| ToyStory5.nzb | 7 | 1669 | 7164735989 | `9add0ee889f54187` |
-| ToyStory5Damaged.nzb | 7 | 1669 | 7164735989 | `90b9bdccb56a8f91` |
-| Obfuscated.nzb | 7 | 1669 | 7164735989 | `6794d1464e7cb28c` |
-| FatherBrown.nzb | 17 | 1027 | 394141285 | `55ed581204b3d83b` |
-| Bosch.S01.nzb | 20 | 32870 | 24290014587 | `c9b60371473825b0` |
+| NZB | files | articles | approx bytes | sha256 prefix | used by |
+|---|---|---|---|---|---|
+| ToyStory5.nzb | 7 | 1662 | 7164735989 | `9add0ee889f54187` | rounds 3-6 |
+| ToyStory5Damaged.nzb | 7 | 1662 | 7164735989 | `90b9bdccb56a8f91` | rounds 3-5 |
+| Obfuscated.nzb | 7 | 1662 | 7164735989 | `6794d1464e7cb28c` | rounds 3-6 |
+| FatherBrown.nzb | 17 | 1010 | 394141285 | `55ed581204b3d83b` | rounds 3-6 |
+| MandaloriaREMUX.nzb | 9 | 9514 | 41128806912 | `019ada4cd99160a9` | round 6 |
+| Bosch.S01.nzb | 20 | 32850 | 24290014587 | `c9b60371473825b0` | rounds 4-6 |
+| DoomsdayRar.nzb | 75 | 4808 | 3752438946 | `90635d96aa4d8c48` | none, see below |
+
+The article counts for the first five are lower than earlier revisions of this
+file reported, by exactly the file count in each case. The old numbers were
+produced by a pattern that counted `<segment` and so also matched the
+`<segments>` container once per file. The sha256 of those five files is
+unchanged, so the files themselves are byte identical and every earlier result
+still stands. Only the count was wrong.
+
+`DoomsdayRar.nzb` is in the archive but in no corpus. It is kept because it
+documents a trap: all 4808 of its articles are present on the server and the
+release is still unusable, because it carries `.rar` and `.r28` through `.r93`
+and is missing `.r00` through `.r27`. Twenty eight of its ninety four volumes
+were never posted. A retrievability check does not detect this.
+
+`MandaloriaREMUX.nzb` had a `<meta type="tag">` element removed from its `<head>`
+before it was added here. That element is a per download token an indexer stamps
+on the copy it serves, which ties the file to the account that fetched it. No
+file, segment or byte total changed.
 
 `corpus/manifest.json` carries the same table in machine readable form. `stat_probe.py` will tell you whether a given NZB is still retrievable from your provider before you waste a run on it.
 
@@ -317,6 +520,7 @@ harness/          the benchmark scripts
 harness/plex/     the Plex phase, which runs where the browser is
 config/           the server configs used, credentials replaced
 corpus/           the NZB corpus and its manifest
-results/round4/   this round
-results/round3/   the previous round, for comparison
+results/round6/   the filesystem layout round
+results/round4/   the throughput and latency and Plex round
+results/round3/   the round before that, for comparison
 ```
