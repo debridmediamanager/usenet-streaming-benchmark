@@ -6,9 +6,13 @@ import statistics
 import sys
 
 path = sys.argv[1] if len(sys.argv) > 1 else "/home/ben/bench/six1.log"
-rows = [json.loads(l) for l in open(path) if l.strip().startswith("{")]
 if path.endswith(".json"):
+    # The line-by-line parse must not run first: the harness writes indent=1
+    # JSON, whose "  {" lines pass the startswith filter and crash json.loads
+    # before this branch was ever reached.
     rows = json.load(open(path))
+else:
+    rows = [json.loads(l) for l in open(path) if l.strip().startswith("{")]
 
 errs = [r for r in rows if "error" in r or r.get("http") not in (None, "206")]
 if errs:
@@ -44,12 +48,30 @@ for r in rows:
         d[r["target"]]["cpu"].append(r["cpu_s_per_GB"])
         d[r["target"]]["rss"].append(r["rss_MB"])
         d[r["target"]]["ok"].append(1 if (r.get("http") == "206" and r.get("bytes") == asked) else 0)
+    elif "error" in r:
+        # A curl timeout/failure carries no MBps, so it used to drop out of the
+        # stats entirely: a target erroring on 2 of 6 reads printed its mean
+        # over the 4 survivors and "6/6"-shaped completion of 4/4 -- the read
+        # that never came back scored the same as a read never attempted.
+        # It gets no rate (there is none to average), but it does get counted.
+        d[r["target"]]["ok"].append(0)
+        d[r["target"]]["err"].append(1)
 
-print("%-12s %2s %7s %7s %7s %7s %8s %8s %7s %9s"
-      % ("target", "n", "mean", "median", "min", "max", "ttfb", "cpuS/GB", "RSS", "complete"))
-for k, v in sorted(d.items(), key=lambda x: -statistics.mean(x[1]["mbps"])):
+# Column stays off for clean data so the usual table is byte-identical.
+anyerr = any(v["err"] for v in d.values())
+print("%-12s %2s %7s %7s %7s %7s %8s %8s %7s %9s%s"
+      % ("target", "n", "mean", "median", "min", "max", "ttfb", "cpuS/GB", "RSS",
+         "complete", " %6s" % "errors" if anyerr else ""))
+# A target whose every read errored has no mean to sort on; park it last.
+for k, v in sorted(d.items(),
+                   key=lambda x: -statistics.mean(x[1]["mbps"]) if x[1]["mbps"] else float("inf")):
     m = v["mbps"]
-    print("%-12s %2d %7.2f %7.2f %7.2f %7.2f %8.2f %8.1f %7.0f %5d/%-3d"
+    tail = " %6d" % len(v["err"]) if anyerr else ""
+    if not m:
+        print("%-12s %2d %7s %7s %7s %7s %8s %8s %7s %5d/%-3d%s"
+              % (k, 0, "-", "-", "-", "-", "-", "-", "-", 0, len(v["ok"]), tail))
+        continue
+    print("%-12s %2d %7.2f %7.2f %7.2f %7.2f %8.2f %8.1f %7.0f %5d/%-3d%s"
           % (k, len(m), statistics.mean(m), statistics.median(m), min(m), max(m),
              statistics.mean(v["ttfb"]), statistics.mean(v["cpu"]),
-             statistics.mean(v["rss"]), sum(v["ok"]), len(v["ok"])))
+             statistics.mean(v["rss"]), sum(v["ok"]), len(v["ok"]), tail))
