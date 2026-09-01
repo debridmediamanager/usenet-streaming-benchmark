@@ -102,24 +102,69 @@ def walk(name, url, depth=3):
     return files, dirs
 
 
+def queue_len(name):
+    """Pending items in the target's SAB-style import queue, or None if it has none."""
+    if name in ("infinidysk", "nzbdav-og"):
+        port = 8092 if name == "infinidysk" else 8093
+        url = f"http://127.0.0.1:{port}/api?mode=queue&apikey={API_KEY}"
+    elif name == "decypharr":
+        url = f"http://localhost:8282/sabnzbd/api?mode=queue&apikey={API_KEY}"
+    else:
+        return None
+    try:
+        return int(json.loads(sh(f"curl -s --max-time 30 '{url}'"))["queue"]["noofslots"])
+    except Exception:
+        return None
+
+
+def wait_ready(name, nzb, cap=420, quiet=60):
+    """Wait for the imported release to appear, instead of sleeping a fixed 55s.
+
+    A fixed sleep is really a guess about connection count. Round 7 pinned every
+    target to 20 connections; at 20 infinidysk needs well over 55s to fetch the
+    first segments of a release, so the old sleep probed a listing that had not
+    filled yet and recorded a working server as broken. The tree phase hit the
+    same thing from the other side -- its 90s quiet window called the library
+    complete with 1 of 5 releases in it, while all 5 imports had been accepted.
+
+    Poll instead: return as soon as the release is listed, or once the import
+    queue has drained and the listing has gone quiet. Returns seconds waited,
+    which is itself worth recording -- it is the import latency.
+    """
+    stem = nzb[:-4] if nzb.endswith(".nzb") else nzb
+    t0 = time.time()
+    last, stable_since = None, time.time()
+    while time.time() - t0 < cap:
+        time.sleep(10)
+        tops = [leaf(t).lower() for t in listing(name, ROOT[name])]
+        if any(x == stem.lower() or x.startswith(stem.lower() + " (") for x in tops):
+            return round(time.time() - t0)
+        if tops != last:
+            last, stable_since = tops, time.time()
+        q = queue_len(name)
+        if (q == 0 or q is None) and time.time() - stable_since >= quiet:
+            return round(time.time() - t0)
+    return round(time.time() - t0)
+
+
 def import_nzb(name, nzb):
     if name == "zurg":
         sh(f"cp -n {BENCH}/nzbs/{nzb} {BENCH}/zurgrun/nzbs/{nzb}")
-        time.sleep(30)
-        return "present in nzbs/"
+        w = wait_ready(name, nzb)
+        return f"present in nzbs/ (ready in {w}s)"
     if name == "altmount":
         r = sh(f"curl -s -X POST 'http://localhost:8081/api/import/file?apikey={API_KEY}' "
                f"-H 'Content-Type: application/json' "
                f"-d '{{\"file_path\":\"{BENCH}/am-nzbs/{nzb}\"}}'")
-        time.sleep(55)
-        return r[:250]
+        w = wait_ready(name, nzb)
+        return r[:250] + f" || READY {w}s"
     if name in ("infinidysk", "nzbdav-og"):
         port, d = ((8092, "id-nzbs") if name == "infinidysk" else (8093, "og-nzbs"))
         r = sh(f"curl -s -X POST 'http://127.0.0.1:{port}/api?mode=addfile&apikey={API_KEY}' "
                f"-F 'nzbFile=@{BENCH}/{d}/{nzb}'")
-        time.sleep(55)
+        w = wait_ready(name, nzb)
         h = sh(f"curl -s 'http://127.0.0.1:{port}/api?mode=history&apikey={API_KEY}'")
-        return (r[:120] + " || HIST " + h[:700])
+        return (r[:120] + f" || READY {w}s || HIST " + h[:650])
     if name == "decypharr":
         # main-0dd1cbbd: one SAB mock at /sabnzbd/api, upload field is `name`.
         # A wrong field answers {"status": false, "error": "No files uploaded"}
@@ -129,8 +174,8 @@ def import_nzb(name, nzb):
                f"-F 'name=@{BENCH}/nzbs/{nzb}'")
         if '"status": false' in r or "No files uploaded" in r:
             return f"decypharr refused the upload: {r[:200]}"
-        time.sleep(55)
-        return r[:250]
+        w = wait_ready(name, nzb)
+        return r[:250] + f" || READY {w}s"
     return "?"
 
 

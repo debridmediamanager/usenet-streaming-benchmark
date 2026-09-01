@@ -14,7 +14,7 @@ database:
 metadata:
   root_path: '/home/ben/bench/altmount/cfg/metadata'
 streaming:
-  max_prefetch: 30
+  max_prefetch: 60
   failure_masking:
     enabled: false
     threshold: 3
@@ -27,7 +27,11 @@ import:
   import_strategy: 'NONE'
   max_concurrent_imports: 0
 health:
-  enabled: false
+  enabled: true
+  max_connections_for_health_checks: 20
+  check_interval_seconds: 60
+  repair:
+    enabled: true
 sabnzbd:
   enabled: false
 arrs:

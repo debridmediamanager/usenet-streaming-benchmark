@@ -21,7 +21,7 @@
     "max_connections": 20,
     "processing_max_connections": 20,
     "disk_buffer_path": "/home/ben/bench/decyrun/streams",
-    "read_ahead": "16MB"
+    "read_ahead": "32MB"
   },
   "mount": {
     "type": "dfs",
@@ -36,5 +36,15 @@
   "categories": [
     "movies",
     "tv"
-  ]
+  ],
+  "repair": {
+    "enabled": true,
+    "source": "managed",
+    "schedule": "5m",
+    "workers": 5,
+    "nntp_connection_percent": 20,
+    "strategy": "per_entry",
+    "recheck_interval": "1m",
+    "auto_repair": true
+  }
 }
