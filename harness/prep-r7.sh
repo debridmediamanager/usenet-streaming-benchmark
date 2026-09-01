@@ -72,6 +72,21 @@ s = re.sub(r'host: news[a-z0-9.-]*', f'host: {host}', s)
 s = re.sub(r'connections: \d+', f'connections: {conns}', s)
 s = re.sub(r'enable_repair: \w+', 'enable_repair: true', s)
 open(p, 'w').write(s)
+# re.sub that matches nothing returns the string unchanged and says so to
+# nobody, and the print below used to run either way -- a config whose shape
+# drifted was ANNOUNCED as parity-set while still carrying the old value.
+# Assert against the bytes now on disk, not against the intent.
+chk = open(p).read()
+missing = []
+if not re.search(r'(?m)^\s*connections: %d\s*$' % conns, chk):
+    missing.append("connections: %d" % conns)
+if not re.search(r'(?m)^\s*enable_repair: true\s*$', chk):
+    missing.append("enable_repair: true")
+if missing:
+    print("   zurg: PARITY NOT SET in %s -- expected %s" % (p, ", ".join(missing)))
+    print("   found: %s" % [l.rstrip() for l in chk.splitlines()
+                            if re.search(r'connections|enable_repair|host:', l)])
+    sys.exit(1)
 print("   zurg: connections=%d enable_repair=true" % conns)
 PY
 
@@ -88,6 +103,27 @@ s = re.sub(r'health:\n  enabled: false',
            "health:\n  enabled: true\n  max_connections_for_health_checks: %d\n"
            "  check_interval_seconds: 60\n  repair:\n    enabled: true" % conns, s)
 open(p, 'w').write(s)
+# The health substitution is a LITERAL 'health:\n  enabled: false'. A config
+# that already carries 'enabled: true' (a re-run, or a hand edit) matches
+# nothing, so the repair block is never inserted -- and the old print announced
+# repair anyway. Verify the health block on disk really holds both toggles.
+chk = open(p).read()
+missing = []
+if not re.search(r'(?m)^\s*max_connections: %d\s*$' % conns, chk):
+    missing.append("max_connections: %d" % conns)
+hb = re.search(r'(?m)^health:\n(?P<b>(?:[ \t].*\n|\n)*)', chk)
+hbody = hb.group("b") if hb else ""
+if not re.search(r'(?m)^ {2}enabled: true\s*$', hbody):
+    missing.append("health.enabled: true")
+rb = re.search(r'(?m)^ {2}repair:\n(?P<b>(?:[ \t]{3,}.*\n|\n)*)', hbody)
+if not (rb and re.search(r'(?m)^\s+enabled: true\s*$', rb.group("b"))):
+    missing.append("health.repair.enabled: true")
+if missing:
+    print("   altmount: PARITY NOT SET in %s -- expected %s" % (p, ", ".join(missing)))
+    print("   found health block: %r" % (hbody[:400] or "<no health: block>"))
+    print("   found: %s" % [l.rstrip() for l in chk.splitlines()
+                            if re.search(r'max_connections|host:', l)])
+    sys.exit(1)
 print("   altmount: max_connections=%d health.enabled=true health.repair.enabled=true" % conns)
 PY
 
@@ -120,6 +156,27 @@ c["repair"] = {
     "auto_repair": True,
 }
 json.dump(c, open(p, "w"), indent=2)
+# Re-parse rather than trust the dict just written: an unexpected config shape
+# (no "usenet", providers renamed) would raise above, but a partially applied
+# edit would not, and every other target's print used to be unconditional too.
+chk = json.load(open(p))
+cu = chk.get("usenet", {})
+got = {
+    "usenet.max_connections": cu.get("max_connections"),
+    "usenet.processing_max_connections": cu.get("processing_max_connections"),
+    "providers[].max_connections": [x.get("max_connections") for x in cu.get("providers", [])],
+    "repair.enabled": chk.get("repair", {}).get("enabled"),
+}
+ok = (got["usenet.max_connections"] == conns
+      and got["usenet.processing_max_connections"] == conns
+      and got["providers[].max_connections"]
+      and set(got["providers[].max_connections"]) == {conns}
+      and got["repair.enabled"] is True)
+if not ok:
+    print("   decypharr: PARITY NOT SET in %s" % p)
+    print("   expected every connection value == %d and repair.enabled True, found %s"
+          % (conns, got))
+    sys.exit(1)
 print("   decypharr: provider=%d usenet.max_connections=%d processing=%d repair.enabled=true source=managed"
       % (conns, conns, conns))
 PY
@@ -139,7 +196,22 @@ for prov in cfg["Providers"]:
 c.execute("update ConfigItems set ConfigValue=? where ConfigName='usenet.providers'", (json.dumps(cfg),))
 c.execute("insert into ConfigItems (ConfigName, ConfigValue) values ('usenet.max-download-connections', ?) "
           "on conflict(ConfigName) do update set ConfigValue=excluded.ConfigValue", (str(conns),))
-c.commit(); c.close()
+c.commit()
+# Re-query the committed rows. The upsert silently writes nothing useful if
+# ConfigName has no unique index, and the provider loop silently does nothing
+# if the JSON key is not "Providers" -- both used to print parity regardless.
+row = c.execute("select ConfigValue from ConfigItems where ConfigName='usenet.providers'").fetchone()
+got_p = [x.get("MaxConnections") for x in json.loads(row[0])["Providers"]] if row else []
+row = c.execute("select ConfigValue from ConfigItems "
+                "where ConfigName='usenet.max-download-connections'").fetchone()
+got_d = row[0] if row else None
+c.close()
+if not got_p or set(got_p) != {conns} or str(got_d) != str(conns):
+    print("   nzbdav-og: PARITY NOT SET in %s" % p)
+    print("   expected MaxConnections %d on every provider and "
+          "max-download-connections %d, found providers=%s max-download-connections=%r"
+          % (conns, conns, got_p, got_d))
+    sys.exit(1)
 print("   nzbdav-og: provider MaxConnections=%d max-download-connections=%d (no repair feature)" % (conns, conns))
 PY
 
@@ -192,4 +264,91 @@ for p in 8092 8093; do
   echo -n "   :$p health -> "; curl -s -o /dev/null -w '%{http_code}\n' --max-time 10 http://127.0.0.1:$p/health || echo fail
 done
 docker stop infinidysk-r7 nzbdav-r7 >/dev/null
+
+# ---------------------------------------------------------------- verify
+# The README told the reader to run five commands by hand "before trusting a
+# run". Round 6 was invalidated because nobody did. Those five checks, in code,
+# on every prep: every value re-read from disk or from `docker inspect` (which
+# answers on a stopped container) rather than from what this script believes it
+# wrote.
+echo "== verify parity =="
+python3 - "$BENCH" "$CONNS" infinidysk-r7 <<'PY'
+import json, re, sqlite3, subprocess, sys
+
+bench, conns, ictr = sys.argv[1], int(sys.argv[2]), sys.argv[3]
+bad = []
+
+
+def report(target, ok, detail):
+    print("   %-11s %-4s %s" % (target, "OK" if ok else "FAIL", detail))
+    if not ok:
+        bad.append(target)
+
+
+# zurg -- one knob, pool and reads both
+s = open(f"{bench}/zurgrun/config.yml").read()
+v = [int(x) for x in re.findall(r'(?m)^\s*connections: (\d+)\s*$', s)]
+rep = sorted(set(re.findall(r'(?m)^\s*enable_repair: (\w+)\s*$', s)))
+report("zurg", bool(v) and set(v) == {conns} and rep == ["true"],
+       "connections=%s enable_repair=%s" % (v, rep))
+
+# altmount -- provider cap is the only connection knob; repair sits under health
+s = open(f"{bench}/altmount/config.yaml").read()
+v = [int(x) for x in re.findall(r'(?m)^\s*max_connections: (\d+)\s*$', s)]
+hb = re.search(r'(?m)^health:\n(?P<b>(?:[ \t].*\n|\n)*)', s)
+hbody = hb.group("b") if hb else ""
+henab = bool(re.search(r'(?m)^ {2}enabled: true\s*$', hbody))
+rb = re.search(r'(?m)^ {2}repair:\n(?P<b>(?:[ \t]{3,}.*\n|\n)*)', hbody)
+renab = bool(rb and re.search(r'(?m)^\s+enabled: true\s*$', rb.group("b")))
+report("altmount", bool(v) and set(v) == {conns} and henab and renab,
+       "max_connections=%s health.enabled=%s health.repair.enabled=%s"
+       % (v, henab, renab))
+
+# decypharr -- socket pool and per-file read budget are separate knobs
+c = json.load(open(f"{bench}/decyrun/config.json"))
+u = c.get("usenet", {})
+pv = [x.get("max_connections") for x in u.get("providers", [])]
+report("decypharr",
+       bool(pv) and set(pv) == {conns} and u.get("max_connections") == conns
+       and u.get("processing_max_connections") == conns
+       and c.get("repair", {}).get("enabled") is True,
+       "providers=%s usenet.max_connections=%s processing=%s repair.enabled=%s"
+       % (pv, u.get("max_connections"), u.get("processing_max_connections"),
+          c.get("repair", {}).get("enabled")))
+
+# infinidysk -- every setting arrives by environment variable, so the container
+# definition IS the config; nothing on disk to read.
+env = {}
+try:
+    raw = subprocess.run(["docker", "inspect", ictr, "--format", "{{json .Config.Env}}"],
+                         capture_output=True, text=True, timeout=60, check=True).stdout
+    env = dict(x.split("=", 1) for x in json.loads(raw) if "=" in x)
+except Exception as exc:
+    print("   infinidysk  docker inspect %s failed: %s" % (ictr, str(exc)[:160]))
+prov = json.loads(env.get("NZBDAV_CONFIG__USENET__PROVIDERS", '{"Providers":[]}'))
+pv = [(x.get("MaxConnections"), x.get("MaxTransferConnections"))
+      for x in prov.get("Providers", [])]
+dl = env.get("NZBDAV_CONFIG__USENET__MAX_DOWNLOAD_CONNECTIONS")
+report("infinidysk", bool(pv) and set(pv) == {(conns, conns)} and str(dl) == str(conns),
+       "providers(Max,MaxTransfer)=%s max-download-connections=%s" % (pv, dl))
+
+# nzbdav-og -- the master db, because that is the reseed source tree_r7.py
+# copies into the per-round config dir; the container carries no connection env.
+db = sqlite3.connect(f"file:{bench}/nzbdav-og/config/db.sqlite?mode=ro", uri=True)
+row = db.execute("select ConfigValue from ConfigItems "
+                 "where ConfigName='usenet.providers'").fetchone()
+pv = [x.get("MaxConnections") for x in json.loads(row[0])["Providers"]] if row else []
+row = db.execute("select ConfigValue from ConfigItems "
+                 "where ConfigName='usenet.max-download-connections'").fetchone()
+dl = row[0] if row else None
+db.close()
+report("nzbdav-og", bool(pv) and set(pv) == {conns} and str(dl) == str(conns),
+       "provider MaxConnections=%s max-download-connections=%s" % (pv, dl))
+
+if bad:
+    print("   PARITY VERIFICATION FAILED: %s -- do not run the round" % ", ".join(bad))
+    sys.exit(1)
+print("   all five targets verified at %d NNTP connections" % conns)
+PY
+
 echo "PREP_R7_DONE"
