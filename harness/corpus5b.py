@@ -9,6 +9,8 @@ imported release from an earlier run gets probed instead.
 Isolation is unchanged: one server alive at a time, imports included.
 """
 import hashlib
+import os
+import shutil
 import json
 import re
 import subprocess
@@ -153,9 +155,28 @@ def import_nzb(name, nzb):
         w = wait_ready(name, nzb)
         return f"present in nzbs/ (ready in {w}s)"
     if name == "altmount":
+        # altmount is handed a path and MOVES the file rather than copying it:
+        # its log records "Moved NZB to persistent storage" into
+        # /tmp/.altmount-queue. So the second import of any release finds
+        # nothing, and the probe that follows reports the release absent --
+        # which reads as a server that refuses the content when it is really a
+        # harness that deleted its own input. Six reprobe passes recorded
+        # "release absent" for exactly this reason. Hand it a throwaway copy.
+        src = f"{BENCH}/am-nzbs/{nzb}"
+        if not os.path.exists(src):
+            src = f"{BENCH}/nzbs/{nzb}"
+        # The copy must keep the ORIGINAL filename: altmount names the release
+        # after the file it was handed, so a uniquified filename produced a
+        # release called "am-import-1788277768923-ToyStory5Damaged" that no
+        # stem match could find, and six repair passes recorded "no release".
+        # Uniquify the directory instead.
+        d = f"/tmp/am-import-{int(time.time()*1000)}"
+        os.makedirs(d, exist_ok=True)
+        tmp = f"{d}/{nzb}"
+        shutil.copyfile(src, tmp)
         r = sh(f"curl -s -X POST 'http://localhost:8081/api/import/file?apikey={API_KEY}' "
                f"-H 'Content-Type: application/json' "
-               f"-d '{{\"file_path\":\"{BENCH}/am-nzbs/{nzb}\"}}'")
+               f"-d '{{\"file_path\":\"{tmp}\"}}'")
         w = wait_ready(name, nzb)
         return r[:250] + f" || READY {w}s"
     if name in ("infinidysk", "nzbdav-og"):

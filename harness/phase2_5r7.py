@@ -9,6 +9,7 @@ Four shapes of read, each on a freshly started server so nothing is warm:
 Also records warm re-read (same 64 MB range twice) and peak RSS.
 """
 import json
+import os
 import statistics
 import subprocess
 import sys
@@ -52,7 +53,17 @@ def ffprobe(name, timeout=900):
     return round(time.time() - t0, 2), dur or "none"
 
 
-SCRUB_OFFS = [int(x * 1e9) for x in (0.55, 1.30, 1.80, 2.60, 2.90, 3.60, 5.00, 5.90)]
+# Every pass must read bytes that no earlier pass touched. One target keeps an
+# on-disk segment cache which is enabled by default, and against fixed offsets
+# its TTFB fell 2.310s -> 0.096s and its big read rose 5.62 -> 74.95 MB/s
+# between pass 1 and pass 2. That is the cache being measured and not the
+# server. SHIFT moves every offset in this pass into untouched territory. The
+# file is 6.6 GB so the scrub points stay inside it.
+PASS_IX = int(os.environ.get("PASS_IX", "0"))
+SHIFT = PASS_IX * 90_000_000        # 90 MB per pass, far past any read-ahead
+COLD_OFF = 3_500_000_000 + SHIFT
+BIG_OFF = 4_200_000_000 + SHIFT
+SCRUB_OFFS = [int(x * 1e9) + SHIFT for x in (0.55, 1.30, 1.80, 2.60, 2.90, 3.60, 5.00, 5.90)]
 
 
 def run(name):
@@ -60,17 +71,17 @@ def run(name):
     pids = start(name)
 
     # cold open: 1 MB at an untouched offset, first read after start
-    ttfb, tot, size, code = timed_range(name, 3_500_000_000, 1 << 20)
+    ttfb, tot, size, code = timed_range(name, COLD_OFF, 1 << 20)
     r["cold_open_s"] = round(tot, 3) if tot else None
     r["cold_open_http"] = code
 
     # ttfb on a large read
-    ttfb, tot, size, code = timed_range(name, 4_200_000_000, 64 << 20)
+    ttfb, tot, size, code = timed_range(name, BIG_OFF, 64 << 20)
     r["ttfb_s"] = round(ttfb, 3) if ttfb else None
     r["big_read_MBps"] = round(size / tot / 1e6, 2) if tot else 0
 
     # warm re-read of the exact same range
-    ttfb2, tot2, size2, _ = timed_range(name, 4_200_000_000, 64 << 20)
+    ttfb2, tot2, size2, _ = timed_range(name, BIG_OFF, 64 << 20)
     r["warm_reread_s"] = round(tot2, 3) if tot2 else None
 
     # scrub: 8 x 2 MB at scattered offsets
@@ -95,5 +106,7 @@ if __name__ == "__main__":
     targets = sys.argv[1].split(",") if len(sys.argv) > 1 else ALL
     stop_all()
     out = [run(n) for n in targets]
-    with open(f"{BENCH}/results_latency_r7.json", "w") as f:
+    tag = sys.argv[2] if len(sys.argv) > 2 else ""
+    suffix = f"_{tag}" if tag else ""
+    with open(f"{BENCH}/results_latency_r7{suffix}.json", "w") as f:
         json.dump(out, f, indent=1)
