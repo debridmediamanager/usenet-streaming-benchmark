@@ -28,10 +28,24 @@
   "approx_bytes": 394141285
  },
  {
+  "nzb": "MandaloriaREMUX.nzb",
+  "sha256": "019ada4cd99160a9",
+  "files": 9,
+  "articles": 9514,
+  "approx_bytes": 41130606798
+ },
+ {
   "nzb": "Bosch.S01.nzb",
   "sha256": "c9b60371473825b0",
   "files": 20,
   "articles": 32850,
   "approx_bytes": 24290014587
+ },
+ {
+  "nzb": "DoomsdayRar.nzb",
+  "sha256": "90635d96aa4d8c48",
+  "files": 75,
+  "articles": 4808,
+  "approx_bytes": 3746290637
  }
 ]
