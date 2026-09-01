@@ -36,6 +36,25 @@ def pick_release(name, stem):
     return exact or (sorted(dupes)[0] if dupes else None), [leaf(t) for t in tops]
 
 
+def wait_for_release(name, stem, cap=120, interval=10):
+    """Poll the listing until the release shows up, up to cap seconds.
+
+    One PROPFIND 6 s after start cannot tell "never imported it" from "still
+    loading its library" -- and round 7 published "decypharr never imported it"
+    as a verdict off exactly that single glance. Polling costs nothing when the
+    release is there (first attempt hits) and buys a defensible negative when it
+    is not. Returns (rel, tops, waited_s) so the wait lands in the record: an
+    absence is then on file as polled-to-timeout rather than looked at once.
+    """
+    t0 = time.time()
+    while True:
+        rel, tops = pick_release(name, stem)
+        waited = round(time.time() - t0, 1)
+        if rel or waited >= cap:
+            return rel, tops, waited
+        time.sleep(interval)
+
+
 def pick_video(name, files):
     """Largest non-sample video, not simply the first video in the listing.
 
@@ -65,11 +84,11 @@ def main():
         for name in TARGETS:
             rec = {"phase": phase, "target": name}
             start(name)
-            time.sleep(6)
-            rel, tops = pick_release(name, cfg["stem"])
+            rel, tops, waited = wait_for_release(name, cfg["stem"])
             rec["chosen_dir"] = leaf(rel) if rel else None
             rec["all_dirs"] = tops
             if rel:
+                rec["listed_after_s"] = waited
                 files, subdirs = walk(name, rel)
                 rec["files"] = [leaf(f) for f in files]
                 rec["subdirs"] = [leaf(d) for d in subdirs]
@@ -78,6 +97,8 @@ def main():
                 if vid:
                     rec["content_length"] = head_size(name, vid)
                     rec["probe"] = probe(name, vid, cfg["off"], cfg["len"])
+            else:
+                rec["absent_after_s"] = waited
             stop(name)
             out.append(rec)
             print(json.dumps(rec)[:900], flush=True)

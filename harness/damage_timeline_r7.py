@@ -7,9 +7,8 @@ server STAYS UP (zurg repaired by t+4 in round 4; InfiniDysk now has repairs on)
 import json, sys, time
 sys.path.insert(0, "/home/ben/bench")
 from bench5 import SPEC, start, stop, stop_all  # noqa: E402
-from reprobe_r7 import pick_release
+from reprobe_r7 import pick_video, wait_for_release
 from corpus5b import ROOT, walk, leaf, probe, head_size, TESTS  # noqa: E402
-import re
 TARGETS = ["zurg", "decypharr", "altmount", "infinidysk", "nzbdav-og"]
 def main():
     cfg = TESTS["damage"]
@@ -18,12 +17,18 @@ def main():
     for name in TARGETS:
         rec = {"target": name, "reads": []}
         start(name)
-        time.sleep(6)
-        rel, _ = pick_release(name, cfg["stem"])
+        # One listing 6 s after start read "still loading" as "never imported".
+        rel, _, waited = wait_for_release(name, cfg["stem"])
         vid = None
         if rel:
+            rec["listed_after_s"] = waited
             files, _ = walk(name, rel)
-            vid = next((f for f in files if re.search(r"\.(mkv|mp4|avi|ts|m4v)$", leaf(f), re.I)), None)
+            # Not the first video: a damaged release carrying Sample/ lists the
+            # 9 MB clip first on servers that keep the archive's structure, so
+            # the 4 MB read at 80 MB would probe the sample and 416.
+            vid = pick_video(name, files)
+        else:
+            rec["absent_after_s"] = waited
         rec["video"] = leaf(vid) if vid else None
         if not vid:
             rec["error"] = "release or video not found"
