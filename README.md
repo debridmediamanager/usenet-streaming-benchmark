@@ -278,6 +278,11 @@ python3 bench5.py six7 256 1500000000 0.8 6 zurg,decypharr,altmount,infinidysk,n
 # latency: cold open, TTFB, scrub, warm re-read, ffprobe
 python3 phase2_5r7.py zurg,decypharr,altmount,infinidysk,nzbdav-og
 
+# a repeated latency pass: PASS_IX shifts every offset into untouched bytes and
+# the tag names the output file. Without the shift a second pass measures a
+# target's on-disk segment cache rather than the server.
+PASS_IX=1 python3 phase2_5r7.py zurg,decypharr,altmount,infinidysk,nzbdav-og c2
+
 # behaviour: damage, obfuscated, rar
 python3 corpus5b.py damage zurg,decypharr,altmount,infinidysk,nzbdav-og
 
@@ -294,7 +299,7 @@ python3 stat_probe.py corpus/Bosch.S01.nzb
 
 ### Verify the connection parity before trusting a run
 
-This is the step that round 6 skipped and it invalidated a whole round. After `prep-r7.sh`, both settings should read 20 on every target.
+This is the step that round 6 skipped and it invalidated a whole round. `prep-r7.sh` now runs these checks itself, re-reading every value from disk and from `docker inspect`, and refuses to finish on a mismatch. The commands below remain for checking by hand. After `prep-r7.sh`, both settings should read 20 on every target.
 
 ```bash
 grep connections zurgrun/config.yml
