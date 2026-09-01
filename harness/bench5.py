@@ -51,10 +51,10 @@ SPEC = {
     },
     "infinidysk": {
         "port": 8092,
-        "url": f"http://127.0.0.1:8092/content/uncategorized/ToyStory5/{MKV}",
+        "url": "http://127.0.0.1:8092/content/uncategorized/ToyStory5/ToyStory5.mkv",
         "ready": "http://127.0.0.1:8092/health",
         "kind": "docker",
-        "container": "infinidysk",
+        "container": "infinidysk-r7",
         "auth": AUTH,
     },
     "nzbdav-og": {
@@ -62,7 +62,7 @@ SPEC = {
         "url": f"http://127.0.0.1:8093/content/uncategorized/ToyStory5/{MKV}",
         "ready": "http://127.0.0.1:8093/health",
         "kind": "docker",
-        "container": "nzbdav-og",
+        "container": "nzbdav-r7",
         "auth": AUTH,
     },
     "streamnzb": {
@@ -87,9 +87,16 @@ def spawn(cmd):
                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
-def pid_on(port):
+def pids_on(port):
+    """Every listener on the port, not just the first one lsof happens to print."""
     out = sh(f"lsof -tiTCP:{port} -sTCP:LISTEN 2>/dev/null")
-    return int(out.split()[0]) if out else None
+    return sorted({int(x) for x in out.split() if x.isdigit()})
+
+
+def pid_on(port):
+    """One listener, which is all stop()'s SIGTERM needs; accounting wants pids_on."""
+    pids = pids_on(port)
+    return pids[0] if pids else None
 
 
 def container_pids(name):
@@ -97,54 +104,125 @@ def container_pids(name):
     return [int(x) for x in out.split() if x.isdigit()]
 
 
+def _children():
+    """ppid -> [pid], read straight from /proc. Linux only, like the rest of this."""
+    kids = {}
+    for entry in os.listdir("/proc"):
+        if not entry.isdigit():
+            continue
+        try:
+            with open(f"/proc/{entry}/stat") as f:
+                # comm may hold spaces and parens, so split after the last ')':
+                # the remaining fields are state, ppid, pgrp, ...
+                ppid = int(f.read().rsplit(")", 1)[1].split()[1])
+        except Exception:
+            continue
+        kids.setdefault(ppid, []).append(int(entry))
+    return kids
+
+
+def proc_tree(roots):
+    """The roots plus every descendant.
+
+    zurg forks rclone (rclone_enabled in its config) and that child's CPU and
+    RSS were invisible, while docker targets were charged for every process in
+    the container — the two sides of the comparison were not measuring the same
+    thing. Also what stop() must SIGKILL: killing the parent alone orphans the
+    child, which goes on holding NNTP sockets.
+    """
+    kids = _children()
+    seen, out, stack = set(), [], list(roots)
+    while stack:
+        pid = stack.pop()
+        if pid in seen:
+            continue
+        seen.add(pid)
+        out.append(pid)
+        stack.extend(kids.get(pid, []))
+    return out
+
+
 def pids_for(name):
     """Every PID whose CPU and RSS belong to this target."""
     s = SPEC[name]
     if s["kind"] == "docker":
         return container_pids(s["container"])
-    pid = pid_on(s["port"])
-    return [pid] if pid else []
+    return proc_tree(pids_on(s["port"]))
 
 
 PROD_ZURG_PID = sh("systemctl show -p MainPID --value zurg.service") or "0"
 
 
-def nntp_sockets():
-    """NNTP sockets belonging to a bench target.
+def nntp_lines():
+    """NNTP sockets belonging to a bench target, as their raw `ss` lines.
 
     zen runs a production zurg.service against the same news account and keeps
     a couple of sockets warm at idle, so a plain count never reaches zero and
     every stop() burned its full 40s wait. Exclude that one PID; anything else
     on :563 is a target we are still waiting on.
+
+    Matched on the peer address field ending in :563, not `grep ':563'`, which
+    also matched an ephemeral local port like :56312 and burned the whole drain
+    wait on a target that had already let go.
     """
-    out = sh("ss -tnp 2>/dev/null | grep ':563'")
-    n = 0
-    for line in out.splitlines():
-        if not line.strip():
+    lines = []
+    for line in sh("ss -tnp 2>/dev/null").splitlines():
+        parts = line.split()
+        # State Recv-Q Send-Q Local:Port Peer:Port [Process]
+        if len(parts) < 5 or parts[0] == "State":
+            continue
+        if not parts[4].endswith(":563"):
             continue
         if "pid=" + PROD_ZURG_PID + "," in line:
             continue
-        n += 1
-    return n
+        lines.append(line.strip())
+    return lines
 
 
-def stop(name):
+def nntp_sockets():
+    return len(nntp_lines())
+
+
+def stop(name, budget=90):
+    """Stop a target and prove it let go of the port and the news account.
+
+    Both waits used to fall through on timeout, so a wedged target kept its ~20
+    NNTP sockets while the next target was measured — the one rule the whole
+    benchmark rests on, broken silently. Now SIGTERM gets 20s before the process
+    tree takes a SIGKILL, and anything still holding on at the end of the budget
+    raises: a crashed run is honest, a contaminated measurement is not.
+    """
     s = SPEC[name]
+    deadline = time.time() + budget
     if s["kind"] == "docker":
         sh(f"docker stop {s['container']} >/dev/null 2>&1")
     else:
-        pid = pid_on(s["port"])
-        if pid:
-            sh(f"kill {pid}")
-    for _ in range(40):
-        if not pid_on(s["port"]):
+        for pid in pids_on(s["port"]):
+            sh(f"kill {pid} 2>/dev/null")
+    termed = time.time()
+    # docker stop escalates to SIGKILL on its own; native targets need us to
+    escalated = s["kind"] == "docker"
+    while time.time() < deadline:
+        if not pids_on(s["port"]):
             break
+        if not escalated and time.time() - termed > 20:
+            # the whole tree, not the listener: an orphaned rclone child keeps
+            # its NNTP sockets and the next target starts contaminated
+            for pid in proc_tree(pids_on(s["port"])):
+                sh(f"kill -9 {pid} 2>/dev/null")
+            escalated = True
         time.sleep(1)
     # the account is only free once the sockets are actually gone
-    for _ in range(40):
+    while time.time() < deadline:
         if nntp_sockets() == 0:
             break
         time.sleep(1)
+    left, still = nntp_lines(), pids_on(s["port"])
+    if still or left:
+        raise RuntimeError(
+            f"{name} still holds the account after {budget}s: "
+            f"port {s['port']} listeners {still}, {len(left)} NNTP sockets\n"
+            + "\n".join(left[:10]))
     time.sleep(2)
 
 
@@ -153,17 +231,35 @@ def stop_all():
         stop(n)
 
 
+def http_code(name, url):
+    cmd = (["curl", "-s", "-o", "/dev/null", "-w", "%{http_code}", "--max-time", "3"]
+           + curl_auth(name) + [url])
+    try:
+        return subprocess.run(cmd, capture_output=True, text=True).stdout.strip() or "000"
+    except Exception:
+        return "000"
+
+
 def start(name):
     s = SPEC[name]
     if s["kind"] == "docker":
         sh(f"docker start {s['container']} >/dev/null 2>&1")
     else:
         spawn(s["start"])
+    code = "000"
     for _ in range(90):
         time.sleep(1)
-        code = sh(f"curl -s -o /dev/null -w '%{{http_code}}' --max-time 3 {s['ready']}")
-        if code and code not in ("000",):
+        # 5xx is not ready: zurg answers 503 for as long as its library is
+        # loading, and that load used to leak into the first measured TTFB by a
+        # different amount per target. 401/404 do count — the server is
+        # answering. Auth goes with the probe so altmount's 401 stays a real
+        # answer rather than an ambiguous one.
+        code = http_code(name, s["ready"])
+        if code != "000" and not code.startswith("5"):
             break
+    else:
+        # measuring a target that never came up yields garbage shaped like data
+        raise RuntimeError(f"{name} never became ready at {s['ready']}, last code {code}")
     time.sleep(4)
     return pids_for(name)
 
@@ -227,6 +323,15 @@ def measure(name, pids, off, length, timeout=900):
 
 def main(tag, size_mb, base_off, gap_gb, reps, targets=None):
     targets = targets or ALL
+    extra = reps % len(targets)
+    if extra:
+        # the order shifts one slot per rep, so a rep count that is not a
+        # multiple of the target count leaves the first `extra` targets going
+        # first once more than the rest (round 7: 6 reps over 5 targets, zurg
+        # first twice). The rotation is deterministic and published results
+        # depend on it, so surface the imbalance rather than correct it.
+        print(f"WARN: {reps} reps over {len(targets)} targets — extra first-slot turn for "
+              + ", ".join(targets[:extra]), flush=True)
     length = size_mb << 20
     results = []
     stop_all()
