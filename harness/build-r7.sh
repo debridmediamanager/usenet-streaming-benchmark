@@ -7,6 +7,11 @@
 # file or directory". Round 4 hit that trap and round 6 needed a second script
 # to undo it; here it is one step.
 set -u
+# Integrated BuildKit so the two image builds get a populated $BUILDPLATFORM.
+# infinidysk and nzbdav both start their Dockerfile with
+# `FROM --platform=$BUILDPLATFORM ...`; the legacy builder leaves that empty and
+# fails with "invalid OS component". No buildx CLI plugin is required for this.
+export DOCKER_BUILDKIT=1
 BENCH=/home/ben/bench
 OUT=$BENCH/src/out
 CACHE=$BENCH/src/gomodcache
@@ -27,8 +32,13 @@ trap 'rm -f "$START_REF"' EXIT
 
 pin () {  # dir -> checkout origin/main, echo short sha
   cd "$1" || return 1
+  git config --global --add safe.directory "$1" 2>/dev/null || true
   git fetch --quiet origin
   git checkout --quiet --detach origin/main
+  # infinidysk vendors rapidyenc as a submodule; its Dockerfile COPYs
+  # libs/rapidyenc and cmake-builds it, so an uninitialised submodule fails the
+  # image build. A no-op for the repos without submodules.
+  git submodule update --init --recursive --depth 1 --quiet 2>/dev/null || true
   git rev-parse --short=8 HEAD
 }
 
@@ -51,6 +61,12 @@ docker run --rm -v /home/ben/zurgcode:/src -v "$OUT":/out -v "$CACHE":/go/pkg/mo
   " 2>&1 | tail -6
 
 echo "=== altmount $AC ==="
+# AltMount's CLI embeds frontend/dist via go:embed (`all:dist`), so the Go build
+# fails with "pattern all:dist: no matching files found" until the frontend is
+# built. node is not in the golang image, so build dist in a node container
+# first; it is untracked, so the pin checkout above keeps it in place.
+docker run --rm -v $BENCH/src/altmount-git/frontend:/app -w /app node:20-alpine \
+  sh -c 'npm ci --no-audit --no-fund >/dev/null 2>&1 || npm install --no-audit --no-fund >/dev/null 2>&1; npm run build' 2>&1 | tail -3
 docker run --rm -v $BENCH/src/altmount-git:/src -v "$OUT":/out -v "$CACHE":/go/pkg/mod \
   -w /src golang:1.26-alpine sh -c "
     apk add --no-cache gcc g++ musl-dev >/dev/null 2>&1
