@@ -91,7 +91,7 @@ Byte offsets were chosen so that no read overlapped any read from an earlier rou
 
 The host runs a production zurg against the same account but against a different server of that provider. Connection caps on this provider are per server, so it contends with nothing here. `bench5.py` excludes that process id from its drain check so a stop does not wait forever on sockets that will never close.
 
-Byte identity was verified. All five servers reported the same ffprobe duration of 6206.752 seconds for the throughput file. On the RAR release all five returned the same md5 `79d1e148021c44ce018c9c47eb504d39` for the same 16 MB range, and all five advertised the same content length of 321905886 bytes.
+Byte identity was verified on the behaviour releases, not on the throughput file. The throughput reads all go to `/dev/null` and are never hashed, so what is established there is the same ffprobe duration of 6206.752 seconds across all five, which is weaker than a hash. On the RAR release all five returned the same md5 `79d1e148021c44ce018c9c47eb504d39` for the same 16 MB range and advertised the same content length of 321905886 bytes, and on the obfuscated release all five returned the same md5 for the same 8 MB range. Hashing the throughput reads as well is a todo.
 
 ## Throughput
 
@@ -104,8 +104,10 @@ Byte identity was verified. All five servers reported the same ffprobe duration 
 | Slowest to fastest | 20.5-47.1 | 27.0-36.5 | 13.1-26.4 | 15.5-19.2 | 3.1-13.9 |
 | Wait before data arrives | **0.63 s** | 3.33 s | 1.44 s | 4.92 s | 5.24 s |
 | CPU seconds per GB | **8.8** | 9.7 | 48.4 | 60.6 | 31.0 |
-| Peak RSS | 360 MB | 272 MB | 540 MB | 546 MB | 50 MB |
+| RSS, coarse (see note) | 360 MB | 272 MB | 540 MB | 546 MB | 50 MB |
 | Reads that finished | 6 of 6 | 6 of 6 | 6 of 6 | 6 of 6 | 6 of 6 |
+
+The RSS row is not a true peak. `bench5.py` samples RSS once before and once after each read and keeps the larger of the two, and the table means those per-rep values. It undercounts a peak that lands mid-read: InfiniDysk's largest single sample was 641 MB against the 540 reported. Read it as a rough footprint, not a maximum. Sampling during the transfer is the fix and is a todo.
 
 Per repetition, in MB/s. The first repetition is not representative of anything and is included because leaving it out would be dishonest.
 
@@ -140,7 +142,9 @@ Nine point eight times separates the fastest cold open from the slowest. That is
 
 InfiniDysk is much closer here than it is on throughput, and that is coherent rather than contradictory. Latency is one round trip. Sustained throughput is where a connection budget shows up, and this round took its budget down from an effective 50 to the same 20 as everyone else.
 
-One result to treat with suspicion rather than quote. nzbdav's warm re-read of 6.48 s is slower than its own cold open of 4.98 s. That should not happen and it has not been reproduced.
+An earlier version of this section called nzbdav's 6.48 s warm re-read an anomaly for being slower than its 4.98 s cold open. That comparison was wrong: the cold open reads 1 MiB and the warm re-read reads 64 MiB, so they are not comparable. Against the correct baseline, nzbdav's first 64 MiB read at 8.54 MB/s took about 7.86 s, so the 6.48 s warm re-read was in fact faster. There is no anomaly. The single-pass caveat below still applies.
+
+These latency numbers are a single pass per target. The phase starts each server once and runs cold open, large read, warm re-read, scrub and ffprobe in sequence, so later shapes inherit cache from earlier ones, and the reads do not assert a 206 or a byte count. Read the table as n=1 and lightly validated. A multi-pass mode with per-pass offset shifting is in `phase2_5r7.py`; per-shape server restarts and completeness checks are a todo.
 
 Source is `results/round7/results_latency_r7.json`.
 
@@ -160,13 +164,13 @@ One article of 1669 is gone from the news server. That is roughly 40 seconds of 
 
 | | first read | t+2 | t+4 | t+6 | t+8 | verdict |
 |---|---|---|---|---|---|---|
-| **zurg** | silence | silence | **real** | **real** | **real** | **Repairs it.** PAR2 rebuilt the span in the background while reads were still being served |
-| AltMount | silence | silence | silence | silence | silence | Zero-fills permanently, with repair enabled |
-| InfiniDysk | silence | silence | silence | silence | silence | Zero-fills permanently, with repair and PAR2 enabled |
-| decypharr | 206 with zero bytes | same | same | same | same | Never recovers, with repair enabled and a schedule that fires |
+| **zurg** | silence | silence | **real** | **real** | **real** | **Served real bytes from t+4 on**, consistent with a background rebuild of the span while reads were still being served |
+| AltMount | silence | silence | silence | silence | silence | Did not repair inside the window, with repair enabled |
+| InfiniDysk | silence | silence | silence | silence | silence | Did not repair inside the window, with repair and PAR2 enabled |
+| decypharr | 206 with zero bytes | same | same | same | same | Did not repair inside the window, with repair enabled and a schedule that fires |
 | nzbdav | HTTP 404 | 404 | 404 | 404 | 404 | Refuses the whole file. It has no repair feature |
 
-zurg is the only one of the five that rebuilds the missing span.
+zurg is the only one of the five that rebuilt the missing span inside the window. The defensible claim here is exactly that, an eight-minute observation at 20 connections with repair enabled where the feature exists. It is not proof that the others can never repair, only that they did not here. The harness records no repair-job state or logs, so a longer window or a different provider could read differently. What it does show is that under an identical eight minutes only zurg served real bytes back.
 
 This is the same result round 4 reported and it is now a much stronger claim. In round 4 two of the four others had repair switched off, so the finding was partly about configuration. This round they were switched on, decypharr was given a schedule that fires inside the window, and all five held the same 20 connections. Nothing else repaired.
 
