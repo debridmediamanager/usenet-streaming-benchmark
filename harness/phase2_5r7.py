@@ -66,38 +66,73 @@ BIG_OFF = 4_200_000_000 + SHIFT
 SCRUB_OFFS = [int(x * 1e9) + SHIFT for x in (0.55, 1.30, 1.80, 2.60, 2.90, 3.60, 5.00, 5.90)]
 
 
+def complete(code, size, length):
+    # A read is only trustworthy when the server returned 206 for the whole
+    # requested range: a partial body or a non-206 reply can finish fast while
+    # proving nothing, so those must not flatter the latency numbers.
+    return code == "206" and size == length
+
+
 def run(name):
     r = {"target": name}
-    pids = start(name)
+    # Each independent read shape runs on its OWN freshly started server so a
+    # later shape never inherits the cache or runtime state an earlier one left
+    # behind (one target keeps an on-disk segment cache). The extra restarts
+    # make the phase slower; that is the correct trade for not measuring a warm
+    # cache as if it were cold. RSS is sampled per group and the peak kept, so
+    # it is not tied to one arbitrary shape.
+    rss_peak = 0
 
-    # cold open: 1 MB at an untouched offset, first read after start
+    # (a) cold open: 1 MB at an untouched offset, first read after a fresh start
+    start(name)
     ttfb, tot, size, code = timed_range(name, COLD_OFF, 1 << 20)
     r["cold_open_s"] = round(tot, 3) if tot else None
     r["cold_open_http"] = code
+    r["cold_open_complete"] = complete(code, size, 1 << 20)
+    rss_peak = max(rss_peak, rss_mb(pids_for(name)))
+    stop(name)
 
-    # ttfb on a large read
+    # (b) big read then warm re-read, on the SAME instance. The warm re-read is
+    # deliberately warm - it re-reads the exact same 64 MB range to measure
+    # caching - so no restart may fall between the two.
+    start(name)
     ttfb, tot, size, code = timed_range(name, BIG_OFF, 64 << 20)
     r["ttfb_s"] = round(ttfb, 3) if ttfb else None
     r["big_read_MBps"] = round(size / tot / 1e6, 2) if tot else 0
-
-    # warm re-read of the exact same range
-    ttfb2, tot2, size2, _ = timed_range(name, BIG_OFF, 64 << 20)
+    r["big_read_http"] = code
+    r["big_read_complete"] = complete(code, size, 64 << 20)
+    ttfb2, tot2, size2, code2 = timed_range(name, BIG_OFF, 64 << 20)
     r["warm_reread_s"] = round(tot2, 3) if tot2 else None
+    r["warm_http"] = code2
+    r["warm_complete"] = complete(code2, size2, 64 << 20)
+    rss_peak = max(rss_peak, rss_mb(pids_for(name)))
+    stop(name)
 
-    # scrub: 8 x 2 MB at scattered offsets
+    # (c) scrub: 8 x 2 MB at scattered offsets, fresh server. Only a full 206
+    # sample counts toward the median; a short or non-206 reply is dropped so a
+    # truncated read cannot masquerade as a fast seek. scrub_attempted records
+    # how many were tried, making the drop rate visible.
+    start(name)
     times = []
+    attempted = 0
     for off in SCRUB_OFFS:
+        attempted += 1
         _, tot, size, code = timed_range(name, off, 2 << 20)
-        if tot and size:
+        if complete(code, size, 2 << 20):
             times.append(tot)
     r["scrub_median_s"] = round(statistics.median(times), 3) if times else None
     r["scrub_n"] = len(times)
-
-    # ffprobe over HTTP
-    r["ffprobe_s"], r["ffprobe_duration"] = ffprobe(name)
-
-    r["rss_MB"] = rss_mb(pids_for(name))
+    r["scrub_attempted"] = attempted
+    rss_peak = max(rss_peak, rss_mb(pids_for(name)))
     stop(name)
+
+    # (d) ffprobe over HTTP, fresh server; sample RSS here too
+    start(name)
+    r["ffprobe_s"], r["ffprobe_duration"] = ffprobe(name)
+    rss_peak = max(rss_peak, rss_mb(pids_for(name)))
+    stop(name)
+
+    r["rss_MB"] = rss_peak
     print(json.dumps(r), flush=True)
     return r
 
