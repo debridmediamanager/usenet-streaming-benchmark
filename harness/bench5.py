@@ -19,6 +19,10 @@ HZ = os.sysconf("SC_CLK_TCK")
 BENCH = "/home/ben/bench"
 AUTH = ("usenet", "usenet")
 
+# idle-CPU baseline window (s): the .NET targets run background services and pay
+# startup on every restart, all of it charged to the read until we subtract it (issue #12)
+IDLE_SAMPLE = 2.0
+
 SNZB_TOKEN = "YOUR_STREAMNZB_STREAM_TOKEN"
 SNZB_URL = (f"http://127.0.0.1:7000/{SNZB_TOKEN}/play/stream:default:movie:tt29355505:0")
 
@@ -296,28 +300,60 @@ def curl_auth(name):
 
 
 def measure(name, pids, off, length, timeout=900):
+    # idle-CPU baseline: sample the up-but-not-reading rate so the read is
+    # charged only its delta above the .NET targets' background services and
+    # per-restart startup, which the raw ticks otherwise absorbed (issue #12)
+    ic0 = cpu_ticks(pids)
+    time.sleep(IDLE_SAMPLE)
+    ic1 = cpu_ticks(pids)
+    idle_rate = (ic1 - ic0) / HZ / IDLE_SAMPLE
+    # re-baseline right before the read so the idle-sample window is not double counted
     c0 = cpu_ticks(pids)
-    r0 = rss_mb(pids)
     cmd = (["curl", "-s", "-o", "/dev/null", "--max-time", str(timeout)]
            + curl_auth(name)
            + ["-H", f"Range: bytes={off}-{off + length - 1}",
               "-w", "%{time_starttransfer} %{time_total} %{size_download} %{http_code}",
               SPEC[name]["url"]])
+    # poll while curl runs instead of two snapshots: a before/after RSS max
+    # missed a peak that lands mid-read (a 641MB read reported 540, issue #4),
+    # and "exactly 20 connections" was a config claim until sampled live (issue #14)
+    peak_rss = rss_mb(pids)
+    peak_sockets = nntp_sockets()
     try:
-        out = subprocess.check_output(cmd, text=True, timeout=timeout + 60)
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, text=True)
+        # guard with the read budget so a hung transfer cannot spin the poll forever
+        deadline = time.time() + timeout + 60
+        while proc.poll() is None:
+            peak_rss = max(peak_rss, rss_mb(pids))
+            peak_sockets = max(peak_sockets, nntp_sockets())
+            if time.time() > deadline:
+                proc.kill()
+                proc.wait()
+                raise RuntimeError(f"read exceeded {timeout + 60}s poll budget")
+            time.sleep(0.25)
+        out = proc.stdout.read()
+        if proc.returncode != 0:
+            # curl exits non-zero on --max-time and connection failures, the same
+            # cases check_output used to raise on; keep the error shape identical
+            raise RuntimeError(f"curl exit {proc.returncode}")
     except Exception as e:
         return {"target": name, "offset": off, "error": str(e)[:100]}
     c1 = cpu_ticks(pids)
-    r1 = rss_mb(pids)
     ttfb, total, size, code = out.split()
     size, total = int(size), float(total)
+    cpu_raw = (c1 - c0) / HZ
+    cpu_idle_est = idle_rate * total
+    cpu_adj = max(0.0, cpu_raw - cpu_idle_est)
     return {
         "target": name, "offset": off, "bytes": size, "http": code,
         "ttfb_s": round(float(ttfb), 3), "total_s": round(total, 3),
         "MBps": round(size / total / 1e6, 2) if total else 0,
-        "cpu_s": round((c1 - c0) / HZ, 2),
-        "cpu_s_per_GB": round(((c1 - c0) / HZ) / (size / 1e9), 1) if size else 0,
-        "rss_MB": max(r0, r1),
+        "cpu_s": round(cpu_adj, 2),
+        "cpu_s_per_GB": round(cpu_adj / (size / 1e9), 1) if size else 0,
+        "cpu_s_raw": round(cpu_raw, 2),
+        "cpu_s_idle_est": round(cpu_idle_est, 2),
+        "rss_MB": peak_rss,
+        "peak_nntp_sockets": peak_sockets,
     }
 
 
