@@ -220,6 +220,24 @@ echo "== container targets =="
 mkdir -p $BENCH/infinidysk/config-r7 $BENCH/nzbdav-og/config-r7
 docker rm -f infinidysk-r7 nzbdav-r7 >/dev/null 2>&1 || true
 
+# InfiniDysk's segment cache defaults ON (config key usenet.segment-cache.enabled,
+# which the app maps to env NZBDAV_CONFIG__USENET__SEGMENT_CACHE__ENABLED -- proven
+# by its own ConfigEnvMappingTests.cs, and read by ConfigManager.IsSegmentCacheEnabled
+# as `value == null || bool.Parse(value)`, so an UNSET env leaves the cache on). With
+# it on a cold read can fold in cache-publication and disk-write work, which the
+# benchmark neither disabled nor reported (issue #13). SEGMENT_CACHE_OFF lets a round
+# measure InfiniDysk with the cache off; unset keeps the default -- cache on, env
+# untouched, the docker argv below byte-identical to before this fix (an empty
+# unquoted $SEG_CACHE_ENV contributes zero words).
+SEG_CACHE_ENV=""            # extra -e flag(s); empty = default docker run unchanged
+SEG_CACHE_MODE="on (default)"
+if [ -n "${SEGMENT_CACHE_OFF:-}" ]; then
+  # Enabled-by-default means the flag must be PRESENT and explicitly false --
+  # bool.Parse reads "false" to disable, and a missing key would stay on.
+  SEG_CACHE_ENV="-e NZBDAV_CONFIG__USENET__SEGMENT_CACHE__ENABLED=false"
+  SEG_CACHE_MODE="off (SEGMENT_CACHE_OFF set)"
+fi
+
 # MaxConnections is what sizes the pool (UsenetStreamingClient reads it, not
 # MaxTransferConnections), and max-download-connections is pinned rather than
 # left to "auto" -- auto resolves to TotalPooledConnections, which is how round 6
@@ -237,6 +255,7 @@ docker run -d --name infinidysk-r7 --network host --restart no \
   -e NZBDAV_CONFIG__USENET__MAX_QUEUE_CONNECTIONS=$CONNS \
   -e NZBDAV_CONFIG__USENET__QUEUE_PIPELINING__ENABLED=true \
   -e NZBDAV_CONFIG__USENET__QUEUE_PIPELINING__DEPTH=4 \
+  $SEG_CACHE_ENV \
   -e NZBDAV_CONFIG__REPAIR__ENABLE=true \
   -e NZBDAV_CONFIG__REPAIR__PAR2_ENABLED=true \
   -e NZBDAV_CONFIG__WEBDAV__USER=usenet \
@@ -245,6 +264,7 @@ docker run -d --name infinidysk-r7 --network host --restart no \
   -e NZBDAV_CONFIG__API__COMPLETED_DOWNLOADS_DIR=/completed \
   infinidysk:r7-$IC >/dev/null
 echo "   infinidysk-r7 on infinidysk:r7-$IC (MaxConnections=$CONNS, MaxTransferConnections=$CONNS)"
+echo "   infinidysk-r7 segment cache: $SEG_CACHE_MODE"
 
 docker run -d --name nzbdav-r7 --network host --restart no \
   -v $BENCH/nzbdav-og/config-r7:/config \
@@ -349,6 +369,140 @@ if bad:
     print("   PARITY VERIFICATION FAILED: %s -- do not run the round" % ", ".join(bad))
     sys.exit(1)
 print("   all five targets verified at %d NNTP connections" % conns)
+PY
+
+# ---------------------------------------------------------------- runtime identity
+# Parity is verified but nothing ties a PUBLISHED number back to the exact image
+# and settings that produced it (issue #2): no image digest, container config or
+# effective settings were ever retained, so a round could not be audited after the
+# fact. Capture that proof now, once parity has passed. docker inspect and
+# docker image inspect answer on the STOPPED containers (stopped just above), so
+# this is fine. A single failed/empty inspect records null and continues -- a
+# partial identity artifact is worth more than aborting the whole prep over one
+# missing digest.
+python3 - "$BENCH" "$CONNS" infinidysk-r7 nzbdav-r7 "infinidysk:r7-$IC" "nzbdav:r7-$NC" <<'PY'
+import json, os, re, subprocess, sys
+
+bench, conns = sys.argv[1], int(sys.argv[2])
+ictr, nctr, iimg, nimg = sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6]
+out_path = os.path.join(bench, "results_runtime_identity.json")
+
+
+def run_out(args):
+    """One docker/sha256sum call -> trimmed stdout, or None on ANY failure.
+    Never raises: issue #2 wants a partial artifact over a prep aborted by one
+    empty inspect, and set -e would kill the script if this bubbled up."""
+    try:
+        r = subprocess.run(args, capture_output=True, text=True, timeout=60, check=True)
+        return r.stdout.strip() or None
+    except Exception:
+        return None
+
+
+def container_identity(ctr, img):
+    ident = {
+        "kind": "container",
+        "container": ctr,
+        "image_ref": img,
+        # {{.Id}} is the local image digest (sha256:...); RepoDigests only exists
+        # once an image has been pushed/pulled, so guard it -- null, not an error,
+        # when absent.
+        "image_id": run_out(["docker", "image", "inspect", img, "--format", "{{.Id}}"]),
+        "repo_digest": run_out(["docker", "image", "inspect", img, "--format",
+                                "{{if .RepoDigests}}{{index .RepoDigests 0}}{{end}}"]),
+        "resolved_image": run_out(["docker", "inspect", ctr, "--format", "{{.Image}}"]),
+    }
+    # The same .Config.Env the verify step reads; keep the USENET__ block verbatim
+    # (providers with Max/MaxTransfer, the download+queue caps, pipelining, and the
+    # segment-cache toggle when SEGMENT_CACHE_OFF added it) -- that IS the
+    # connection config for the env-configured targets.
+    raw = run_out(["docker", "inspect", ctr, "--format", "{{json .Config.Env}}"])
+    env = {}
+    if raw:
+        try:
+            env = dict(x.split("=", 1) for x in json.loads(raw) if "=" in x)
+        except Exception:
+            env = {}
+    ident["connection_env"] = {k: v for k, v in env.items()
+                               if k.startswith("NZBDAV_CONFIG__USENET__")}
+    return ident
+
+
+def native_identity(binpath, effective):
+    size = None
+    try:
+        size = os.path.getsize(binpath)
+    except OSError:
+        size = None
+    sha = run_out(["sha256sum", binpath])
+    return {
+        "kind": "native",
+        "binary": binpath,
+        "size_bytes": size,
+        "sha256": sha.split()[0] if sha else None,
+        "effective_connections": effective,
+    }
+
+
+def safe(fn):
+    """Effective-connection parse straight off disk (same source the verify step
+    trusts); None rather than an abort if a config went missing."""
+    try:
+        return fn()
+    except Exception:
+        return None
+
+
+targets = {}
+# Two container targets -- image identity + the env that configures them.
+targets["infinidysk"] = container_identity(ictr, iimg)
+targets["nzbdav-og"] = container_identity(nctr, nimg)
+
+# Three native targets -- binary identity + connection values re-read from config.
+targets["zurg"] = native_identity(
+    f"{bench}/zurgrun/zurg",
+    safe(lambda: [int(x) for x in re.findall(
+        r'(?m)^\s*connections: (\d+)\s*$', open(f"{bench}/zurgrun/config.yml").read())]))
+targets["altmount"] = native_identity(
+    f"{bench}/altmount/altmount-cli-linux-amd64",
+    safe(lambda: [int(x) for x in re.findall(
+        r'(?m)^\s*max_connections: (\d+)\s*$', open(f"{bench}/altmount/config.yaml").read())]))
+
+
+def decy_conn():
+    du = json.load(open(f"{bench}/decyrun/config.json")).get("usenet", {})
+    return {
+        "providers.max_connections": [x.get("max_connections") for x in du.get("providers", [])],
+        "usenet.max_connections": du.get("max_connections"),
+        "usenet.processing_max_connections": du.get("processing_max_connections"),
+    }
+
+
+targets["decypharr"] = native_identity(f"{bench}/decypharr", safe(decy_conn))
+
+# Pinned commits, embedded from the versions artifact when the prep produced one.
+commits = None
+vpath = os.path.join(bench, "results_r7_versions.json")
+if os.path.exists(vpath):
+    try:
+        commits = json.load(open(vpath)).get("commits")
+    except Exception:
+        commits = None
+
+artifact = {"round": "r7", "conns": conns, "commits": commits, "targets": targets}
+with open(out_path, "w") as f:
+    json.dump(artifact, f, indent=2)
+
+for name, ident in targets.items():
+    if ident.get("kind") == "container":
+        print("   identity %-11s image=%s id=%s env_keys=%d"
+              % (name, ident["image_ref"], ident["image_id"] or "null",
+                 len(ident["connection_env"])))
+    else:
+        print("   identity %-11s bin=%s sha256=%s conns=%s"
+              % (name, os.path.basename(ident["binary"]),
+                 (ident["sha256"] or "null")[:16], ident["effective_connections"]))
+print("   runtime identity written -> %s" % out_path)
 PY
 
 echo "PREP_R7_DONE"
