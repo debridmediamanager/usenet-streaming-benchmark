@@ -19,6 +19,10 @@ say "THROUGHPUT start"
 python3 bench5.py six7 256 1500000000 0.8 6 $T > six7.log 2>&1
 say "THROUGHPUT done"
 
+say "BYTEID start"
+python3 byteid_r7.py $T > byteid.log 2>&1
+say "BYTEID done"
+
 say "LATENCY start"
 python3 phase2_5r7.py $T > latency_r7.log 2>&1
 say "LATENCY done"
