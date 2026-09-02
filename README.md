@@ -6,6 +6,38 @@ The targets are zurg and AltMount and InfiniDysk and nzbdav and decypharr. Every
 
 Round 4 of 30 August 2026 is kept in `results/round4/` and its report is in `docs/round4.md`. Read the section on what changed before comparing the two.
 
+A second run on dedicated hardware (round 8, 2 September 2026) is summarised in the next section and kept in `results/round8-hetzner/`.
+
+## Round 8 — a second run on dedicated hardware
+
+Round 7 ran on zen: two shared cores. To see whether the findings hold on a different machine, the whole suite was run again on a **Hetzner CCX23** — four dedicated vCPU, 16 GB — provisioned for the run and destroyed after it. Same isolation rules, same 20 connections per target, same corpus and same news account, every target rebuilt from current main on the day. Raw output is in `results/round8-hetzner/`.
+
+Absolute numbers do not carry across the two runs. A bigger box moves the ceiling, and the caveat this README already makes — that a larger machine can reorder the CPU-bound targets — came true, and reordered the top two as well. What carries across is the head-to-head under identical conditions and the behaviour, which reproduced.
+
+**Throughput, 256 MB cold reads, six repetitions, rotating order, MB/s**
+
+| | AltMount | zurg | nzbdav | InfiniDysk | decypharr |
+|---|---|---|---|---|---|
+| Mean | **63.3** | 58.5 | 44.3 | 27.0 | 4.6 |
+| Slowest to fastest | 48.0-82.2 | 53.3-64.7 | 38.6-46.6 | 25.2-28.6 | 3.5-6.8 |
+| CPU seconds per GB | 5.1 | 6.0 | 36.2 | 31.3 | 18.4 |
+| Reads that finished | 6 of 6 | 6 of 6 | 6 of 6 | 6 of 6 | 6 of 6 |
+
+### Where zurg does not lead, and why
+
+This is the point of running on more than one box.
+
+- **Raw throughput went to AltMount** — 63.3 MB/s mean against zurg's 58.5, and a peak of 82.2 against 64.7. On zen's two shared cores round 7 had zurg ahead, 36.5 against 30.4. Give the fetchers four dedicated cores and an account with far more connection headroom than 20 uses, and AltMount's more aggressive parallel fetch bursts higher. It is a peak-against-consistency trade: AltMount ran 48 to 82 across the six reps, zurg ran a tight 53 to 65, so zurg keeps the highest floor — 53.3 slowest read against AltMount's 48.0 — and the lowest cold open and time to first byte. On this workload the peak belongs to AltMount and the predictability to zurg.
+- **CPU per GB also went to AltMount**, but barely: 5.1 against 6.0, and both are roughly six times leaner than InfiniDysk and nzbdav at 31 and 36.
+- **The fastest time to first byte was InfiniDysk**, 0.02 s against zurg's 0.28 s, because InfiniDysk serves the first byte out of segments it cached during import. zurg still wins the fuller cold open — the first megabyte, which is what a viewer feels on pressing play — at 0.38 s.
+- One 64 MB sequential read and the scrub median went to nzbdav and InfiniDysk. Treat those two as noise rather than quote them. The latency phase is a single pass, and one sample of zurg at 25 MB/s against a six-rep throughput mean of 58.5 is a measurement artefact, not a ceiling. A multi-pass latency run — the `PASS_IX` shift now in `phase2_5r7.py` — would settle it.
+
+### What reproduced
+
+zurg is still the only one of the five that rebuilds a damaged article: silence at t0, real bytes by t+2 minutes, held through t+8, while AltMount and InfiniDysk zero-filled, nzbdav refused the file, and decypharr served zero bytes — all with repair enabled wherever the feature exists. zurg and AltMount still produced the only clean obfuscated listings, and zurg and nzbdav the only structure-preserving RAR output. Every server that served a range returned the same md5, on this box as on zen.
+
+The detailed round-7 run — full method, latency, the behaviour phases and the round-4 comparison — follows.
+
 ## What changed in this round
 
 Two things, and both of them make the comparison harder for zurg rather than easier.
@@ -342,6 +374,7 @@ harness/          the benchmark scripts
 harness/plex/     the Plex phase, which runs where the browser is
 config/           the server configs used, credentials replaced
 corpus/           the NZB corpus and its manifest
+results/round8-hetzner/  the dedicated-hardware run (round 8)
 results/round7/   this round
 results/round4/   the previous published round
 results/round3/   the round before that
