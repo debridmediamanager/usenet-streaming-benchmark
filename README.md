@@ -36,6 +36,19 @@ This is the point of running on more than one box.
 
 zurg is still the only one of the five that rebuilds a damaged article: silence at t0, real bytes by t+2 minutes, held through t+8, while AltMount and InfiniDysk zero-filled, nzbdav refused the file, and decypharr served zero bytes — all with repair enabled wherever the feature exists. zurg and AltMount still produced the only clean obfuscated listings, and zurg and nzbdav the only structure-preserving RAR output. Every server that served a range returned the same md5, on this box as on zen.
 
+### Harness changes made in response to issue #1
+
+The review in issue #1 was largely correct. Beyond the container-name and control fixes already reflected in round 8, the following landed after round 8 and apply to the next run:
+
+- Throughput now has a dedicated byte-identity phase (`byteid_r7.py`) that hashes the same 16 MB range from every target and compares md5s, so identity is proven rather than inferred from an equal ffprobe duration.
+- Each throughput read records the observed peak concurrent `:563` socket count, so "20 connections" is a measured number rather than only a configured cap.
+- CPU per read subtracts an idle baseline sampled while the server is up but not reading, so a target's background services and per-restart startup are not charged to the read. The raw figure is kept alongside.
+- RSS is sampled during the transfer and the peak kept, rather than the larger of a before and after snapshot.
+- The latency phase validates every read for a 206 and the full byte count, drops short scrub samples, and runs each read shape on a freshly started server. The warm re-read still pairs with its big read on the same instance so the warm cache is real.
+- `prep-r7.sh` writes a runtime-identity artifact (image digests, container env, binary sha256, effective settings, pinned commits) so numbers are tied to the measured process, and it accepts `SEGMENT_CACHE_OFF=1` to run InfiniDysk with its segment cache disabled for a separate cache-off comparison.
+
+Still open: the .NET JIT cost on a first read is only partly addressed by the idle baseline, and the cache-off comparison needs a run to produce numbers.
+
 The detailed round-7 run — full method, latency, the behaviour phases and the round-4 comparison — follows.
 
 ## What changed in this round
