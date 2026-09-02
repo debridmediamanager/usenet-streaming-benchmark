@@ -1,0 +1,48 @@
+Host key verification failed.
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+PINNED zurg=8491572d altmount=e85fa318 decypharr=0dd1cbbd infinidysk=412fc698 nzbdav=794948be
+=== zurg 8491572d ===
+ZURG_OK
+=== altmount e85fa318 ===
+ALT_OK
+=== decypharr 0dd1cbbd (bookworm/glibc) ===
+DECY_OK
+=== infinidysk 412fc698 ===
+sha256:f223ab475d6662c1345344e51e7dbe7366961d5cba6900f0ee84b75688715f91
+INFI_OK
+=== nzbdav 794948be ===
+sha256:15910c198fb90ce93c26c7d4eb580ac72bd75624174240b5f9f63647e5cf6d6b
+NZBDAV_OK
+=== verify artifacts ===
+   ok   zurg -> /home/ben/bench/src/out/zurg-r7
+   ok   altmount -> /home/ben/bench/src/out/altmount-r7
+   ok   decypharr -> /home/ben/bench/src/out/decypharr-r7
+   ok   infinidysk:r7-412fc698
+   ok   nzbdav:r7-794948be
+-rwxr-xr-x 1 1000 1000 36079808 Sep  2 04:01 /home/ben/bench/src/out/altmount-r7
+-rwxr-xr-x 1 1000 1000 27235408 Sep  2 04:01 /home/ben/bench/src/out/decypharr-r7
+-rwxr-xr-x 1 1000 1000 43913378 Sep  2 03:59 /home/ben/bench/src/out/zurg-r7
+{
+ "round": 7,
+ "built_at": "2026-09-02T03:59:14Z",
+ "commits": {
+  "zurg": "8491572d",
+  "altmount": "e85fa318",
+  "decypharr": "0dd1cbbd",
+  "infinidysk": "412fc698",
+  "nzbdav-og": "794948be"
+ },
+ "images": {
+  "infinidysk": "infinidysk:r7-412fc698",
+  "nzbdav-og": "nzbdav:r7-794948be"
+ },
+ "parity": {
+  "nntp_connections_per_target": 20,
+  "news_host": "news.news-provider.example",
+  "repair": "enabled on every target that has the feature (nzbdav-og has none)"
+ }
+}
+BUILD_R7_DONE

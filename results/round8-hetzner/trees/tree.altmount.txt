@@ -1,0 +1,9 @@
+[   0]  /home/ben/bench/r7mnt/
+|-- [   0]  FatherBrown/
+|   `-- [307M]  FatherBrown.mp4
+|-- [   0]  Obfuscated/
+|   `-- [6.2G]  Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv
+`-- [   0]  ToyStory5/
+    `-- [6.2G]  Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv
+
+4 directories, 3 files

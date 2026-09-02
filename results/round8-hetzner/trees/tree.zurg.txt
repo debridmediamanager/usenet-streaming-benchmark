@@ -1,0 +1,31 @@
+[   0]  /home/ben/bench/r7mnt/
+|-- [   0]  Bosch.S01/
+|   |-- [2.1G]  Bosch.S01E01.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv
+|   |-- [1.7G]  Bosch.S01E02.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv
+|   |-- [1.8G]  Bosch.S01E03.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv
+|   |-- [1.9G]  Bosch.S01E04.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv
+|   |-- [1.6G]  Bosch.S01E05.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv
+|   |-- [1.9G]  Bosch.S01E06.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv
+|   |-- [2.0G]  Bosch.S01E07.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv
+|   |-- [1.7G]  Bosch.S01E08.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv
+|   |-- [1.6G]  Bosch.S01E09.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv
+|   `-- [2.0G]  Bosch.S01E10.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv
+|-- [   0]  FatherBrown/
+|   |-- [   0]  Father.Brown.2013.S02E05.HDTV.x264-TLA/
+|   |   |-- [   0]  Sample/
+|   |   |   `-- [9.1M]  father.brown.2013.s02e05.hdtv.x264-tla-sample.mp4
+|   |   |-- [307M]  father.brown.2013.s02e05.hdtv.x264-tla.mp4
+|   |   `-- [  50]  father.brown.2013.s02e05.hdtv.x264-tla.nfo
+|   |-- [ 125]  Top Usenet Provider - CHEAP - FULL SPEED.url
+|   `-- [ 108]  TOWN - NZB FORUM - KLICK IT.url
+|-- [   0]  MandaloriaREMUX/
+|   |-- [ 35G]  The.Mandalorian.and.Grogu.2026.iNTERNAL.BluRay.1080p.MULTi.REMUX.AVC.DTS-HD.MA.7.1-Aisha.mkv
+|   `-- [375K]  thumbnail.jpg
+|-- [   0]  Obfuscated/
+|   |-- [470K]  thumbnail.jpg
+|   `-- [6.2G]  Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv
+`-- [   0]  ToyStory5/
+    |-- [470K]  thumbnail.jpg
+    `-- [6.2G]  Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv
+
+8 directories, 21 files

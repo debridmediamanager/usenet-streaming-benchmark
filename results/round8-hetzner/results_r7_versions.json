@@ -1,0 +1,20 @@
+{
+ "round": 7,
+ "built_at": "2026-09-02T03:59:14Z",
+ "commits": {
+  "zurg": "8491572d",
+  "altmount": "e85fa318",
+  "decypharr": "0dd1cbbd",
+  "infinidysk": "412fc698",
+  "nzbdav-og": "794948be"
+ },
+ "images": {
+  "infinidysk": "infinidysk:r7-412fc698",
+  "nzbdav-og": "nzbdav:r7-794948be"
+ },
+ "parity": {
+  "nntp_connections_per_target": 20,
+  "news_host": "news.news-provider.example",
+  "repair": "enabled on every target that has the feature (nzbdav-og has none)"
+ }
+}

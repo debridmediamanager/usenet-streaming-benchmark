@@ -1,0 +1,484 @@
+[
+ {
+  "phase": "damage",
+  "target": "zurg",
+  "chosen_dir": "ToyStory5Damaged",
+  "all_dirs": [
+   "Bosch.S01",
+   "FatherBrown",
+   "MandaloriaREMUX",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "listed_after_s": 0.0,
+  "files": [
+   "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+   "thumbnail.jpg"
+  ],
+  "subdirs": [],
+  "video": "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+  "content_length": 6608994141,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 4194304,
+   "asked": 4194304,
+   "complete": true,
+   "s": 1.19,
+   "MBps": 3.53,
+   "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+   "all_zero": true
+  }
+ },
+ {
+  "phase": "damage",
+  "target": "decypharr",
+  "chosen_dir": "ToyStory5Damaged",
+  "all_dirs": [
+   "Bosch.S01",
+   "FatherBrown",
+   "MandaloriaREMUX",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "listed_after_s": 0.0,
+  "files": [
+   "ToyStory5Damaged.mkv"
+  ],
+  "subdirs": [],
+  "video": "ToyStory5Damaged.mkv",
+  "content_length": 6608994141,
+  "probe": {
+   "curl_exit": 18,
+   "http": "206",
+   "bytes": 0,
+   "asked": 4194304,
+   "complete": false,
+   "s": 5.13,
+   "MBps": 0,
+   "md5": null,
+   "all_zero": null
+  }
+ },
+ {
+  "phase": "damage",
+  "target": "altmount",
+  "chosen_dir": "ToyStory5Damaged",
+  "all_dirs": [
+   "FatherBrown",
+   "Obfuscated",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "listed_after_s": 0.0,
+  "files": [
+   "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv"
+  ],
+  "subdirs": [],
+  "video": "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+  "content_length": 6608994141,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 4194304,
+   "asked": 4194304,
+   "complete": true,
+   "s": 0.01,
+   "MBps": 659.59,
+   "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+   "all_zero": true
+  }
+ },
+ {
+  "phase": "damage",
+  "target": "infinidysk",
+  "chosen_dir": "ToyStory5Damaged",
+  "all_dirs": [
+   "Bosch.S01",
+   "FatherBrown",
+   "MandaloriaREMUX",
+   "Obfuscated",
+   "Obfuscated (2)",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "listed_after_s": 0.0,
+  "files": [
+   "ToyStory5Damaged.mkv",
+   "thumbnail.jpg"
+  ],
+  "subdirs": [],
+  "video": "ToyStory5Damaged.mkv",
+  "content_length": 6608994141,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 4194304,
+   "asked": 4194304,
+   "complete": true,
+   "s": 0.65,
+   "MBps": 6.44,
+   "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+   "all_zero": true
+  }
+ },
+ {
+  "phase": "damage",
+  "target": "nzbdav-og",
+  "chosen_dir": "ToyStory5Damaged",
+  "all_dirs": [
+   "Bosch.S01",
+   "FatherBrown",
+   "FatherBrown (2)",
+   "MandaloriaREMUX",
+   "Obfuscated",
+   "Obfuscated (2)",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "listed_after_s": 0.2,
+  "files": [
+   "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+   "thumbnail.jpg"
+  ],
+  "subdirs": [],
+  "video": "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+  "content_length": 6608994141,
+  "probe": {
+   "curl_exit": 0,
+   "http": "404",
+   "bytes": 0,
+   "asked": 4194304,
+   "complete": false,
+   "s": 1.72,
+   "MBps": 0,
+   "md5": null,
+   "all_zero": null
+  }
+ },
+ {
+  "phase": "obfuscated",
+  "target": "zurg",
+  "chosen_dir": "Obfuscated",
+  "all_dirs": [
+   "Bosch.S01",
+   "FatherBrown",
+   "MandaloriaREMUX",
+   "Obfuscated",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "listed_after_s": 10.0,
+  "files": [
+   "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+   "thumbnail.jpg"
+  ],
+  "subdirs": [],
+  "video": "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+  "content_length": 6608994141,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 8388608,
+   "asked": 8388608,
+   "complete": true,
+   "s": 0.98,
+   "MBps": 8.53,
+   "md5": "0354005fcf952920f64cebbae0c3d6d1",
+   "all_zero": false
+  }
+ },
+ {
+  "phase": "obfuscated",
+  "target": "decypharr",
+  "chosen_dir": null,
+  "all_dirs": [
+   "Bosch.S01",
+   "FatherBrown",
+   "MandaloriaREMUX",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "absent_after_s": 120.1
+ },
+ {
+  "phase": "obfuscated",
+  "target": "altmount",
+  "chosen_dir": "Obfuscated",
+  "all_dirs": [
+   "FatherBrown",
+   "Obfuscated",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "listed_after_s": 0.0,
+  "files": [
+   "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+   "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo_1.mkv"
+  ],
+  "subdirs": [],
+  "video": "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo_1.mkv",
+  "content_length": 6608994141,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 8388608,
+   "asked": 8388608,
+   "complete": true,
+   "s": 2.46,
+   "MBps": 3.41,
+   "md5": "0354005fcf952920f64cebbae0c3d6d1",
+   "all_zero": false
+  }
+ },
+ {
+  "phase": "obfuscated",
+  "target": "infinidysk",
+  "chosen_dir": "Obfuscated",
+  "all_dirs": [
+   "Bosch.S01",
+   "FatherBrown",
+   "MandaloriaREMUX",
+   "Obfuscated",
+   "Obfuscated (2)",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "listed_after_s": 0.1,
+  "files": [
+   "2GakUdPS8XKgPLp20S4yY26JtIhDzkpeIRNyPSzklKkuwF",
+   "9kwjjb5fIpYc2hWp8e54D986q2Z2QckXasLJrfQY32IFzInzTr1gUC",
+   "G8q5Ca8mz9xsfSLlFx1YxEnE2gZPLjyY6JiM",
+   "Obfuscated.mkv",
+   "YX2UHprhmsEzf5sg9Bxb0tXYjAFKOJfEe9ixlOccB",
+   "thumbnail.jpg",
+   "xQlsN0ZIjfWD1xOyZbCUYjeU85elnxr0iDwZGsoFUo7Er2Uo1"
+  ],
+  "subdirs": [],
+  "video": "Obfuscated.mkv",
+  "content_length": 6608994141,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 8388608,
+   "asked": 8388608,
+   "complete": true,
+   "s": 0.09,
+   "MBps": 93.78,
+   "md5": "0354005fcf952920f64cebbae0c3d6d1",
+   "all_zero": false
+  }
+ },
+ {
+  "phase": "obfuscated",
+  "target": "nzbdav-og",
+  "chosen_dir": "Obfuscated",
+  "all_dirs": [
+   "Bosch.S01",
+   "FatherBrown",
+   "FatherBrown (2)",
+   "MandaloriaREMUX",
+   "Obfuscated",
+   "Obfuscated (2)",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "listed_after_s": 0.2,
+  "files": [
+   "2GakUdPS8XKgPLp20S4yY26JtIhDzkpeIRNyPSzklKkuwF",
+   "9kwjjb5fIpYc2hWp8e54D986q2Z2QckXasLJrfQY32IFzInzTr1gUC",
+   "G8q5Ca8mz9xsfSLlFx1YxEnE2gZPLjyY6JiM",
+   "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+   "YX2UHprhmsEzf5sg9Bxb0tXYjAFKOJfEe9ixlOccB",
+   "thumbnail.jpg",
+   "xQlsN0ZIjfWD1xOyZbCUYjeU85elnxr0iDwZGsoFUo7Er2Uo1"
+  ],
+  "subdirs": [],
+  "video": "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+  "content_length": 6608994141,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 8388608,
+   "asked": 8388608,
+   "complete": true,
+   "s": 3.71,
+   "MBps": 2.26,
+   "md5": "0354005fcf952920f64cebbae0c3d6d1",
+   "all_zero": false
+  }
+ },
+ {
+  "phase": "rar",
+  "target": "zurg",
+  "chosen_dir": "FatherBrown",
+  "all_dirs": [
+   "Bosch.S01",
+   "FatherBrown",
+   "MandaloriaREMUX",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "listed_after_s": 0.0,
+  "files": [
+   "father.brown.2013.s02e05.hdtv.x264-tla-sample.mp4",
+   "father.brown.2013.s02e05.hdtv.x264-tla.mp4",
+   "father.brown.2013.s02e05.hdtv.x264-tla.nfo",
+   "TOWN - NZB FORUM - KLICK IT.url",
+   "Top Usenet Provider - CHEAP - FULL SPEED.url"
+  ],
+  "subdirs": [
+   "Father.Brown.2013.S02E05.HDTV.x264-TLA",
+   "Sample"
+  ],
+  "video": "father.brown.2013.s02e05.hdtv.x264-tla.mp4",
+  "content_length": 321905886,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 16777216,
+   "asked": 16777216,
+   "complete": true,
+   "s": 1.71,
+   "MBps": 9.78,
+   "md5": "79d1e148021c44ce018c9c47eb504d39",
+   "all_zero": false
+  }
+ },
+ {
+  "phase": "rar",
+  "target": "decypharr",
+  "chosen_dir": "FatherBrown",
+  "all_dirs": [
+   "Bosch.S01",
+   "FatherBrown",
+   "MandaloriaREMUX",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "listed_after_s": 0.0,
+  "files": [
+   "Father.Brown.2013.S02E05.HDTV.x264-TLAfather.brown.2013.s02e05.hdtv.x264-tla.mp4"
+  ],
+  "subdirs": [],
+  "video": "Father.Brown.2013.S02E05.HDTV.x264-TLAfather.brown.2013.s02e05.hdtv.x264-tla.mp4",
+  "content_length": 321905886,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 16777216,
+   "asked": 16777216,
+   "complete": true,
+   "s": 2.59,
+   "MBps": 6.48,
+   "md5": "79d1e148021c44ce018c9c47eb504d39",
+   "all_zero": false
+  }
+ },
+ {
+  "phase": "rar",
+  "target": "altmount",
+  "chosen_dir": "FatherBrown",
+  "all_dirs": [
+   "FatherBrown",
+   "Obfuscated",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "listed_after_s": 0.0,
+  "files": [
+   "8-FatherBrown.mp4",
+   "FatherBrown.mp4"
+  ],
+  "subdirs": [],
+  "video": "FatherBrown.mp4",
+  "content_length": 321905886,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 16777216,
+   "asked": 16777216,
+   "complete": true,
+   "s": 2.32,
+   "MBps": 7.24,
+   "md5": "79d1e148021c44ce018c9c47eb504d39",
+   "all_zero": false
+  }
+ },
+ {
+  "phase": "rar",
+  "target": "infinidysk",
+  "chosen_dir": "FatherBrown",
+  "all_dirs": [
+   "Bosch.S01",
+   "FatherBrown",
+   "MandaloriaREMUX",
+   "Obfuscated",
+   "Obfuscated (2)",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "listed_after_s": 0.1,
+  "files": [
+   "FatherBrown.mp4",
+   "Sample",
+   "TOWN - NZB FORUM - KLICK IT.url",
+   "Top Usenet Provider - CHEAP - FULL SPEED.url"
+  ],
+  "subdirs": [
+   "Father.Brown.2013.S02E05.HDTV.x264-TLA"
+  ],
+  "video": "FatherBrown.mp4",
+  "content_length": 321905886,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 16777216,
+   "asked": 16777216,
+   "complete": true,
+   "s": 2.46,
+   "MBps": 6.83,
+   "md5": "79d1e148021c44ce018c9c47eb504d39",
+   "all_zero": false
+  }
+ },
+ {
+  "phase": "rar",
+  "target": "nzbdav-og",
+  "chosen_dir": "FatherBrown",
+  "all_dirs": [
+   "Bosch.S01",
+   "FatherBrown",
+   "FatherBrown (2)",
+   "MandaloriaREMUX",
+   "Obfuscated",
+   "Obfuscated (2)",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "listed_after_s": 0.2,
+  "files": [
+   "father.brown.2013.s02e05.hdtv.x264-tla-sample.mp4",
+   "father.brown.2013.s02e05.hdtv.x264-tla.mp4",
+   "TOWN - NZB FORUM - KLICK IT.url",
+   "Top Usenet Provider - CHEAP - FULL SPEED.url"
+  ],
+  "subdirs": [
+   "Father.Brown.2013.S02E05.HDTV.x264-TLA",
+   "Sample"
+  ],
+  "video": "father.brown.2013.s02e05.hdtv.x264-tla.mp4",
+  "content_length": 321905886,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 16777216,
+   "asked": 16777216,
+   "complete": true,
+   "s": 5.21,
+   "MBps": 3.22,
+   "md5": "79d1e148021c44ce018c9c47eb504d39",
+   "all_zero": false
+  }
+ }
+]

@@ -1,0 +1,206 @@
+[
+ {
+  "target": "zurg",
+  "test": "damage",
+  "import": "present in nzbs/ (ready in 10s)",
+  "new_entries": [
+   "Obfuscated",
+   "ToyStory5Damaged"
+  ],
+  "listing": [
+   "Bosch.S01",
+   "FatherBrown",
+   "MandaloriaREMUX",
+   "Obfuscated",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "release_dir": [
+   "Obfuscated",
+   "ToyStory5Damaged"
+  ],
+  "files": [
+   "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+   "thumbnail.jpg",
+   "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+   "thumbnail.jpg"
+  ],
+  "file_paths": [
+   "Obfuscated/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+   "Obfuscated/thumbnail.jpg",
+   "ToyStory5Damaged/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+   "ToyStory5Damaged/thumbnail.jpg"
+  ],
+  "subdirs": [],
+  "probed_url": "http://localhost:9998/dav/all/Obfuscated/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+  "content_length": 6608994141,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 4194304,
+   "asked": 4194304,
+   "complete": true,
+   "s": 1.08,
+   "MBps": 3.88,
+   "md5": "64129aacaf7f58d8225fc8a46898ec08",
+   "all_zero": false
+  }
+ },
+ {
+  "target": "decypharr",
+  "test": "damage",
+  "import": "{\n  \"status\": true,\n  \"nzo_ids\": [\n    \"74f281a4-fbad-4c4a-9b2a-22861e2318f4\"\n  ]\n} || READY 20s",
+  "new_entries": [
+   "ToyStory5Damaged"
+  ],
+  "listing": [
+   "Bosch.S01",
+   "FatherBrown",
+   "MandaloriaREMUX",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "release_dir": [
+   "ToyStory5Damaged"
+  ],
+  "files": [
+   "ToyStory5Damaged.mkv"
+  ],
+  "file_paths": [
+   "ToyStory5Damaged/ToyStory5Damaged.mkv"
+  ],
+  "subdirs": [],
+  "probed_url": "http://localhost:8282/webdav/__all__/ToyStory5Damaged/ToyStory5Damaged.mkv",
+  "content_length": 6608994141,
+  "probe": {
+   "curl_exit": 18,
+   "http": "206",
+   "bytes": 0,
+   "asked": 4194304,
+   "complete": false,
+   "s": 4.08,
+   "MBps": 0,
+   "md5": null,
+   "all_zero": null
+  }
+ },
+ {
+  "target": "altmount",
+  "test": "damage",
+  "import": "{\"data\":{\"queue_id\":6,\"message\":\"File successfully added to import queue with ID 6\"},\"success\":true} || READY 10s",
+  "new_entries": [
+   "ToyStory5Damaged"
+  ],
+  "listing": [
+   "FatherBrown",
+   "Obfuscated",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "release_dir": [
+   "ToyStory5Damaged"
+  ],
+  "files": [
+   "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv"
+  ],
+  "file_paths": [
+   "ToyStory5Damaged/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv"
+  ],
+  "subdirs": [],
+  "probed_url": "http://localhost:8081/webdav/complete/ToyStory5Damaged/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+  "content_length": 6608994141,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 4194304,
+   "asked": 4194304,
+   "complete": true,
+   "s": 0.59,
+   "MBps": 7.17,
+   "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+   "all_zero": true
+  }
+ },
+ {
+  "target": "infinidysk",
+  "test": "damage",
+  "import": "{\"nzo_ids\":[\"ad34f38f-6ce8-429d-a272-fc526d40dc31\"],\"status\":true,\"error\":null} || READY 20s || HIST {\"history\":{\"slots\":[{\"nzo_id\":\"ad34f38f-6ce8-429d-a272-fc526d40dc31\",\"nzb_name\":\"ToyStory5Damaged.nzb\",\"name\":\"ToyStory5Damaged\",\"category\":\"uncategorized\",\"status\":\"Completed\",\"bytes\":7164735989,\"storage\":\"/mnt/nzbdav/completed-symlinks/uncategorized/ToyStory5Damaged\",\"download_time\":10,\"completed\":1788323677,\"fail_message\":\"\",\"nzb_blob_id\":\"ad34f38f-6ce8-429d-a272-fc526d40dc31\",\"indexer\":null,\"providers\":[{\"host\":\"news.news-provider.example\",\"nickname\":null,\"segments\":21},{\"host\":\"segment-cache\",\"nickname\":null,\"segments\":5}]},{\"nzo_id\":\"a54fc891-71b7-49a3-9302-b8b01e5bc2cb\",\"nzb_name\":\"Bosch.S01.nzb\",\"name\":\"Bosch.S01\",\"category\":\"uncatego",
+  "new_entries": [
+   "ToyStory5Damaged"
+  ],
+  "listing": [
+   "Bosch.S01",
+   "FatherBrown",
+   "MandaloriaREMUX",
+   "Obfuscated",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "release_dir": [
+   "ToyStory5Damaged"
+  ],
+  "files": [
+   "ToyStory5Damaged.mkv",
+   "thumbnail.jpg"
+  ],
+  "file_paths": [
+   "ToyStory5Damaged/ToyStory5Damaged.mkv",
+   "ToyStory5Damaged/thumbnail.jpg"
+  ],
+  "subdirs": [],
+  "probed_url": "http://127.0.0.1:8092/content/uncategorized/ToyStory5Damaged/ToyStory5Damaged.mkv",
+  "content_length": 6608994141,
+  "probe": {
+   "curl_exit": 0,
+   "http": "206",
+   "bytes": 4194304,
+   "asked": 4194304,
+   "complete": true,
+   "s": 1.7,
+   "MBps": 2.47,
+   "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+   "all_zero": true
+  }
+ },
+ {
+  "target": "nzbdav-og",
+  "test": "damage",
+  "import": "{\"nzo_ids\":[\"b93b7b76-2666-4f7d-b22d-c28cd5ed9196\"],\"status\":true,\"error\":null} || READY 10s || HIST {\"history\":{\"slots\":[{\"nzo_id\":\"b93b7b76-2666-4f7d-b22d-c28cd5ed9196\",\"nzb_name\":\"ToyStory5Damaged.nzb\",\"name\":\"ToyStory5Damaged\",\"category\":\"uncategorized\",\"status\":\"Completed\",\"bytes\":7164735989,\"storage\":\"/mnt/nzbdav/completed-symlinks/uncategorized/ToyStory5Damaged\",\"download_time\":2,\"fail_message\":\"\",\"nzb_blob_id\":\"b93b7b76-2666-4f7d-b22d-c28cd5ed9196\"},{\"nzo_id\":\"71c21bd8-5616-4620-9d93-ac04648328e8\",\"nzb_name\":\"Bosch.S01.nzb\",\"name\":\"Bosch.S01\",\"category\":\"uncategorized\",\"status\":\"Completed\",\"bytes\":24290014587,\"storage\":\"/mnt/nzbdav/completed-symlinks/uncategorized/Bosch.S01\",\"download_time\":3,\"fail_message\":\"\",\"nzb_blob_id\":\"71c21bd8",
+  "new_entries": [
+   "ToyStory5Damaged"
+  ],
+  "listing": [
+   "Bosch.S01",
+   "FatherBrown",
+   "MandaloriaREMUX",
+   "Obfuscated",
+   "ToyStory5",
+   "ToyStory5Damaged"
+  ],
+  "release_dir": [
+   "ToyStory5Damaged"
+  ],
+  "files": [
+   "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+   "thumbnail.jpg"
+  ],
+  "file_paths": [
+   "ToyStory5Damaged/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+   "ToyStory5Damaged/thumbnail.jpg"
+  ],
+  "subdirs": [],
+  "probed_url": "http://127.0.0.1:8093/content/uncategorized/ToyStory5Damaged/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+  "content_length": 6608994141,
+  "probe": {
+   "curl_exit": 0,
+   "http": "404",
+   "bytes": 0,
+   "asked": 4194304,
+   "complete": false,
+   "s": 0.64,
+   "MBps": 0,
+   "md5": null,
+   "all_zero": null
+  }
+ }
+]
