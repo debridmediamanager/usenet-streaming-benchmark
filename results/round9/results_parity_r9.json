@@ -1,0 +1,16 @@
+{
+ "method": "ss -tnp sampled every 5 seconds for the whole run on the bench host, filtered to sockets on port 563 and to the process id of the target under test. Figures below are the maximum concurrent ESTABLISHED sockets any instance of the target held during the throughput phase. Production processes on the same host were identified by pid and excluded.",
+ "throughput_phase_max_estab_sockets": {
+  "zurg": 17,
+  "altmount": 15,
+  "infinidysk": 15,
+  "nzbdav-og": 16,
+  "decypharr": 14
+ },
+ "zurg_overage_explained": {
+  "finding": "zurg holds 1-2 idle authenticated sockets above its configured pool of 15. A byte-accounting probe after the round (per-socket bytes_received deltas from ss -tni during a sustained 500 MB read) showed 16 sockets of which exactly 15 moved bytes; the extra socket received 42 bytes in 20 seconds, which is keep-alive traffic. The extra socket is the startup account-verification connection that is never folded back into the pool's accounting. Fetch concurrency is semaphore-limited to 15, so read parity holds; the idle socket does occupy a connection slot against a provider's account cap.",
+  "probe": "16 total sockets, 15 moving more than 1 MB during a 20 s window, 1 moving 42 bytes"
+ },
+ "decypharr_note": "decypharr never filled its 15-connection budget; it peaked at 13-14 during reads. That is its own scheduling, not a config gap: both its knobs were set to 15 and verified in the written config.",
+ "raw_samples": "not published; the raw ss output names the news provider and the production processes on the host"
+}

@@ -1,0 +1,22 @@
+{
+ "round": 9,
+ "measured_at": "2026-09-03",
+ "builds": "identical binaries and container images to round 7, built 2026-09-01T10:50:10Z",
+ "commits": {
+  "zurg": "3d9fbcc4",
+  "altmount": "7ab04352",
+  "decypharr": "0dd1cbbd",
+  "infinidysk": "cd9b1205",
+  "nzbdav-og": "794948be"
+ },
+ "images": {
+  "infinidysk": "infinidysk:r7-cd9b1205",
+  "nzbdav-og": "nzbdav:r7-794948be"
+ },
+ "parity": {
+  "nntp_connections_per_target": 15,
+  "news_host": "news-provider.example (same server as round 7)",
+  "repair": "enabled on every target that has the feature (nzbdav-og has none)"
+ },
+ "note": "Round 9 is the round 7 harness rerun with CONNS=15. The only variable changed against round 7 is the NNTP connection budget, set in both knobs on the three targets where the provider pool and the read budget are separate settings. File names inside this directory keep their harness names from the round 7 scripts."
+}

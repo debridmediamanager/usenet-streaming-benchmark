@@ -8,6 +8,8 @@ Round 4 of 30 August 2026 is kept in `results/round4/` and its report is in `doc
 
 A second run on dedicated hardware (round 8, 2 September 2026) is summarised in the next section and kept in `results/round8-hetzner/`.
 
+Round 9 of 3 September 2026 reruns this round on the same host with one variable changed: every target on 15 connections instead of 20, same builds, same corpus, same server. Its report is in `docs/round9.md` and its raw output in `results/round9/`. The short version is that only AltMount is connection-bound at these budgets, zurg gives up 7% on a 25% cut while its lead widens to 1.53x, and importing breaks before streaming does.
+
 ## Round 8 — a second run on dedicated hardware
 
 Round 7 ran on zen: two shared cores. To see whether the findings hold on a different machine, the whole suite was run again on a **Hetzner CCX23** — four dedicated vCPU, 16 GB — provisioned for the run and destroyed after it. Same isolation rules, same 20 connections per target, same corpus and same news account, every target rebuilt from current main on the day. Raw output is in `results/round8-hetzner/`.
