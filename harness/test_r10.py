@@ -12,8 +12,11 @@ The harness had no tests before this. Two things here are worth guarding:
 
 Run:  python3 harness/test_r10.py
 """
+import math
 import os
 import sys
+import threading
+import time
 import urllib.request
 import zlib
 from concurrent.futures import Future
@@ -23,6 +26,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import metrics_r10 as M       # noqa: E402
 import nntp_r10 as N          # noqa: E402
+import procmon_r10 as P       # noqa: E402
 import rawserve_r10 as R      # noqa: E402
 
 FAILURES = []
@@ -169,7 +173,6 @@ def test_raw_ranges():
     whole, state = build_state()
     httpd = ThreadingHTTPServer(("127.0.0.1", 0), R.Handler)
     httpd.state = state
-    import threading
     threading.Thread(target=httpd.serve_forever, daemon=True).start()
     port = httpd.server_address[1]
     base = f"http://127.0.0.1:{port}/x"
@@ -272,7 +275,7 @@ def test_p05_reporting():
 
     # nearest-rank on a known series: 20 windows, one of them slow
     series = sorted([50.0] * 19 + [3.0])
-    ix = max(0, int(__import__("math").ceil(0.05 * len(series))) - 1)
+    ix = max(0, int(math.ceil(0.05 * len(series))) - 1)
     check("p05: nearest rank picks the slow window out of twenty", series[ix] == 3.0)
 
 
@@ -287,6 +290,100 @@ def test_complete_rule():
           M.complete({"http": "000", "bytes": 0, "error": "x"}, 100) is False)
 
 
+# --------------------------------------------------------------------------
+# CPU shape and memory drift
+# --------------------------------------------------------------------------
+def samples(cores, rss_kb=200_000):
+    return [(float(i), c, rss_kb) for i, c in enumerate(cores)]
+
+
+def test_cpu_shape():
+    hum = P.summarise(samples([0.5] * 10), cpu_total_s=5.0)
+    check("shape: a steady engine reports its level as p95", hum["cores_p95"] == 0.5)
+    check("shape: and sits at its peak the whole time", hum["steady_pct"] == 100)
+
+    # same CPU total, spent in one spike: the average is calm and the box is not
+    burst = P.summarise(samples([0.0] * 9 + [2.0]), cpu_total_s=2.0)
+    check("shape: a bursty engine's worst second is visible", burst["cores_max"] == 2.0)
+    check("shape: and its steady share is low", burst["steady_pct"] == 10)
+    check("shape: two engines with the same total have different shapes",
+          hum["cpu_s"] != burst["cpu_s"] or hum["steady_pct"] != burst["steady_pct"])
+
+    short = P.summarise(samples([1.0, 1.0]), cpu_total_s=2.0)
+    check("shape: a read too short for a shape is skipped, not computed",
+          "shape_skipped" in short and "cores_p95" not in short)
+
+    per_gib = P.summarise(samples([1.0] * 10), cpu_total_s=10.0,
+                          bytes_delivered=2 * (1 << 30))
+    check("shape: cpu per GiB divides by delivered bytes",
+          per_gib["cpu_s_per_GiB"] == 5.0)
+
+    # a target that restarts mid-window makes the tick counter go backwards;
+    # a negative core count would be printed as fact, so it is clamped
+    shrinking = {"n": 0}
+
+    def falling_ticks(_pids):
+        shrinking["n"] += 1
+        return max(0, 1000 - shrinking["n"] * 100)
+
+    monitor = P.Sampler(lambda: [1], interval=0.05, cpu_fn=falling_ticks,
+                        rss_fn=lambda p: 1000)
+    monitor.start()
+    time.sleep(0.35)
+    out = monitor.stop()
+    check("shape: a restart mid-window never reports negative cores",
+          all(c >= 0 for _, c, _ in monitor.samples))
+    check("shape: nor negative total cpu", out["cpu_s"] >= 0)
+
+
+def test_memory_drift():
+    mem = P.RunMemory()
+    for peak in [100, 110, 120, 130, 140, 150, 160, 170, 190]:
+        mem.record(peak)
+    mem.idle_rss_MB = 40
+    mem.after_idle_MB = 95
+    out = mem.summary()
+    check("memory: per-read figure is the median of the peaks",
+          out["rss_per_read_MB"] == 140)
+    check("memory: run peak is the high-water mark", out["rss_peak_MB"] == 190)
+    check("memory: the peak states how many reads it was taken over",
+          out["peak_over_reads"] == 9)
+    check("memory: drift is the last third minus the first", out["drift_MB"] == 60)
+    check("memory: idle footprint is carried", out["idle_rss_MB"] == 40)
+    check("memory: what it gives back on idle is carried",
+          out["after_idle_MB"] == 95)
+
+    thin = P.RunMemory()
+    thin.record(100)
+    thin.record(200)
+    check("memory: too few reads for a drift is skipped, not computed",
+          "drift_skipped" in thin.summary())
+
+    flat = P.RunMemory()
+    for peak in [500, 500, 500, 500, 500, 500]:
+        flat.record(peak)
+    check("memory: an engine that holds steady drifts by zero",
+          flat.summary()["drift_MB"] == 0)
+
+
+def test_sampler_uses_live_pid_set():
+    # the pid set is re-read every tick, so a helper forked mid-read is counted
+    calls = {"n": 0}
+
+    def pids():
+        calls["n"] += 1
+        return [1, 2] if calls["n"] > 1 else [1]
+
+    monitor = P.Sampler(pids, interval=0.05, cpu_fn=lambda p: len(p) * 100,
+                        rss_fn=lambda p: len(p) * 1000)
+    monitor.start()
+    time.sleep(0.4)
+    out = monitor.stop()
+    check("sampler: re-reads the process set every tick", calls["n"] > 2)
+    check("sampler: counts a process that appeared mid-read",
+          out.get("rss_peak_MB", 0) >= 1)
+
+
 if __name__ == "__main__":
     test_yenc()
     test_nzb()
@@ -296,6 +393,9 @@ if __name__ == "__main__":
     test_windowed_rates()
     test_p05_reporting()
     test_complete_rule()
+    test_cpu_shape()
+    test_memory_drift()
+    test_sampler_uses_live_pid_set()
     print()
     if FAILURES:
         print(f"{len(FAILURES)} FAILED:")
