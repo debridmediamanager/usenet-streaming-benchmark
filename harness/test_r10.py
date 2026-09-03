@@ -21,6 +21,7 @@ from http.server import ThreadingHTTPServer
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+import metrics_r10 as M       # noqa: E402
 import nntp_r10 as N          # noqa: E402
 import rawserve_r10 as R      # noqa: E402
 
@@ -235,12 +236,66 @@ def test_segment_map_corrections():
           smap.note(1, {}, PART) == PART)
 
 
+# --------------------------------------------------------------------------
+# windowed rates and the p05 that a mean hides
+# --------------------------------------------------------------------------
+def test_windowed_rates():
+    # steady 2 MB/s, sampled twice a second for five seconds
+    steady = [(0.5 * (i + 1), 1_000_000 * (i + 1)) for i in range(10)]
+    rates = M.windowed_rates(steady)
+    check("windows: five complete one-second windows", len(rates) == 5)
+    check("windows: a steady stream reports its steady rate",
+          all(abs(r - 2.0) < 1e-6 for r in rates))
+
+    # the last window is short and must be dropped, not reported as a slow one
+    ragged = steady + [(5.4, 10_400_000)]
+    check("windows: the trailing partial window is dropped",
+          len(M.windowed_rates(ragged)) == 5)
+
+    # 60 MB/s for nine seconds then a one-second stall: the mean says 54 and
+    # the player stalls anyway. p05 is the column that shows it.
+    stalled = [(float(i + 1), 60_000_000 * (i + 1)) for i in range(9)]
+    stalled.append((10.0, 60_000_000 * 9))
+    rates = M.windowed_rates(stalled)
+    check("windows: a stalled second reads as zero", rates[-1] == 0.0)
+    check("windows: and the other nine do not", min(rates[:-1]) == 60.0)
+
+    check("windows: too few samples yields no windows", M.windowed_rates([(1.0, 10)]) == [])
+    check("windows: an empty series yields no windows", M.windowed_rates([]) == [])
+
+
+def test_p05_reporting():
+    # a transfer with fewer than five windows must be flagged, never quoted
+    short = [(0.4, 1_000_000), (0.8, 2_000_000)]
+    rates = M.windowed_rates(short)
+    check("p05: a sub-window transfer produces no complete window", len(rates) == 0)
+
+    # nearest-rank on a known series: 20 windows, one of them slow
+    series = sorted([50.0] * 19 + [3.0])
+    ix = max(0, int(__import__("math").ceil(0.05 * len(series))) - 1)
+    check("p05: nearest rank picks the slow window out of twenty", series[ix] == 3.0)
+
+
+def test_complete_rule():
+    check("complete: a full 206 counts",
+          M.complete({"http": "206", "bytes": 100}, 100) is True)
+    check("complete: a short 206 does not",
+          M.complete({"http": "206", "bytes": 99}, 100) is False)
+    check("complete: a 200 does not, however many bytes",
+          M.complete({"http": "200", "bytes": 100}, 100) is False)
+    check("complete: an errored read does not",
+          M.complete({"http": "000", "bytes": 0, "error": "x"}, 100) is False)
+
+
 if __name__ == "__main__":
     test_yenc()
     test_nzb()
     test_pick_file()
     test_raw_ranges()
     test_segment_map_corrections()
+    test_windowed_rates()
+    test_p05_reporting()
+    test_complete_rule()
     print()
     if FAILURES:
         print(f"{len(FAILURES)} FAILED:")
