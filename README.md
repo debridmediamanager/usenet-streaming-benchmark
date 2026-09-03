@@ -138,6 +138,20 @@ The password is not access control. The password is published right here. The ar
 
 Provider spool quality is not uniform and it decides what the damage phase can even claim. On the account this round used, a sample of the twelve most damaged releases in a production library found 61.5 percent of content articles dead against 6.0 percent on a different backbone. Every NZB in this corpus was checked as fully retrievable before the run. Four other candidates were rejected for this reason and are not in the corpus.
 
+## The round 10 harness
+
+There is a harness in `harness/*_r10.py` that has not been run. It adds a `raw`
+transport ceiling so an absolute MB/s can be read against the link that was
+available, a p05 windowed rate, a seek profile, a playback simulation, CPU shape
+and memory drift, byte identity compared across targets, alignment verification
+before any damage verdict, a corpus tier of entries that are supposed to be
+refused, and population fixed medians. It also takes the field from five targets
+to ten, adding nzbdavex, StremThru, AIOStreams and StreamNZB.
+
+No measurement in this repository comes from it. Two of its adapters have not
+survived a run. `docs/round10-harness.md` says what is ready and what is not,
+and `python3 harness/test_r10.py` runs its tests offline.
+
 ## Reproducing this
 
 ### Prerequisites
@@ -163,8 +177,11 @@ Every credential in this repository is a placeholder. Nothing here is live. Repl
 | `harness/stat_one.py` | `YOUR_USENET_USERNAME`, `YOUR_USENET_PASSWORD` |
 | `harness/plex/plex_ttp3.py` | `YOUR_PLEX_HOST`, `YOUR_PLEX_TOKEN`, `YOUR_PLEX_MACHINE_IDENTIFIER` |
 | `harness/bench5.py` | `YOUR_STREAMNZB_STREAM_TOKEN`, needed only if you re-enable that target |
+| `harness/rawserve_r10.py` | `YOUR_USENET_USERNAME`, `YOUR_USENET_PASSWORD`, or set `NNTP_USER` and `NNTP_PASS` in the environment instead |
 
 The provider hostname is `news.news-provider.example` everywhere. Replace it with your own.
+
+The round 10 scripts read `NNTP_HOST`, `NNTP_PORT`, `NNTP_USER` and `NNTP_PASS` from the environment when they are set, so a real run of those needs no file edited at all.
 
 Paths are absolute and assume the layout the run used. `BENCH` in `bench5.py` and the paths in `plexmnt.sh` and `chain7.sh` will need to match wherever you put this.
 
@@ -252,6 +269,8 @@ Read these before quoting any number.
 
 ```
 harness/          the benchmark scripts
+harness/*_r10.py  the round 10 harness, which has not been run yet
+harness/test_r10.py  offline tests for it, no provider or corpus needed
 harness/plex/     the Plex phase, which runs where the browser is
 config/           the server configs used, credentials replaced
 corpus/           the NZB corpus and its manifest
@@ -262,4 +281,5 @@ results/round4/   the previous published round
 results/round3/   the round before that
 docs/round7.md    the round 7 report, with the round 8 summary
 docs/round4.md    the round 4 report
+docs/round10-harness.md  what round 10 adds and what is not ready
 ```
