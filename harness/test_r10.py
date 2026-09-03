@@ -31,6 +31,7 @@ import metrics_r10 as M       # noqa: E402
 import nntp_r10 as N          # noqa: E402
 import procmon_r10 as P       # noqa: E402
 import rawserve_r10 as R      # noqa: E402
+import targets_r10 as T       # noqa: E402
 
 FAILURES = []
 
@@ -618,6 +619,54 @@ def test_damage_classification():
           verdict == "aborted-past-hole")
 
 
+# --------------------------------------------------------------------------
+# the target registry
+# --------------------------------------------------------------------------
+def test_registry():
+    required = ("kind", "role", "serve_mode", "import_mode", "port", "verified")
+    missing = {n: [k for k in required if k not in s]
+               for n, s in T.TARGETS.items()}
+    check("targets: every entry carries the keys a run needs",
+          not any(missing.values()))
+    check("targets: serve modes are one of the two families",
+          all(s["serve_mode"] in (T.WEBDAV, T.HTTP_RANGE)
+              for s in T.TARGETS.values()))
+
+    ports = [s["port"] for s in T.TARGETS.values()]
+    check("targets: no two targets share a port", len(ports) == len(set(ports)))
+
+    check("targets: the default field is all registered",
+          all(n in T.TARGETS for n in T.DEFAULT))
+    check("targets: comet is off by default, so a round does not hang on it",
+          "comet" not in T.enabled())
+    check("targets: but it is still registered rather than deleted",
+          "comet" in T.TARGETS)
+
+    check("targets: raw is a ceiling, not a competitor",
+          T.TARGETS["raw"]["role"] == "ceiling")
+    check("targets: and it is the only one",
+          [n for n, s in T.TARGETS.items() if s["role"] == "ceiling"] == ["raw"])
+
+    # a table must never rank a mount against an addon on import
+    mounts = T.comparable(T.DEFAULT, T.WEBDAV)
+    addons = T.comparable(T.DEFAULT, T.HTTP_RANGE)
+    check("targets: the two families do not overlap",
+          not (set(mounts) & set(addons)))
+    check("targets: and together they are the whole field",
+          sorted(mounts + addons) == sorted(T.enabled(T.DEFAULT))
+          or set(mounts + addons) == set(T.DEFAULT))
+    check("targets: stremthru is measured as a mount, since it serves WebDAV",
+          "stremthru" in mounts)
+    check("targets: aiostreams is measured as an addon, since it has no PROPFIND",
+          "aiostreams" in addons)
+
+    shakedown = T.needs_shakedown()
+    check("targets: unproven adapters are declared rather than assumed",
+          set(shakedown) == {"nzbdavex", "aiostreams"})
+    check("targets: every shakedown target says what is unproven about it",
+          all(T.TARGETS[n].get("note") for n in shakedown))
+
+
 if __name__ == "__main__":
     test_yenc()
     test_nzb()
@@ -636,6 +685,7 @@ if __name__ == "__main__":
     test_tally()
     test_zero_run()
     test_damage_classification()
+    test_registry()
     print()
     if FAILURES:
         print(f"{len(FAILURES)} FAILED:")

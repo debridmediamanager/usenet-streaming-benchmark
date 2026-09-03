@@ -1,0 +1,254 @@
+#!/usr/bin/env python3
+"""The round-10 field: what is measured, how each one is driven, and what it is.
+
+Rounds 3 through 9 measured five targets, all of them mounts. That is the right
+field for the question "what should back a Plex library" and it is not the whole
+field: four of the most used projects that stream Usenet on demand answer over
+HTTP Range as Stremio addons instead, and none of them had ever been in a round
+here.
+
+Adding them raises a comparison problem that has to be handled rather than
+ignored. An addon walks discovery, import and link-minting in a path a mount
+never touches, so a single cold-open number puts them behind by however long
+their import takes and calls it slowness. Every target therefore records
+`import_s` and `open_s` separately, and the composite `click_to_byte_s` is the
+only one of the three that compares across serving modes. `SERVE_MODE` says
+which family a row belongs to so a report never silently ranks across them.
+
+Provenance of every endpoint below is recorded in `verified`. `upstream` means
+it was read out of that project's own repository; `shakedown` means it is
+written from its documentation and has not yet survived a run, which is a state
+this file says out loud rather than letting a first round discover it as a row
+of zeros.
+
+Two projects that look like they belong here and do not:
+
+  * UsenetStreamer (Sanket9225, 380 stars) is a search and indexer front end
+    that hands streaming to NZBDav -- its own health checks describe an archive
+    as playable when "the archive format is supported by NZBDav". Benchmarking
+    it would re-measure nzbdav with a search layer in front, and report the
+    result under a second name.
+  * Usenet-Ultimate (DSmart33) has not been pushed since 2026-05-26.
+"""
+import os
+
+BENCH = os.environ.get("BENCH", "/home/ben/bench")
+AUTH = ("usenet", "usenet")
+API_KEY = "benchbenchbenchbenchbenchbench12"
+
+# how a target hands over bytes. Rows from different families are comparable on
+# click_to_byte_s and on throughput; they are not comparable on import alone
+WEBDAV = "webdav"
+HTTP_RANGE = "http-range"
+
+# how a release gets into a target
+SAB = "sabnzbd"          # SABnzbd-compatible: the same import path for six of these
+NATIVE_API = "native"    # its own upload endpoint
+DISCOVERY = "discovery"  # no import at all; it must be offered a release to find
+NONE = "none"            # nothing to import, the URL is the release
+
+TARGETS = {
+    # ---------------------------------------------------------------- ceiling
+    "raw": {
+        "kind": "native",
+        "role": "ceiling",
+        "serve_mode": HTTP_RANGE,
+        "import_mode": NONE,
+        "port": 8099,
+        "language": "Python (this harness)",
+        "url": "http://127.0.0.1:8099/stream",
+        "ready": "http://127.0.0.1:8099/stream",
+        "start": ("cd {bench} && nohup python3 rawserve_r10.py {nzb} 8099 "
+                  "--conns {conns} > raw.log 2>&1 &"),
+        "auth": None,
+        "verified": "upstream",
+        "note": ("not a competitor and never ranked as one. It is this harness "
+                 "pulling the same articles with no application in the middle, so "
+                 "every other row can be read as a fraction of the link that was "
+                 "actually available. It opens no archives on purpose"),
+    },
+
+    # ------------------------------------------------------- existing five
+    "zurg": {
+        "kind": "native", "role": "target", "serve_mode": WEBDAV,
+        "import_mode": SAB, "port": 9998, "language": "Go",
+        "url": "http://localhost:9998/dav/all/{release}/{file}",
+        "root": "http://localhost:9998/dav/all/",
+        "ready": "http://localhost:9998/dav/all/",
+        "start": "cd {bench}/zurgrun && nohup ./zurg > zurg.log 2>&1 &",
+        "auth": None, "verified": "upstream",
+        "note": "the author's own project",
+    },
+    "altmount": {
+        "kind": "native", "role": "target", "serve_mode": WEBDAV,
+        "import_mode": SAB, "port": 8081, "language": "Go",
+        "url": "http://localhost:8081/webdav/complete/{release}/{file}",
+        "root": "http://localhost:8081/webdav/complete/",
+        "ready": "http://localhost:8081/webdav/",
+        "start": ("cd {bench}/altmount && nohup ./altmount-cli-linux-amd64 serve "
+                  "--config ./config.yaml > altmount.out 2>&1 &"),
+        "auth": AUTH, "verified": "upstream",
+    },
+    "decypharr": {
+        "kind": "native", "role": "target", "serve_mode": WEBDAV,
+        "import_mode": SAB, "port": 8282, "language": "Go",
+        "url": "http://localhost:8282/webdav/__all__/{release}/{file}",
+        "root": "http://localhost:8282/webdav/__all__/",
+        "ready": "http://localhost:8282/webdav/__all__/",
+        "sab_api": "http://localhost:8282/sabnzbd/api",
+        "start": ("cd {bench}/decyrun && nohup {bench}/decypharr "
+                  "--config {bench}/decyrun/ > decypharr.log 2>&1 &"),
+        "auth": None, "verified": "upstream",
+        "note": "its SABnzbd mock upload field is `name`, not `nzbfile`",
+    },
+    "infinidysk": {
+        "kind": "docker", "role": "target", "serve_mode": WEBDAV,
+        "import_mode": SAB, "port": 8092, "language": "C# (.NET)",
+        "container": "infinidysk-r10",
+        "url": "http://127.0.0.1:8092/content/uncategorized/{release}/{file}",
+        "root": "http://127.0.0.1:8092/content/uncategorized/",
+        "ready": "http://127.0.0.1:8092/health",
+        "auth": AUTH, "verified": "upstream",
+    },
+    "nzbdav-og": {
+        "kind": "docker", "role": "target", "serve_mode": WEBDAV,
+        "import_mode": SAB, "port": 8093, "language": "C# (.NET)",
+        "container": "nzbdav-r10",
+        "url": "http://127.0.0.1:8093/content/uncategorized/{release}/{file}",
+        "root": "http://127.0.0.1:8093/content/uncategorized/",
+        "ready": "http://127.0.0.1:8093/health",
+        "auth": AUTH, "verified": "upstream",
+    },
+
+    # ------------------------------------------------------------ new targets
+    "nzbdavex": {
+        "kind": "docker", "role": "target", "serve_mode": WEBDAV,
+        "import_mode": SAB, "port": 8094, "language": "C# (.NET)",
+        "container": "nzbdavex-r10",
+        "repo": "qooode/nzbdavex",
+        "url": "http://127.0.0.1:8094/content/uncategorized/{release}/{file}",
+        "root": "http://127.0.0.1:8094/content/uncategorized/",
+        "ready": "http://127.0.0.1:8094/health",
+        "auth": AUTH, "verified": "shakedown",
+        "note": ("the other fork of nzbdav. Rounds 3-9 covered the original and "
+                 "InfiniDysk and left this one out, so the family was measured "
+                 "with a hole in it. Same .NET base, so the same import and serve "
+                 "paths: it needs `--db-migration` before it will serve, and PORT "
+                 "is the web UI's port while the backend takes ASPNETCORE_URLS -- "
+                 "point both at one port and whichever starts first wins. "
+                 "Upstream has not been pushed since 2026-06-23; check it is "
+                 "still alive before spending a round on it"),
+    },
+    "stremthru": {
+        "kind": "native", "role": "target", "serve_mode": WEBDAV,
+        "import_mode": SAB, "port": 8484, "language": "Go",
+        "repo": "MunifTanjim/stremthru",
+        "url": "http://127.0.0.1:8484/v0/webdav/newz/{release}/{file}",
+        "root": "http://127.0.0.1:8484/v0/webdav/newz/",
+        "ready": "http://127.0.0.1:8484/v0/webdav/newz/",
+        "sab_api": "http://127.0.0.1:8484/v0/sabnzbd/api",
+        "start": ("cd {bench}/stremthru && nohup ./stremthru > stremthru.log 2>&1 &"),
+        "auth": AUTH, "verified": "upstream",
+        "note": ("the one addition that is directly comparable to the mounts: its "
+                 "`newz` store is its own usenet engine and it answers WebDAV at "
+                 "/v0/webdav/newz/ as well as a SABnzbd API at /v0/sabnzbd/api, so "
+                 "it runs through the identical import and serve path as the five "
+                 "incumbents. Build with the sqlite_fts5 tag or a migration "
+                 "creates an fts5 table the binary cannot open; the dash frontend "
+                 "must be built before the Go build embeds it"),
+    },
+    "aiostreams": {
+        "kind": "native", "role": "target", "serve_mode": HTTP_RANGE,
+        "import_mode": SAB, "port": 3000, "language": "TypeScript",
+        "repo": "Viren070/AIOStreams",
+        "root": "http://127.0.0.1:3000/api/v1/builtins/library/",
+        "sab_api": "http://127.0.0.1:3000/api/sabnzbd/api",
+        "ready": "http://127.0.0.1:3000/api/v1/status",
+        "start": ("cd {bench}/aiostreams && DATABASE_URI=sqlite://./data/db.sqlite "
+                  "nohup node dist/server/src/index.js > aiostreams.log 2>&1 &"),
+        "auth": None, "verified": "shakedown",
+        "note": ("the largest project in the field by a wide margin and the "
+                 "author of the competing benchmark, which is the reason an "
+                 "independent number for it is worth having. It is NOT a WebDAV "
+                 "server: there is no PROPFIND anywhere in the tree, so it is "
+                 "measured on the HTTP-Range path and must not be ranked against "
+                 "the mounts on import. Its data directory comes from DATABASE_URI "
+                 "and nothing else, so leave that unset and it writes into the "
+                 "clone and keeps the library between runs"),
+    },
+    "streamnzb": {
+        "kind": "native", "role": "target", "serve_mode": HTTP_RANGE,
+        "import_mode": NATIVE_API, "port": 7000, "language": "Go",
+        "repo": "Gaisberg/streamnzb",
+        "play_api": "http://127.0.0.1:7000/api/play/nzb",
+        "ready": "http://127.0.0.1:7000/",
+        "start": "{bench}/streamnzbrun/start.sh",
+        "auth": None, "verified": "upstream",
+        "note": ("measured once in the 18 August six-way round and then dropped "
+                 "before the repository existed, so it has never appeared in a "
+                 "published round. Disable the bundled NNTP proxy or it binds a "
+                 "privileged port and dies at boot with a misleading error, and "
+                 "raise the playback timeout well above its 5s default or a "
+                 "multi-volume RAR fails outright. Stored archives only, by "
+                 "design, so the negative tier is expected to fail here and that "
+                 "is not a defect"),
+    },
+    "comet": {
+        "kind": "docker", "role": "target", "serve_mode": HTTP_RANGE,
+        "import_mode": DISCOVERY, "port": 8085, "language": "Python + Rust",
+        "repo": "g0ldyy/comet", "branch": "feat/usenet",
+        "container": "comet-r10",
+        "ready": "http://127.0.0.1:8085/health",
+        "auth": None, "verified": "shakedown",
+        "enabled": False,
+        "note": ("off by default and that is the finding, not an omission. It has "
+                 "no import API at all -- a release can only be offered to it by "
+                 "standing up a Stremio addon of your own and pointing its "
+                 "discovery at it -- and its engine materialises archives past the "
+                 "harness's item boundary with no exposed idle signal to drain "
+                 "against. Enable it to reproduce that, and expect a run rather "
+                 "than a row"),
+    },
+}
+
+# targets a normal round measures, in a stable order
+DEFAULT = ["raw", "zurg", "altmount", "infinidysk", "nzbdav-og", "nzbdavex",
+           "decypharr", "stremthru", "aiostreams", "streamnzb"]
+
+MOUNTS = [n for n, t in TARGETS.items() if t["serve_mode"] == WEBDAV]
+ADDONS = [n for n, t in TARGETS.items() if t["serve_mode"] == HTTP_RANGE]
+
+
+def enabled(names=None):
+    """The targets to run, minus anything switched off in the registry."""
+    names = names or DEFAULT
+    return [n for n in names if TARGETS[n].get("enabled", True)]
+
+
+def comparable(names, mode):
+    """Only the targets that serve the same way, for a table that must not mix them."""
+    return [n for n in names if TARGETS[n]["serve_mode"] == mode]
+
+
+def needs_shakedown(names=None):
+    """Targets whose endpoints have not yet survived a run."""
+    return [n for n in (names or DEFAULT)
+            if TARGETS[n].get("verified") == "shakedown"]
+
+
+def summary():
+    rows = []
+    for name in TARGETS:
+        spec = TARGETS[name]
+        rows.append({
+            "target": name, "role": spec["role"], "serve": spec["serve_mode"],
+            "import": spec["import_mode"], "language": spec.get("language"),
+            "repo": spec.get("repo"), "verified": spec.get("verified"),
+            "enabled": spec.get("enabled", True),
+        })
+    return rows
+
+
+if __name__ == "__main__":
+    import json
+    print(json.dumps(summary(), indent=1))
