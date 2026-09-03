@@ -25,6 +25,7 @@ from http.server import ThreadingHTTPServer
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import corpus_r10 as C        # noqa: E402
+import damage_r10 as D        # noqa: E402
 import expect_r10 as X        # noqa: E402
 import metrics_r10 as M       # noqa: E402
 import nntp_r10 as N          # noqa: E402
@@ -573,6 +574,50 @@ def test_tally():
           grid["1"]["a"] == X.PASS and grid["1"]["b"] == X.PASS)
 
 
+# --------------------------------------------------------------------------
+# damage classification
+# --------------------------------------------------------------------------
+def test_zero_run():
+    check("damage: a clean buffer has no zero run", D.zero_run(b"\x01\x02\x03") == 0)
+    check("damage: an all-zero buffer runs its whole length",
+          D.zero_run(b"\x00" * 500) == 500)
+    check("damage: the longest run wins, not the first",
+          D.zero_run(b"\x00\x01" + b"\x00" * 9 + b"\x01") == 9)
+    check("damage: zeros inside real video do not read as a fill",
+          D.zero_run(bytes([0, 1, 0, 2, 0, 3])) == 1)
+
+
+def test_damage_classification():
+    hole_start, hole_len = 1000, 100
+    hole_end = hole_start + hole_len
+    band_start = 0
+
+    truncated = {"bytes": 900, "requested": 1200}
+    verdict, _ = D.classify(truncated, hole_start, hole_end, band_start)
+    check("damage: a read that stops before the gap is a truncation",
+          verdict == "truncated-at-hole")
+
+    errored = {"bytes": 0, "error": "stream aborted after 0 bytes"}
+    verdict, _ = D.classify(errored, hole_start, hole_end, band_start)
+    check("damage: no bytes at all is an error at the hole",
+          verdict == "error-at-hole")
+
+    spanned = {"bytes": 1200, "requested": 1200}
+    verdict, _ = D.classify(spanned, hole_start, hole_end, band_start)
+    check("damage: a complete read spans the gap and defers to the body",
+          verdict == "spans-hole")
+
+    partial = {"bytes": 1150, "requested": 1200}
+    verdict, _ = D.classify(partial, hole_start, hole_end, band_start)
+    check("damage: a read that got past the gap but fell short is truncated",
+          verdict == "truncated-at-hole")
+
+    late = {"bytes": 1150, "requested": 1200, "error": "reset"}
+    verdict, _ = D.classify(late, hole_start, hole_end, band_start)
+    check("damage: an error after the gap is not an error at it",
+          verdict == "aborted-past-hole")
+
+
 if __name__ == "__main__":
     test_yenc()
     test_nzb()
@@ -589,6 +634,8 @@ if __name__ == "__main__":
     test_judge_served()
     test_expect_matrix()
     test_tally()
+    test_zero_run()
+    test_damage_classification()
     print()
     if FAILURES:
         print(f"{len(FAILURES)} FAILED:")
