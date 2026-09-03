@@ -638,10 +638,12 @@ def test_registry():
 
     check("targets: the default field is all registered",
           all(n in T.TARGETS for n in T.DEFAULT))
-    check("targets: comet is off by default, so a round does not hang on it",
-          "comet" not in T.enabled())
-    check("targets: but it is still registered rather than deleted",
-          "comet" in T.TARGETS)
+    check("targets: every registered target is in the default field",
+          sorted(T.DEFAULT) == sorted(T.TARGETS))
+    check("targets: everything is enabled by default, comet included",
+          set(T.enabled(config={})) == set(T.TARGETS))
+    check("targets: the one expected to misbehave gets a shorter budget",
+          T.budget("comet") < T.budget("zurg"))
 
     check("targets: raw is a ceiling, not a competitor",
           T.TARGETS["raw"]["role"] == "ceiling")
@@ -663,9 +665,49 @@ def test_registry():
 
     shakedown = T.needs_shakedown()
     check("targets: unproven adapters are declared rather than assumed",
-          set(shakedown) == {"nzbdavex", "aiostreams"})
+          set(shakedown) == {"nzbdavex", "aiostreams", "comet"})
     check("targets: every shakedown target says what is unproven about it",
           all(T.TARGETS[n].get("note") for n in shakedown))
+
+
+def test_enable_disable():
+    everything = set(T.TARGETS)
+
+    check("switch: no argument runs everything",
+          set(T.enabled(config={})) == everything)
+    check("switch: --disable removes exactly those",
+          set(T.enabled(disable=["comet", "aiostreams"], config={}))
+          == everything - {"comet", "aiostreams"})
+    check("switch: --only runs exactly those",
+          T.enabled(only=["raw", "zurg"], config={}) == ["raw", "zurg"])
+    check("switch: --only keeps the registry's order, not the argument's",
+          T.enabled(only=["zurg", "raw"], config={}) == ["raw", "zurg"])
+
+    # a stored preference is honoured, and an explicit flag beats it
+    stored = {"disabled": ["comet"]}
+    check("switch: a config file can disable a target",
+          "comet" not in T.enabled(config=stored))
+    check("switch: an explicit --only overrides the config file",
+          T.enabled(only=["comet"], config=stored) == ["comet"])
+    check("switch: an explicit --disable overrides the config file",
+          "comet" in T.enabled(disable=["zurg"], config=stored))
+    check("switch: only wins over disabled when a config sets both",
+          T.enabled(config={"only": ["raw"], "disabled": ["raw"]}) == ["raw"])
+
+    # a misspelling must not quietly publish a field that never existed
+    for bad in ({"only": ["zurgg"]}, {"disabled": ["altmout"]}):
+        try:
+            T.enabled(config=bad)
+            check(f"switch: {list(bad)[0]} typo is an error, not a silent skip",
+                  False)
+        except SystemExit as exc:
+            check(f"switch: {list(bad)[0]} typo is an error, not a silent skip",
+                  "unknown target" in str(exc))
+
+    check("switch: disabling everything leaves nothing, rather than everything",
+          T.enabled(disable=list(everything), config={}) == [])
+    check("switch: the ceiling can be disabled like anything else",
+          "raw" not in T.enabled(disable=["raw"], config={}))
 
 
 # --------------------------------------------------------------------------
@@ -814,6 +856,7 @@ if __name__ == "__main__":
     test_zero_run()
     test_damage_classification()
     test_registry()
+    test_enable_disable()
     test_shared_population()
     test_headline_medians()
     test_consensus()

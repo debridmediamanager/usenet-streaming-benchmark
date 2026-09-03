@@ -1,0 +1,33 @@
+{
+  "_comment": [
+    "Which targets a round 10 measures. Everything registered in",
+    "harness/targets_r10.py runs unless it is switched off here, and this file",
+    "ships with nothing switched off.",
+    "",
+    "  disabled  run everything except these",
+    "  only      run exactly these and ignore the rest",
+    "",
+    "`only` wins over `disabled` when both are set. Command line flags win over",
+    "both: --only and --disable on run_r10.py override whatever is here, so a",
+    "one-off narrow pass never needs this file edited.",
+    "",
+    "A name that is not registered is a hard error rather than a silent skip.",
+    "A round that quietly measured nine targets because one was misspelled",
+    "would publish a field that never existed.",
+    "",
+    "Registered names: raw, zurg, altmount, infinidysk, nzbdav-og, nzbdavex,",
+    "decypharr, stremthru, aiostreams, streamnzb, comet.",
+    "",
+    "raw is the transport ceiling rather than a competitor. Disabling it is",
+    "allowed and costs the run its denominator: every MB/s becomes a number",
+    "with nothing to read it against, which is the state rounds 3 to 9 were in.",
+    "",
+    "comet is the one target expected to cost more than it returns. It has no",
+    "import API and deadlocks its own SQLite under sustained load at its",
+    "shipped defaults. It is on by default like everything else and it has a",
+    "shorter budget, so it abandons its own rows instead of the round. Add it",
+    "to `disabled` to stop paying for that."
+  ],
+  "disabled": [],
+  "only": null
+}

@@ -33,6 +33,7 @@ import urllib.request
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import corpus_r10 as corpus          # noqa: E402
+import damage_r10 as damage          # noqa: E402
 import expect_r10 as expect          # noqa: E402
 import procmon_r10 as procmon        # noqa: E402
 import report_r10 as report          # noqa: E402
@@ -267,75 +268,184 @@ def measure_entry(target, url, size, auth, life, pids_fn):
     return out
 
 
-def run_target(target, entries, life, reps_tag, memory):
+def start_for_entry(life, target, nzb, conns):
+    """Start a target, filling in whatever its launch command needs.
+
+    The ceiling is the reason this exists. `rawserve_r10.py` serves one NZB per
+    process, so it has to be restarted per entry with that entry's file, where
+    every other target is started once and imported into repeatedly.
+    """
+    spec = registry.TARGETS[target]
+    if spec["kind"] != "docker" and "{nzb}" in (spec.get("start") or ""):
+        life.SPEC[target]["start"] = spec["start"].format(
+            bench=BENCH, nzb=nzb, conns=conns)
+    return life.start(target)
+
+
+def run_target(target, entries, life, reps_tag, memory, conns):
+    """Every entry against one target, inside that target's time budget.
+
+    Everything is enabled by default, which makes failure isolation the whole
+    job here: a target that wedges, deadlocks or never becomes ready has to cost
+    its own rows and nothing else. Its remaining entries are recorded with the
+    reason rather than dropped, so a short column in the report says why it is
+    short.
+    """
     spec = registry.TARGETS[target]
     auth = spec.get("auth")
+    per_entry_restart = spec["import_mode"] == registry.NONE
+    deadline = time.time() + registry.budget(target)
     rows = []
+    started = False
 
-    life.start(target)
-    pids_fn = (lambda: life.pids_for(target))
-    idle = procmon.sample_idle(pids_fn, seconds=5)
-    memory.idle_rss_MB = idle.get("idle_rss_MB")
+    def pids_fn():
+        try:
+            return life.pids_for(target)
+        except Exception:
+            return []
 
-    for entry in entries:
-        nzb = corpus.resolve(entry)
-        row = {"target": target, "entry": entry["id"], "tier": entry.get("tier"),
-               "expect": entry.get("expect"), "tag": reps_tag}
-        if entry.get("needs_real_post") or not nzb or not os.path.exists(nzb):
-            row.update(expect.score(entry, {}, None))
-            row["skipped"] = "no post available for this entry"
+    def abandon(remaining, reason):
+        for pending in remaining:
+            rows.append({"target": target, "entry": pending["id"],
+                         "tier": pending.get("tier"),
+                         "expect": pending.get("expect"), "tag": reps_tag,
+                         "skipped": reason,
+                         **expect.score(pending, {"error": reason}, None)})
+
+    try:
+        if not per_entry_restart:
+            start_for_entry(life, target, None, conns)
+            started = True
+            memory.idle_rss_MB = procmon.sample_idle(
+                pids_fn, seconds=5).get("idle_rss_MB")
+
+        for ix, entry in enumerate(entries):
+            if time.time() > deadline:
+                abandon(entries[ix:], f"target budget of "
+                                      f"{registry.budget(target)}s exhausted")
+                break
+
+            nzb = corpus.resolve(entry)
+            row = {"target": target, "entry": entry["id"],
+                   "tier": entry.get("tier"), "expect": entry.get("expect"),
+                   "tag": reps_tag}
+            if entry.get("needs_real_post") or not nzb or not os.path.exists(nzb):
+                row.update(expect.score(entry, {}, None))
+                row["skipped"] = "no post available for this entry"
+                rows.append(row)
+                continue
+
+            try:
+                if per_entry_restart:
+                    if started:
+                        life.stop(target)
+                    start_for_entry(life, target, nzb, conns)
+                    started = True
+                    if memory.idle_rss_MB is None:
+                        memory.idle_rss_MB = procmon.sample_idle(
+                            pids_fn, seconds=5).get("idle_rss_MB")
+
+                url, size, meta = import_entry(target, entry, nzb, auth)
+                row.update(meta)
+                row["url"] = url
+                row["size"] = size
+                if not url:
+                    row.update(expect.score(
+                        entry, {"http": None, "bytes": 0,
+                                "error": meta.get("error")}, None))
+                    rows.append(row)
+                    continue
+
+                measured = measure_entry(target, url, size, auth, life, pids_fn)
+                row.update(measured)
+                memory.record(measured.get("rss_peak_MB"))
+
+                # the damaged entry gets the alignment-verified phase in the same
+                # pass, on the URL already resolved, so the whole round stays one
+                # command instead of a second script that has to re-find it
+                if entry["id"] == "damaged-partial":
+                    try:
+                        row["damage"] = damage.run(url, auth, nzb)
+                    except Exception as exc:
+                        row["damage"] = {"error":
+                                         f"{type(exc).__name__}: {exc}"[:200]}
+                row.update(expect.score(
+                    entry, {"http": measured.get("cold_http"),
+                            "bytes": measured.get("seq_bytes"),
+                            "accept_ranges": "bytes", "error": None},
+                    measured.get("seq_bytes")))
+            except Exception as exc:
+                # one entry blowing up is a row, not the end of the target
+                row["error"] = f"{type(exc).__name__}: {exc}"[:200]
+                row.update(expect.score(entry, {"error": row["error"]}, None))
+
             rows.append(row)
-            continue
+            print(json.dumps({k: row.get(k) for k in
+                              ("target", "entry", "outcome", "MBps", "p05_MBps",
+                               "cold_open_s", "import_s")}), flush=True)
 
-        url, size, meta = import_entry(target, entry, nzb, auth)
-        row.update(meta)
-        row["url"] = url
-        row["size"] = size
-        if not url:
-            observed = {"http": None, "bytes": 0, "error": meta.get("error")}
-            row.update(expect.score(entry, observed, None))
-            rows.append(row)
-            continue
-
-        measured = measure_entry(target, url, size, auth, life, pids_fn)
-        row.update(measured)
-        memory.record(measured.get("rss_peak_MB"))
-        observed = {"http": measured.get("cold_http"),
-                    "bytes": measured.get("seq_bytes"),
-                    "accept_ranges": "bytes",
-                    "error": None}
-        row.update(expect.score(entry, observed, measured.get("seq_bytes")))
-        rows.append(row)
-        print(json.dumps({k: row.get(k) for k in
-                          ("target", "entry", "outcome", "MBps", "p05_MBps",
-                           "cold_open_s", "import_s")}), flush=True)
-
-    # what it holds once the work stops, before it is killed
-    time.sleep(20)
-    memory.after_idle_MB = procmon.rss_kb(pids_fn()) // 1024 or None
-    life.stop(target)
+        if started:
+            # what it still holds once the work stops, before it is killed
+            time.sleep(20)
+            memory.after_idle_MB = (procmon.rss_kb(pids_fn()) // 1024) or None
+    except Exception as exc:
+        reason = f"{type(exc).__name__}: {exc}"[:200]
+        done = {r["entry"] for r in rows}
+        abandon([e for e in entries if e["id"] not in done], reason)
+        print(f"!! {target} abandoned: {reason}", flush=True)
+    finally:
+        try:
+            life.stop(target)
+        except Exception as exc:
+            # a target that will not let go of the account contaminates whoever
+            # runs next, so this is loud rather than swallowed
+            print(f"!! {target} did not release the account: {exc}", flush=True)
     return rows
 
 
 def main():
-    ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--targets", default=",".join(registry.DEFAULT))
-    ap.add_argument("--entries", default="")
+    ap = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--only", "--targets", dest="only", default="",
+                    help="run exactly these, comma separated. Default is all of them")
+    ap.add_argument("--disable", default="",
+                    help="run everything except these, comma separated")
+    ap.add_argument("--entries", default="",
+                    help="corpus entries to use. Default is all of them")
     ap.add_argument("--reps", type=int, default=1)
+    ap.add_argument("--conns", type=int,
+                    default=int(os.environ.get("CONNS", "15")),
+                    help="connection budget, which must match every target's config")
     ap.add_argument("--tag", default="r10")
     ap.add_argument("--out", default=None)
+    ap.add_argument("--derive", action="store_true",
+                    help="build the negative tier from the corpus before running")
     ap.add_argument("--list", action="store_true",
                     help="print the field and the corpus, run nothing")
     args = ap.parse_args()
 
-    names = registry.enabled([t for t in args.targets.split(",") if t])
+    names = registry.enabled(
+        only=[t for t in args.only.split(",") if t] or None,
+        disable=[t for t in args.disable.split(",") if t] or None)
+    if not names:
+        raise SystemExit("nothing left to run: every target was filtered out")
+
+    if args.derive:
+        built = corpus.derive_all()
+        print(f"derived {len(built)} negative-tier entries", flush=True)
+
     wanted = [e for e in args.entries.split(",") if e]
+    unknown = [e for e in wanted if e not in corpus.BY_ID]
+    if unknown:
+        raise SystemExit(f"unknown corpus entries: {', '.join(unknown)}")
     entries = [corpus.BY_ID[e] for e in wanted] if wanted else corpus.ENTRIES
 
     if args.list:
         print(json.dumps({
-            "targets": registry.summary(),
+            "registered": registry.summary(),
             "running": names,
+            "disabled": [n for n in registry.DEFAULT if n not in names],
             "shakedown": registry.needs_shakedown(names),
             "corpus": [{"id": e["id"], "tier": e.get("tier"),
                         "expect": e.get("expect"),
@@ -353,11 +463,13 @@ def main():
         for target in order:
             memory = memories.setdefault(target, procmon.RunMemory())
             rows.extend(run_target(target, entries, life, f"{args.tag}.{rep}",
-                                   memory))
+                                   memory, args.conns))
 
     out = {
         "tag": args.tag,
-        "field": [registry.TARGETS[n] and n for n in names],
+        "field": names,
+        "disabled": [n for n in registry.DEFAULT if n not in names],
+        "connections": args.conns,
         "rows": rows,
         "memory": {t: m.summary() for t, m in memories.items()},
         "capability": expect.tally(rows),

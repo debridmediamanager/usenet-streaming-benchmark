@@ -30,6 +30,7 @@ Two projects that look like they belong here and do not:
     result under a second name.
   * Usenet-Ultimate (DSmart33) has not been pushed since 2026-05-26.
 """
+import json
 import os
 
 BENCH = os.environ.get("BENCH", "/home/ben/bench")
@@ -200,29 +201,86 @@ TARGETS = {
         "container": "comet-r10",
         "ready": "http://127.0.0.1:8085/health",
         "auth": None, "verified": "shakedown",
-        "enabled": False,
-        "note": ("off by default and that is the finding, not an omission. It has "
-                 "no import API at all -- a release can only be offered to it by "
-                 "standing up a Stremio addon of your own and pointing its "
-                 "discovery at it -- and its engine materialises archives past the "
-                 "harness's item boundary with no exposed idle signal to drain "
-                 "against. Enable it to reproduce that, and expect a run rather "
-                 "than a row"),
+        "budget_s": 1800,
+        "note": ("enabled like everything else, but expect a finding rather than "
+                 "a row. It has no import API at all -- a release can only be "
+                 "offered to it by standing up a Stremio addon of your own and "
+                 "pointing its discovery at it -- and its engine materialises "
+                 "archives past the harness's item boundary with no exposed idle "
+                 "signal to drain against. Under sustained load it deadlocks its "
+                 "own SQLite at its shipped defaults. `--disable comet` if you "
+                 "want the run to stop paying for that"),
     },
 }
 
-# targets a normal round measures, in a stable order
+# every registered target, in a stable order. A round measures all of them
+# unless something is switched off explicitly
 DEFAULT = ["raw", "zurg", "altmount", "infinidysk", "nzbdav-og", "nzbdavex",
-           "decypharr", "stremthru", "aiostreams", "streamnzb"]
+           "decypharr", "stremthru", "aiostreams", "streamnzb", "comet"]
+
+# how long one target may spend on the whole corpus before the run gives up on
+# it and moves to the next. Everything is enabled by default, so a target that
+# wedges must cost its own rows and not the round
+DEFAULT_BUDGET_S = 3600
+
+CONFIG = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                      "config", "targets-r10.json")
 
 MOUNTS = [n for n, t in TARGETS.items() if t["serve_mode"] == WEBDAV]
 ADDONS = [n for n, t in TARGETS.items() if t["serve_mode"] == HTTP_RANGE]
 
 
-def enabled(names=None):
-    """The targets to run, minus anything switched off in the registry."""
-    names = names or DEFAULT
-    return [n for n in names if TARGETS[n].get("enabled", True)]
+def load_config(path=CONFIG):
+    """Persistent enable/disable, so a preference outlives one command line.
+
+    Absent or unreadable means everything is on, which is the default this whole
+    file is built around: a target is measured unless somebody said not to.
+    """
+    try:
+        with open(path) as handle:
+            return json.load(handle)
+    except Exception:
+        return {}
+
+
+def enabled(names=None, disable=None, only=None, config=None):
+    """The targets to run.
+
+    Everything registered is on by default. Three ways to narrow it, in order of
+    precedence, so an explicit flag always beats a stored preference:
+
+        only     run exactly these and nothing else   (--only / --targets)
+        disable  run everything except these          (--disable)
+        config   the same two keys, from config/targets-r10.json
+
+    A name that is not registered is an error rather than a silent no-op. A
+    round that quietly measured nine targets because one was misspelled would
+    publish a field that never existed.
+    """
+    config = load_config() if config is None else config
+    pool = list(names or DEFAULT)
+
+    if only is None:
+        only = config.get("only")
+    if disable is None:
+        disable = config.get("disabled")
+
+    unknown = [n for n in list(only or []) + list(disable or []) + pool
+               if n not in TARGETS]
+    if unknown:
+        raise SystemExit(f"unknown target(s): {', '.join(sorted(set(unknown)))}. "
+                         f"Registered: {', '.join(TARGETS)}")
+
+    if only:
+        return [n for n in pool if n in set(only)]
+    if disable:
+        return [n for n in pool if n not in set(disable)]
+    return pool
+
+
+def budget(name):
+    """Seconds one target may spend before the run abandons it and moves on."""
+    return TARGETS[name].get("budget_s", DEFAULT_BUDGET_S)
 
 
 def comparable(names, mode):
@@ -244,11 +302,10 @@ def summary():
             "target": name, "role": spec["role"], "serve": spec["serve_mode"],
             "import": spec["import_mode"], "language": spec.get("language"),
             "repo": spec.get("repo"), "verified": spec.get("verified"),
-            "enabled": spec.get("enabled", True),
+            "budget_s": budget(name),
         })
     return rows
 
 
 if __name__ == "__main__":
-    import json
-    print(json.dumps(summary(), indent=1))
+    print(json.dumps({"registered": summary(), "enabled": enabled()}, indent=1))
