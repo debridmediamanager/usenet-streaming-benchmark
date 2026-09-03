@@ -31,6 +31,7 @@ import metrics_r10 as M       # noqa: E402
 import nntp_r10 as N          # noqa: E402
 import procmon_r10 as P       # noqa: E402
 import rawserve_r10 as R      # noqa: E402
+import report_r10 as RP       # noqa: E402
 import targets_r10 as T       # noqa: E402
 
 FAILURES = []
@@ -667,6 +668,133 @@ def test_registry():
           all(T.TARGETS[n].get("note") for n in shakedown))
 
 
+# --------------------------------------------------------------------------
+# reporting: the population fix, consensus, and the noise floor
+# --------------------------------------------------------------------------
+def report_rows():
+    """Three targets. B fails both large entries; C serves one nobody else does."""
+    times = {"s1": 1.0, "s2": 1.1, "s3": 1.2, "b1": 10.0, "b2": 11.0, "x": 0.5}
+    served = {
+        "A": ["s1", "s2", "s3", "b1", "b2"],
+        "B": ["s1", "s2", "s3"],
+        "C": ["s1", "s2", "s3", "b1", "b2", "x"],
+    }
+    rows = []
+    for target, entries in served.items():
+        for entry in times:
+            rows.append({"target": target, "entry": entry,
+                         "served": entry in entries,
+                         "import_s": times[entry] if entry in entries else None})
+    return rows
+
+
+def test_shared_population():
+    rows = report_rows()
+    population, detail = RP.shared_population(rows, ["A", "B", "C"], threshold=0.6)
+    check("population: entries the whole field served are in",
+          all(e in population for e in ("s1", "s2", "s3")))
+    check("population: an entry two of three served clears a 0.6 bar",
+          "b1" in population and "b2" in population)
+    check("population: an entry only one target served is out", "x" not in population)
+    check("population: and the report can say why",
+          detail["x"]["served_by"] == 1 and detail["x"]["in_population"] is False)
+
+    strict, _ = RP.shared_population(rows, ["A", "B", "C"], threshold=0.9)
+    check("population: a stricter bar drops the entries B failed",
+          "b1" not in strict and "s1" in strict)
+
+
+def test_headline_medians():
+    rows = report_rows()
+    out = RP.headline(rows, "import_s", ["A", "B", "C"], threshold=0.6)
+    a, b, c = out["targets"]["A"], out["targets"]["B"], out["targets"]["C"]
+
+    check("headline: a target that served everything shows a full n",
+          a["n"] == 5 and a["of"] == 5)
+    check("headline: a target that failed the large entries shows a short n",
+          b["n"] == 3 and b["of"] == 5)
+    # this is the whole point of the column: B looks faster than A precisely
+    # because it failed the slow entries, and only n reveals it
+    check("headline: and its median is flatteringly low as a result",
+          b["median"] < a["median"])
+    check("headline: which the report marks rather than leaving to be noticed",
+          "incomplete" in b)
+
+    check("headline: own-set median differs when a target served extra entries",
+          c["own_median"] != c["median"])
+    check("headline: and the gap is reported", c["gap_pct"] < 0)
+    check("headline: a target whose own set is the population has no gap",
+          a["gap_pct"] == 0)
+
+
+def test_consensus():
+    rows = [
+        {"target": "a", "entry": "e1", "offset": 0, "md5": "x"},
+        {"target": "b", "entry": "e1", "offset": 0, "md5": "x"},
+        {"target": "c", "entry": "e1", "offset": 0, "md5": "y"},
+        {"target": "a", "entry": "e2", "offset": 0, "md5": "p"},
+        {"target": "b", "entry": "e2", "offset": 0, "md5": "q"},
+        {"target": "d", "entry": "e1", "offset": 0, "md5": None},
+    ]
+    out = RP.consensus(rows)
+    e1 = next(r for r in out["ranges"] if r["entry"] == "e1")
+    check("consensus: the hash two targets agree on wins", e1["consensus"] == "x")
+    check("consensus: the odd target out is named",
+          any(d["target"] == "c" and d["entry"] == "e1" for d in out["differing"]))
+    check("consensus: agreeing targets are not listed as differing",
+          not any(d["target"] in ("a", "b") for d in out["differing"]))
+
+    e2 = next(r for r in out["ranges"] if r["entry"] == "e2")
+    check("consensus: two targets disagreeing produces no consensus",
+          e2["unresolved"] is True and e2["consensus"] is None)
+    check("consensus: and neither is blamed for it",
+          not any(d["entry"] == "e2" for d in out["differing"]))
+    check("consensus: a target with no hash is not counted", out["pairs_compared"] == 3)
+
+    # the ceiling serves the outer volume of an archive, so it is a legitimate
+    # mismatch and must not be reported as one
+    arch = [
+        {"target": "raw", "entry": "rar", "offset": 0, "md5": "outer"},
+        {"target": "a", "entry": "rar", "offset": 0, "md5": "inner"},
+        {"target": "b", "entry": "rar", "offset": 0, "md5": "inner"},
+    ]
+    out = RP.consensus(arch, exclude=lambda t, e: t == "raw" and e == "rar")
+    check("consensus: the ceiling is excluded where it cannot be a reference",
+          not out["differing"])
+
+
+def test_noise_floor():
+    pass_a = [{"target": "a", "entry": "e1", "MBps": 100.0},
+              {"target": "a", "entry": "e2", "MBps": 50.0}]
+    pass_b = [{"target": "a", "entry": "e1", "MBps": 110.0},
+              {"target": "a", "entry": "e2", "MBps": 25.0}]
+    out = RP.noise_floor(pass_a, pass_b)
+    check("noise: both pairs compared", out["comparable"] == 2)
+    check("noise: the worst per-entry swing is reported",
+          out["per_entry_worst_pct"] == 50.0)
+    check("noise: which is what a difference has to beat",
+          out["resolves_differences_above_pct"] == 50.0)
+    check("noise: per-entry detail is kept", out["per_entry"]["e2"] == 50.0)
+
+    empty = RP.noise_floor(pass_a, [{"target": "z", "entry": "q", "MBps": 1}])
+    check("noise: two passes sharing nothing say so, rather than reporting zero",
+          empty["comparable"] == 0)
+
+
+def test_render_does_not_crash():
+    rows = report_rows()
+    out = RP.headline(rows, "import_s", ["A", "B", "C"], threshold=0.6)
+    text = RP.render_headline(out, "Import time", unit=" s")
+    check("render: the headline table names every target",
+          all(t in text for t in ("A", "B", "C")))
+    check("render: and shows the n column", "3/5" in text)
+    con = RP.render_consensus(RP.consensus([
+        {"target": "a", "entry": "e", "offset": 0, "md5": "x"},
+        {"target": "b", "entry": "e", "offset": 0, "md5": "x"},
+    ]))
+    check("render: a clean consensus says so plainly", "No target disagreed" in con)
+
+
 if __name__ == "__main__":
     test_yenc()
     test_nzb()
@@ -686,6 +814,11 @@ if __name__ == "__main__":
     test_zero_run()
     test_damage_classification()
     test_registry()
+    test_shared_population()
+    test_headline_medians()
+    test_consensus()
+    test_noise_floor()
+    test_render_does_not_crash()
     print()
     if FAILURES:
         print(f"{len(FAILURES)} FAILED:")
