@@ -4,6 +4,8 @@
 .env
 # extracted corpus
 corpus/*.nzb
+# negative-tier entries, rebuilt deterministically by corpus_r10.py derive
+corpus/derived/
 # runtime state
 __pycache__/
 *.pyc

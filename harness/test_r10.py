@@ -24,6 +24,8 @@ from http.server import ThreadingHTTPServer
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+import corpus_r10 as C        # noqa: E402
+import expect_r10 as X        # noqa: E402
 import metrics_r10 as M       # noqa: E402
 import nntp_r10 as N          # noqa: E402
 import procmon_r10 as P       # noqa: E402
@@ -384,6 +386,193 @@ def test_sampler_uses_live_pid_set():
           out.get("rss_peak_MB", 0) >= 1)
 
 
+# --------------------------------------------------------------------------
+# the negative tier: derivation must be exact and deterministic
+# --------------------------------------------------------------------------
+SAMPLE_NZB = """<?xml version="1.0" encoding="utf-8"?>
+<nzb xmlns="http://www.newzbin.com/DTD/2003/nzb">
+ <file poster="p" subject='rel [1/4] - "x.part01.rar" yEnc'>
+  <segments>
+   <segment bytes="10" number="1">a1@x</segment>
+   <segment bytes="10" number="2">a2@x</segment>
+   <segment bytes="10" number="3">a3@x</segment>
+   <segment bytes="10" number="4">a4@x</segment>
+   <segment bytes="10" number="5">a5@x</segment>
+   <segment bytes="10" number="6">a6@x</segment>
+  </segments>
+ </file>
+ <file poster="p" subject='rel [2/4] - "x.part02.rar" yEnc'>
+  <segments><segment bytes="10" number="1">b1@x</segment></segments>
+ </file>
+ <file poster="p" subject='rel [3/4] - "x.part03.rar" yEnc'>
+  <segments><segment bytes="10" number="1">c1@x</segment></segments>
+ </file>
+ <file poster="p" subject='rel [4/4] - "x.vol00+01.par2" yEnc'>
+  <segments><segment bytes="10" number="1">d1@x</segment></segments>
+ </file>
+</nzb>
+"""
+
+
+def write_sample(tmpdir, name="FatherBrown.nzb"):
+    os.makedirs(tmpdir, exist_ok=True)
+    path = os.path.join(tmpdir, name)
+    with open(path, "w") as handle:
+        handle.write(SAMPLE_NZB)
+    return path
+
+
+def test_corpus_derivation():
+    import shutil
+    import tempfile
+    tmp = tempfile.mkdtemp(prefix="r10corpus")
+    out = os.path.join(tmp, "derived")
+    try:
+        write_sample(tmp)
+        write_sample(tmp, "ToyStory5.nzb")
+
+        # dead post: every id rewritten, none of the originals survive
+        path, detail = C.derive(C.BY_ID["dead-post"], tmp, out)
+        files = N.parse_nzb(path)
+        ids = [s[2] for f in files for s in f["segments"]]
+        check("negative: dead-post rewrites every message id",
+              detail["segments_rewritten"] == 9 and len(ids) == 9)
+        check("negative: no original id survives",
+              not any(i.endswith("@x") for i in ids))
+        check("negative: every rewritten id is unique", len(set(ids)) == 9)
+
+        # determinism: two people deriving this get identical bytes
+        path2, detail2 = C.derive(C.BY_ID["dead-post"], tmp,
+                                  os.path.join(tmp, "derived2"))
+        check("negative: derivation is deterministic",
+              detail["sha256"] == detail2["sha256"])
+
+        # incomplete set: volume 3 gone, the rest intact
+        path, detail = C.derive(C.BY_ID["incomplete-archive-set"], tmp, out)
+        subs = [f["subject"] for f in N.parse_nzb(path)]
+        check("negative: incomplete-set removes exactly one volume",
+              len(detail["files_removed"]) == 1)
+        check("negative: and it is the named one",
+              not any("part03" in s for s in subs))
+        check("negative: the other volumes stay",
+              sum("part0" in s for s in subs) == 2)
+        check("negative: the par2 file stays", any(".par2" in s for s in subs))
+
+        # decimate: keep every third content article, leave par2 alone
+        path, detail = C.derive(C.BY_ID["damaged-severe"], tmp, out)
+        files = N.parse_nzb(path)
+        by_sub = {f["subject"]: f for f in files}
+        big = next(f for s, f in by_sub.items() if "part01" in s)
+        par2 = next(f for s, f in by_sub.items() if ".par2" in s)
+        check("negative: decimate keeps every third article",
+              len(big["segments"]) == 2)
+        # 6 + 1 + 1 content articles, keeping indices 0 and 3 of the first file
+        # and index 0 of each single-article file; the par2 file is untouched
+        check("negative: and reports what it dropped",
+              detail["segments_dropped"] == 4 and detail["segments_kept"] == 4)
+        check("negative: par2 volumes are left intact", len(par2["segments"]) == 1)
+
+        # a missing volume is a loud failure, not a silently unchanged file
+        broken = dict(C.BY_ID["incomplete-archive-set"])
+        broken["derive"] = {"op": "drop_volume", "from": "FatherBrown.nzb",
+                            "volume": 9}
+        try:
+            C.derive(broken, tmp, out)
+            check("negative: an absent volume raises rather than no-ops", False)
+        except SystemExit:
+            check("negative: an absent volume raises rather than no-ops", True)
+
+        rows = C.manifest(tmp, out)
+        need_post = [r for r in rows if r.get("needs_real_post")]
+        check("negative: entries needing a real post are registered, not omitted",
+              len(need_post) == 2)
+        check("negative: and are marked unavailable rather than missing",
+              all(r["available"] is False for r in need_post))
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+# --------------------------------------------------------------------------
+# expectation scoring
+# --------------------------------------------------------------------------
+def test_judge_served():
+    good = {"http": "206", "bytes": 16 << 20, "accept_ranges": "bytes"}
+    served, _ = X.judge_served(good, 16 << 20)
+    check("judge: a full 206 of real size counts as served", served is True)
+
+    clip = {"http": "200", "bytes": 420_000, "accept_ranges": "none"}
+    served, reason = X.judge_served(clip, 16 << 20)
+    check("judge: a status clip is not served", served is False)
+    check("judge: and says why it was rejected", "accept-ranges" in reason)
+
+    tiny = {"http": "206", "bytes": 100_000, "accept_ranges": "bytes"}
+    served, reason = X.judge_served(tiny, 16 << 20)
+    check("judge: a sliver below the absolute floor is not served", served is False)
+    check("judge: and names the floor", "floor" in reason)
+
+    short = {"http": "206", "bytes": 8 << 20, "accept_ranges": "bytes"}
+    served, reason = X.judge_served(short, 16 << 20)
+    check("judge: half the requested range is not served", served is False)
+
+    missing = {"http": "404", "bytes": 0}
+    served, reason = X.judge_served(missing, 16 << 20)
+    check("judge: a 404 is not served", served is False)
+    check("judge: and is distinguishable from a clip", "404" in reason)
+
+    aborted = {"http": "206", "bytes": 0, "error": "stream aborted after 0 bytes"}
+    served, reason = X.judge_served(aborted, 16 << 20)
+    check("judge: a truncated stream is not served", served is False)
+
+
+def test_expect_matrix():
+    want_serve = {"id": "e", "tier": "core", "expect": "serve"}
+    want_reject = {"id": "n", "tier": "negative", "expect": "reject"}
+    ok = {"http": "206", "bytes": 16 << 20, "accept_ranges": "bytes"}
+    no = {"http": "404", "bytes": 0}
+
+    check("expect: should serve and did -> pass",
+          X.score(want_serve, ok, 16 << 20)["outcome"] == X.PASS)
+    check("expect: should serve and did not -> FAIL",
+          X.score(want_serve, no, 16 << 20)["outcome"] == X.FAIL)
+    check("expect: should refuse and did -> refused",
+          X.score(want_reject, no, 16 << 20)["outcome"] == X.REFUSED)
+    check("expect: should refuse and served anyway -> WRONGLY SERVED",
+          X.score(want_reject, ok, 16 << 20)["outcome"] == X.WRONGLY_SERVED)
+
+    skipped = X.score({"id": "z", "expect": "reject", "needs_real_post": True},
+                      no, 16 << 20)
+    check("expect: an entry with no post is skipped, not scored as a refusal",
+          skipped["outcome"] is None)
+
+
+def test_tally():
+    rows = [
+        {"target": "a", "entry": "1", "outcome": X.PASS},
+        {"target": "a", "entry": "2", "outcome": X.REFUSED},
+        {"target": "a", "entry": "3", "outcome": X.FAIL},
+        # b differs from a on exactly one entry: it served what a refused
+        {"target": "b", "entry": "1", "outcome": X.PASS},
+        {"target": "b", "entry": "2", "outcome": X.WRONGLY_SERVED},
+        {"target": "b", "entry": "3", "outcome": X.FAIL},
+        {"target": "b", "entry": "4", "outcome": None},
+    ]
+    out = X.tally(rows)
+    check("tally: correct counts pass and refused together",
+          out["a"]["correct"] == 2 and out["a"]["graded"] == 3)
+    check("tally: a wrongly served entry is counted on its own",
+          out["b"][X.WRONGLY_SERVED] == 1)
+    check("tally: and is never folded into the correct count",
+          out["b"]["correct"] == 1)
+    check("tally: a skipped entry does not grade",
+          out["b"]["skipped"] == 1 and out["b"]["graded"] == 3)
+    check("tally: refusing correctly beats serving wrongly",
+          out["a"]["correct_pct"] > out["b"]["correct_pct"])
+
+    grid = X.matrix(rows)
+    check("matrix: one row per entry, one column per target",
+          grid["1"]["a"] == X.PASS and grid["1"]["b"] == X.PASS)
+
+
 if __name__ == "__main__":
     test_yenc()
     test_nzb()
@@ -396,6 +585,10 @@ if __name__ == "__main__":
     test_cpu_shape()
     test_memory_drift()
     test_sampler_uses_live_pid_set()
+    test_corpus_derivation()
+    test_judge_served()
+    test_expect_matrix()
+    test_tally()
     print()
     if FAILURES:
         print(f"{len(FAILURES)} FAILED:")
