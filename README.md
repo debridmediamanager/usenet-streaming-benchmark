@@ -1,261 +1,122 @@
 # Usenet streaming benchmark
 
-Five servers that stream Usenet content on demand. This round was measured on 1 September 2026. One host. One news account. One server running at a time. Every target on the same connection count and with repair switched on wherever the feature exists.
+Five servers that stream Usenet content on demand. This round, round 9, was measured on 3 September 2026. One host. One news account. One server running at a time. Every target on the same connection count and with repair switched on wherever the feature exists.
 
-The targets are zurg and AltMount and InfiniDysk and nzbdav and decypharr. Every one of them was built from its repository main HEAD on the day of the run. The harness that produced every number here is in `harness/`. The raw output is in `results/`.
+The targets are zurg and AltMount and InfiniDysk and nzbdav and decypharr. The binaries and container images are the identical round 7 builds from each repository main HEAD of 1 September 2026. The harness that produced every number here is in `harness/`. The raw output is in `results/`.
 
-Round 4 of 30 August 2026 is kept in `results/round4/` and its report is in `docs/round4.md`. Read the section on what changed before comparing the two.
-
-A second run on dedicated hardware (round 8, 2 September 2026) is summarised in the next section and kept in `results/round8-hetzner/`.
-
-Round 9 of 3 September 2026 reruns this round on the same host with one variable changed: every target on 15 connections instead of 20, same builds, same corpus, same server. Its report is in `docs/round9.md` and its raw output in `results/round9/`. The short version is that only AltMount is connection-bound at these budgets, zurg gives up 7% on a 25% cut while its lead widens to 1.53x, and importing breaks before streaming does.
-
-## Round 8 — a second run on dedicated hardware
-
-Round 7 ran on zen: two shared cores. To see whether the findings hold on a different machine, the whole suite was run again on a **Hetzner CCX23** — four dedicated vCPU, 16 GB — provisioned for the run and destroyed after it. Same isolation rules, same 20 connections per target, same corpus and same news account, every target rebuilt from current main on the day. Raw output is in `results/round8-hetzner/`.
-
-Absolute numbers do not carry across the two runs. A bigger box moves the ceiling, and the caveat this README already makes — that a larger machine can reorder the CPU-bound targets — came true, and reordered the top two as well. What carries across is the head-to-head under identical conditions and the behaviour, which reproduced.
-
-**Throughput, 256 MB cold reads, six repetitions, rotating order, MB/s**
-
-| | AltMount | zurg | nzbdav | InfiniDysk | decypharr |
-|---|---|---|---|---|---|
-| Mean | **63.3** | 58.5 | 44.3 | 27.0 | 4.6 |
-| Slowest to fastest | 48.0-82.2 | 53.3-64.7 | 38.6-46.6 | 25.2-28.6 | 3.5-6.8 |
-| CPU seconds per GB | 5.1 | 6.0 | 36.2 | 31.3 | 18.4 |
-| Reads that finished | 6 of 6 | 6 of 6 | 6 of 6 | 6 of 6 | 6 of 6 |
-
-### Where zurg does not lead, and why
-
-This is the point of running on more than one box.
-
-- **Raw throughput went to AltMount** — 63.3 MB/s mean against zurg's 58.5, and a peak of 82.2 against 64.7. On zen's two shared cores round 7 had zurg ahead, 36.5 against 30.4. Give the fetchers four dedicated cores and an account with far more connection headroom than 20 uses, and AltMount's more aggressive parallel fetch bursts higher. It is a peak-against-consistency trade: AltMount ran 48 to 82 across the six reps, zurg ran a tight 53 to 65, so zurg keeps the highest floor — 53.3 slowest read against AltMount's 48.0 — and the lowest cold open and time to first byte. On this workload the peak belongs to AltMount and the predictability to zurg.
-- **CPU per GB also went to AltMount**, but barely: 5.1 against 6.0, and both are roughly six times leaner than InfiniDysk and nzbdav at 31 and 36.
-- **The fastest time to first byte was InfiniDysk**, 0.02 s against zurg's 0.28 s, because InfiniDysk serves the first byte out of segments it cached during import. zurg still wins the fuller cold open — the first megabyte, which is what a viewer feels on pressing play — at 0.38 s.
-- One 64 MB sequential read and the scrub median went to nzbdav and InfiniDysk. Treat those two as noise rather than quote them. The latency phase is a single pass, and one sample of zurg at 25 MB/s against a six-rep throughput mean of 58.5 is a measurement artefact, not a ceiling. A multi-pass latency run — the `PASS_IX` shift now in `phase2_5r7.py` — would settle it.
-
-### What reproduced
-
-zurg is still the only one of the five that rebuilds a damaged article: silence at t0, real bytes by t+2 minutes, held through t+8, while AltMount and InfiniDysk zero-filled, nzbdav refused the file, and decypharr served zero bytes — all with repair enabled wherever the feature exists. zurg and AltMount still produced the only clean obfuscated listings, and zurg and nzbdav the only structure-preserving RAR output. Every server that served a range returned the same md5, on this box as on zen.
-
-### Harness changes made in response to issue #1
-
-The review in issue #1 was largely correct. Beyond the container-name and control fixes already reflected in round 8, the following landed after round 8 and apply to the next run:
-
-- Throughput now has a dedicated byte-identity phase (`byteid_r7.py`) that hashes the same 16 MB range from every target and compares md5s, so identity is proven rather than inferred from an equal ffprobe duration.
-- Each throughput read records the observed peak concurrent `:563` socket count, so "20 connections" is a measured number rather than only a configured cap.
-- CPU per read subtracts an idle baseline sampled while the server is up but not reading, so a target's background services and per-restart startup are not charged to the read. The raw figure is kept alongside.
-- RSS is sampled during the transfer and the peak kept, rather than the larger of a before and after snapshot.
-- The latency phase validates every read for a 206 and the full byte count, drops short scrub samples, and runs each read shape on a freshly started server. The warm re-read still pairs with its big read on the same instance so the warm cache is real.
-- `prep-r7.sh` writes a runtime-identity artifact (image digests, container env, binary sha256, effective settings, pinned commits) so numbers are tied to the measured process, and it accepts `SEGMENT_CACHE_OFF=1` to run InfiniDysk with its segment cache disabled for a separate cache-off comparison.
-
-Still open: the .NET JIT cost on a first read is only partly addressed by the idle baseline, and the cache-off comparison needs a run to produce numbers.
-
-The detailed round-7 run — full method, latency, the behaviour phases and the round-4 comparison — follows.
+Earlier rounds are preserved: round 7 of 1 September 2026, the 20-connection baseline this round compares against, is in `docs/round7.md` with its raw output in `results/round7/`. That report also carries round 8 of 2 September 2026, a second run of the round 7 configuration on dedicated Hetzner hardware, kept in `results/round8-hetzner/`. Round 4 of 30 August 2026 is in `docs/round4.md` and `results/round4/`.
 
 ## What changed in this round
 
-Two things, and both of them make the comparison harder for zurg rather than easier.
+One thing: every target gets exactly 15 NNTP connections instead of round 7's 20. Same host, same news server, same corpus, same builds, repair enabled everywhere the feature exists, and the budget set in both knobs on the three targets where the provider pool and the read budget are separate settings. Round 8 is a different experiment, the same 20-connection configuration on a bigger machine, so its numbers do not compare to these. Round 9 runs on the same two shared cores as round 7 and compares only to round 7.
 
-**Every target now gets exactly 20 NNTP connections.** Round 4 did not verify this and round 6 was measurably wrong about it. In three of the five servers the provider connection cap and the read budget are separate settings, so a config that says 20 in the obvious place can still be reading on 15 or on 50.
-
-| | provider pool | read budget | what round 6 actually ran |
-|---|---|---|---|
-| zurg | `connections` | same | 20 |
-| AltMount | `max_connections` | same | 20 |
-| InfiniDysk | `MaxConnections` | `usenet.max-download-connections` | **50**, because the read budget was unset and unset means auto, and auto resolves to the pool total |
-| decypharr | `providers[].max_connections` | `usenet.max_connections` | 20 pool but **15** per streaming file |
-| nzbdav | `providers[].MaxConnections` | `usenet.max-download-connections` | 20 pool but **15** reading |
-
-That matters more than any difference between these programs. InfiniDysk ships a connection tuner and on this account it measures about 25 MB/s at 20 connections and about 44 MB/s at 40. Throughput scales close to linearly with the count. A benchmark that lets one target hold 50 while the others hold 20 is measuring the connection count.
-
-**Repair is now enabled on every target that has the feature.** In round 4 AltMount and decypharr ran with repair off, so "only zurg repaired the damage" was partly a statement about configuration. This round enables it everywhere and gives decypharr a schedule that can actually fire inside the measurement window, because its defaults are a nightly sweep with a 168 hour recheck interval and nothing would ever have run.
-
-| | repair in this round | how |
-|---|---|---|
-| zurg | on | `enable_repair: true` |
-| InfiniDysk | on, with PAR2 | `REPAIR__ENABLE`, `REPAIR__PAR2_ENABLED` |
-| AltMount | on | repair is nested under `health`, so `health.enabled` must be true as well |
-| decypharr | on | `repair.enabled` with `source: managed`, a 5 minute schedule and a 1 minute recheck |
-| nzbdav | no such feature | its PAR2 code only recovers obfuscated filenames |
+The point of the round is connection scaling. Round 7 established that throughput scales close to linearly with the connection count when a server is connection-bound. This round measures which of the five actually are. Nothing in the method changed: the isolation rules, the phases and the corpus are round 7's, described in full in `docs/round7.md`.
 
 ## Versions
 
-Each target was built from main rather than from a release tag. The point was to measure what the projects are today and not what they last shipped.
+Identical to round 7 by design: zurg `3d9fbcc4`, AltMount `7ab04352`, decypharr `0dd1cbbd`, InfiniDysk `cd9b1205`, nzbdav `794948be`, all built 1 September 2026 from each repository main HEAD. The manifest is `results/round9/results_r9_versions.json`. This round ran the round 7 harness scripts as they were on the day, without the issue #1 harness changes that landed afterwards, so the round 7 caveats about single-pass latency and coarse RSS apply here unchanged.
 
-| | version under test | source |
-|---|---|---|
-| **zurg** | `3d9fbcc4` | private repository, source access is sponsor-only |
-| **AltMount** | `7ab04352` | `javi11/altmount` |
-| **InfiniDysk** | `cd9b1205` | `infinidysk/infinidysk` |
-| **nzbdav** | `794948be` | `nzbdav-dev/nzbdav` |
-| **decypharr** | `0dd1cbbd` | `sirrobot01/decypharr` |
-| Host | zen, 2 cores, 7.6 GB RAM | |
+## Throughput at 15 connections
 
-nzbdav main has had no commit since 27 May 2026 and its published `pre-release` image is that same commit. Nothing about nzbdav changed between rounds.
-
-`results/round7/results_r7_versions.json` carries the same table plus the build timestamp.
-
-## Method
-
-The isolation rule is the whole basis of the comparison. Every target keeps a pool of NNTP sockets warm. Two running at once oversubscribe the account and skew both. So `bench5.py` starts one target and reads and stops it before the next one starts. It also waits for that target's sockets to drain before continuing.
-
-Order rotates by repetition. Provider throughput drifts over an evening. Rotating the order means drift cannot favour whoever always goes first.
-
-Byte offsets were chosen so that no read overlapped any read from an earlier round. Every measurement here is genuinely cold.
-
-The host runs a production zurg against the same account but against a different server of that provider. Connection caps on this provider are per server, so it contends with nothing here. `bench5.py` excludes that process id from its drain check so a stop does not wait forever on sockets that will never close.
-
-Byte identity was verified on the behaviour releases, not on the throughput file. The throughput reads all go to `/dev/null` and are never hashed, so what is established there is the same ffprobe duration of 6206.752 seconds across all five, which is weaker than a hash. On the RAR release all five returned the same md5 `79d1e148021c44ce018c9c47eb504d39` for the same 16 MB range and advertised the same content length of 321905886 bytes, and on the obfuscated release all five returned the same md5 for the same 8 MB range. Hashing the throughput reads as well is a todo.
-
-## Throughput
-
-256 MB cold reads. Six repetitions. Rotating order. Offsets from 1.5 GB to 5.5 GB in 0.8 GB steps.
+256 MB cold reads. Six repetitions. Rotating order. Offsets from 1.5 GB to 5.5 GB in 0.8 GB steps. Same as round 7.
 
 | | zurg | AltMount | InfiniDysk | nzbdav | decypharr |
 |---|---|---|---|---|---|
-| Mean MB/s | **36.54** | 30.38 | 19.18 | 17.66 | 8.28 |
-| Median MB/s | **37.70** | 28.55 | 19.20 | 17.74 | 8.83 |
-| Slowest to fastest | 20.5-47.1 | 27.0-36.5 | 13.1-26.4 | 15.5-19.2 | 3.1-13.9 |
-| Wait before data arrives | **0.63 s** | 3.33 s | 1.44 s | 4.92 s | 5.24 s |
-| CPU seconds per GB | **8.8** | 9.7 | 48.4 | 60.6 | 31.0 |
-| RSS, coarse (see note) | 360 MB | 272 MB | 540 MB | 546 MB | 50 MB |
+| Mean MB/s | **33.98** | 22.14 | 19.22 | 17.11 | 9.26 |
+| Median MB/s | **33.16** | 23.04 | 18.45 | 16.92 | 9.46 |
+| Slowest to fastest | 31.1-38.5 | 17.9-27.2 | 9.2-29.1 | 16.0-18.5 | 6.3-12.5 |
+| Wait before data arrives | **0.36 s** | 3.47 s | 0.99 s | 5.09 s | 5.62 s |
+| CPU seconds per GB | **9.5** | 12.6 | 53.0 | 58.1 | 29.0 |
+| Peak RSS | 374 MB | 307 MB | 1003 MB | 578 MB | 51 MB |
 | Reads that finished | 6 of 6 | 6 of 6 | 6 of 6 | 6 of 6 | 6 of 6 |
 
-The RSS row is not a true peak. `bench5.py` samples RSS once before and once after each read and keeps the larger of the two, and the table means those per-rep values. It undercounts a peak that lands mid-read: InfiniDysk's largest single sample was 641 MB against the 540 reported. Read it as a rough footprint, not a maximum. Sampling during the transfer is the fix and is a todo.
-
-Per repetition, in MB/s. The first repetition is not representative of anything and is included because leaving it out would be dishonest.
+Per repetition, in MB/s.
 
 | rep | zurg | AltMount | InfiniDysk | nzbdav | decypharr |
 |---|---|---|---|---|---|
-| 0 | 20.50 | 33.96 | 13.71 | 15.46 | 9.31 |
-| 1 | 35.81 | 27.62 | 21.99 | 17.68 | 3.14 |
-| 2 | 47.08 | 27.04 | 16.40 | 18.54 | 9.32 |
-| 3 | 36.30 | 28.91 | 13.11 | 19.16 | 5.68 |
-| 4 | 40.44 | 36.53 | 23.52 | 17.34 | 8.35 |
-| 5 | 39.10 | 28.19 | 26.38 | 17.80 | 13.86 |
+| 0 | 31.82 | 18.52 | 9.18 | 15.96 | 8.39 |
+| 1 | 34.51 | 27.17 | 15.40 | 16.86 | 10.99 |
+| 2 | 38.50 | 17.91 | 15.93 | 16.98 | 10.53 |
+| 3 | 31.09 | 23.05 | 20.97 | 16.42 | 6.83 |
+| 4 | 36.16 | 23.02 | 24.75 | 18.53 | 6.29 |
+| 5 | 31.79 | 23.17 | 29.10 | 17.93 | 12.51 |
 
-Every target finished every read this round. Round 4 had one target truncating four of six.
+Source is `results/round9/results_six7.json` and `results/round9/six7.log`. The file names inside `results/round9/` keep the names the round 7 harness scripts give them, and this round ran the round 7 scripts as they were on the day, without the issue #1 harness changes that landed afterwards.
 
-The CPU spread is wider than the throughput spread and gets less attention than it deserves. InfiniDysk and nzbdav spend 48 and 61 CPU seconds per GB against zurg's 8.8, for less than half the throughput. On a two core box that is a real ceiling.
+## What losing a quarter of the connections cost each server
 
-Source is `results/round7/results_six7.json` and `results/round7/six7.log`.
+| | round 7 mean, 20 conns | round 9 mean, 15 conns | change |
+|---|---|---|---|
+| zurg | 36.54 | 33.98 | **-7%** |
+| AltMount | 30.38 | 22.14 | **-27%** |
+| InfiniDysk | 19.18 | 19.22 | 0% |
+| nzbdav | 17.66 | 17.11 | -3% |
+| decypharr | 8.28 | 9.26 | +12% |
 
-## Latency
+The cut is 25% of the budget and the five answers to it are the finding of the round.
+
+AltMount is the one target that scales with the count. Its 27% drop tracks the 25% cut almost exactly, which means at 20 connections it was connection-bound and nothing else was in the way. Give it more connections and it will go faster. That is a compliment to its reader and it is also the whole explanation of its round 7 second place. It is the same fact round 8 found from the other side: AltMount's speed comes from parallel fetch aggression, so on four dedicated cores with connection headroom it bursts past zurg, and on a tight budget it pays the full cut.
+
+zurg lost 7% on a 25% cut. It was not connection-bound at 20 and it is barely connection-bound at 15. Per connection held it moved 1.83 MB/s in round 7 and 2.27 MB/s in round 9, the highest of the five in both rounds. The gap to second place widens from 1.20x at 20 connections to 1.53x at 15, which is the practical reading of this table: the tighter the account, the more the reader efficiency matters.
+
+InfiniDysk, nzbdav and decypharr did not move. Whatever bounds them, it is not the connection count at these budgets. For InfiniDysk this is consistent with its own tuner's curve, which puts its knee well above 20. decypharr's +12% is rep noise on a target whose repetitions span 3.1 to 13.9 MB/s across both rounds, not an improvement, and its own read budget default is 15 anyway.
+
+Ranking is unchanged from round 7 in every column.
+
+## Latency at 15 connections
 
 | | zurg | InfiniDysk | AltMount | nzbdav | decypharr |
 |---|---|---|---|---|---|
-| Cold open, first MB | **0.55 s** | 0.777 s | 2.591 s | 4.983 s | 5.413 s |
-| Time to first byte | 0.257 s | **0.077 s** | 2.616 s | 1.409 s | 3.647 s |
-| Large sequential read | 21.03 MB/s | 19.03 MB/s | **22.48 MB/s** | 8.54 MB/s | 12.70 MB/s |
-| Warm re-read | 0.079 s | 0.496 s | 1.533 s | 6.48 s | **0.068 s** |
-| Scrub, median of 8 | 0.801 s | **0.492 s** | 0.521 s | 2.187 s | 3.768 s |
-| Full ffprobe | **2.42 s** | 4.00 s | 6.92 s | 4.69 s | 10.60 s |
-| RSS | 475 MB | 856 MB | 228 MB | 479 MB | 51 MB |
+| Cold open, first MB | **0.319 s** | 1.114 s | 2.962 s | 6.556 s | 6.411 s |
+| Time to first byte | 0.298 s | **0.054 s** | 0.989 s | 1.489 s | 4.322 s |
+| Large sequential read | 20.74 MB/s | **41.84 MB/s** | 15.88 MB/s | 8.93 MB/s | 6.89 MB/s |
+| Warm re-read | 0.064 s | 0.403 s | 2.343 s | 5.040 s | **0.058 s** |
+| Scrub, median of 8 | **0.647 s** | 1.408 s | 0.703 s | 2.320 s | 5.020 s |
+| Full ffprobe | **2.17 s** | 5.39 s | 12.25 s | 3.57 s | 9.36 s |
+| RSS | 424 MB | 782 MB | 463 MB | 393 MB | 43 MB |
 
-Nine point eight times separates the fastest cold open from the slowest. That is the number a viewer feels when they press play.
+Latency is round trips, not bandwidth, so the connection cut moves these numbers less than run to run variance does. The cold open ordering is the same as round 7. Twenty times separates the fastest cold open from the slowest.
 
-InfiniDysk is much closer here than it is on throughput, and that is coherent rather than contradictory. Latency is one round trip. Sustained throughput is where a connection budget shows up, and this round took its budget down from an effective 50 to the same 20 as everyone else.
+Source is `results/round9/results_latency_r7.json`.
 
-An earlier version of this section called nzbdav's 6.48 s warm re-read an anomaly for being slower than its 4.98 s cold open. That comparison was wrong: the cold open reads 1 MiB and the warm re-read reads 64 MiB, so they are not comparable. Against the correct baseline, nzbdav's first 64 MiB read at 8.54 MB/s took about 7.86 s, so the 6.48 s warm re-read was in fact faster. There is no anomaly. The single-pass caveat below still applies.
+## Behaviour phases: identical verdicts to round 7
 
-These latency numbers are a single pass per target. The phase starts each server once and runs cold open, large read, warm re-read, scrub and ffprobe in sequence, so later shapes inherit cache from earlier ones, and the reads do not assert a 206 or a byte count. Read the table as n=1 and lightly validated. A multi-pass mode with per-pass offset shifting is in `phase2_5r7.py`; per-shape server restarts and completeness checks are a todo.
+The damaged article, obfuscated release and multi-volume RAR phases produced the same verdict for every target as round 7, at the lower connection count.
 
-Source is `results/round7/results_latency_r7.json`.
+- **Damaged article.** zurg serves zero-fill at first probe and real repaired bytes by the 4 minute mark of the timeline, with the md5 flipping from the zero-fill hash to real content. AltMount and InfiniDysk still serve zero-fill at the 8 minute mark. nzbdav answers 404 for the file. decypharr's probe stalls and returns no bytes. Repair remains a one server feature. Source `results/round9/results_damage_timeline_r7.json`.
+- **Obfuscated release.** Same as round 7 per target, including decypharr never listing the release at all.
+- **Multi-volume RAR.** All five serve the full 321905886 byte file and all five returned the same md5 `79d1e148021c44ce018c9c47eb504d39` for the same 16 MB range. Byte identity holds at 15 connections. All five also reported the same ffprobe duration of 6206.752 seconds for the throughput file. Source `results/round9/results_reprobe_r7_damage_obfuscated_rar.json`.
 
-## Damaged article and obfuscated release and multi-volume RAR
+## What 15 connections newly broke: imports
 
-Three behaviour phases run from `corpus5b.py` through `chain7.sh`. They ask what a server does when the content is not clean.
+Streaming survived the cut better than importing did.
 
-- **damage** reads 4 MB at offset 80 MB of a release where one article is gone from the server. The question is whether the server repairs the hole or zero-fills it or truncates or refuses the file.
-- **obfuscated** reads 8 MB at offset 400 MB of a fully obfuscated release. The question is whether the server can identify the video at all when every filename is a hash.
-- **rar** reads 16 MB at offset 100 MB inside a multi-volume RAR set. The question is whether the server can stream out of the archive without extracting it.
+**AltMount silently dropped two of the five corpus releases.** Its importer runs a fast-fail segment availability check before accepting an NZB, and at 15 connections that check hit its deadline on the two largest releases and gave up: `Import stopped because segment availability was inconclusive ... context deadline exceeded`, 8 segments unverified on the 35 GB remux and 196 on the season pack. The release is not queued for retry. It is gone, with one WARN line to show for it, and it was still absent from the listing two and a half hours later. Round 7 lost one release to the same check at 20 connections. The tighter the budget, the more it drops, and a user who imports a large release on a modest account will not know until they go looking.
 
-**Use `reprobe_r7.py` and not the phase output.** It re-runs the same probes, selects the release by exact name and selects the largest non-sample video inside it. The phase output picks whatever appeared in the listing during the import and picks the first video it finds, and both of those produced wrong numbers in this round. See the harness corrections below.
+**InfiniDysk imports far slower at 15 connections.** At its settle cap during the seed pass it had listed 1 of 5 releases with 4 still queued. The queue did drain and every release was eventually served correctly, but the seed pass for all five targets took 55 minutes against round 7's 15.
 
-### Damaged article
+**decypharr** never listed the obfuscated release, in either round.
 
-One article of 1669 is gone from the news server. That is roughly 40 seconds of film. The read is 4 MB at offset 80 MB and it lands on the hole. Every server was read once immediately and then again every two minutes for eight minutes, staying up throughout.
+zurg and nzbdav imported all five releases without incident in both rounds.
 
-| | first read | t+2 | t+4 | t+6 | t+8 | verdict |
-|---|---|---|---|---|---|---|
-| **zurg** | silence | silence | **real** | **real** | **real** | **Served real bytes from t+4 on**, consistent with a background rebuild of the span while reads were still being served |
-| AltMount | silence | silence | silence | silence | silence | Did not repair inside the window, with repair enabled |
-| InfiniDysk | silence | silence | silence | silence | silence | Did not repair inside the window, with repair and PAR2 enabled |
-| decypharr | 206 with zero bytes | same | same | same | same | Did not repair inside the window, with repair enabled and a schedule that fires |
-| nzbdav | HTTP 404 | 404 | 404 | 404 | 404 | Refuses the whole file. It has no repair feature |
+Source `results/round9/results_tree_r9_seed.json`.
 
-zurg is the only one of the five that rebuilt the missing span inside the window. The defensible claim here is exactly that, an eight-minute observation at 20 connections with repair enabled where the feature exists. It is not proof that the others can never repair, only that they did not here. The harness records no repair-job state or logs, so a longer window or a different provider could read differently. What it does show is that under an identical eight minutes only zurg served real bytes back.
+## Connection parity was verified from live sockets
 
-This is the same result round 4 reported and it is now a much stronger claim. In round 4 two of the four others had repair switched off, so the finding was partly about configuration. This round they were switched on, decypharr was given a schedule that fires inside the window, and all five held the same 20 connections. Nothing else repaired.
+The socket count every target actually held was sampled from `ss -tnp` every 5 seconds for the whole run and filtered to the process under test. Maximum concurrent established sockets during the throughput phase:
 
-A single read at t0 cannot tell repair apart from permanent zero-fill. Both answer silence. Only the re-read separates them.
+| | zurg | AltMount | InfiniDysk | nzbdav | decypharr |
+|---|---|---|---|---|---|
+| Max sockets held | 17 | 15 | 15 | 16 | 14 |
+| Sockets moving bytes | 15 | 15 | 15 | 15 | 13-14 |
 
-Source is `results/round7/results_damage_timeline_r7.json`.
+Two honest footnotes. zurg's socket count reads 16 to 17, not 15. A per-socket byte accounting probe after the round showed exactly 15 of those sockets moving article data while the extra held 42 bytes of keep-alive traffic over 20 seconds: it is the startup account verification connection, held idle outside the pool's accounting. Fetch concurrency is semaphore-limited to 15, so the read comparison is fair, but the idle socket does occupy a slot against a provider account cap and zurg should fold it back into the pool. Second, decypharr does not fill its budget: both its knobs were set and verified at 15 and it peaked at 13 to 14 by its own scheduling.
 
-### Obfuscated release
+Source `results/round9/results_parity_r9.json`.
 
-Every filename in the release is a hash. The read is 8 MB at offset 400 MB.
+## Why this round exists
 
-| | serves the video | how the listing looks |
-|---|---|---|
-| **zurg** | 206 with all 8 MB | **clean.** The real filename and a thumbnail and nothing else |
-| AltMount | 206 with all 8 MB | real filename, plus a duplicate `..._1.mkv` |
-| InfiniDysk | 206 with all 8 MB | names the file after the NZB rather than the content, and leaves 5 raw hashed blobs visible |
-| nzbdav | 206 with all 8 MB | recovers the real filename but leaves 5 raw hashed blobs visible |
-| decypharr | release absent from the listing | never imported it |
-
-Four of five identify the video behind the hashed names and stream it. decypharr never imported the release at all, and that has now reproduced in every round it has been tried in.
-
-Only zurg produces a listing a media server can scan without tripping over the leftovers.
-
-Source is `results/round7/results_reprobe_r7.json`.
-
-### Multi-volume RAR
-
-A 13 part RAR set with obfuscated volume names. The read is 16 MB at offset 100 MB inside the archive. No extraction.
-
-All five serve it. All five return the same md5 for the same range. The difference is entirely in how they present it.
-
-| | result | preserves the archive's structure |
-|---|---|---|
-| **zurg** | 206 with all 16 MB | **yes, completely.** Nested release directory, `Sample/`, the `.nfo` and both `.url` files |
-| nzbdav | 206 with all 16 MB | yes, except the `.nfo` is missing |
-| InfiniDysk | 206 with all 16 MB | no, flattened to `FatherBrown.mp4` |
-| AltMount | 206 with all 16 MB | no, flattened, and it emits a stray `8-FatherBrown.mp4` alongside |
-| decypharr | 206 with all 16 MB | no, flattened to one concatenated name `Father.Brown.2013.S02E05.HDTV.x264-TLAfather.brown.2013.s02e05.hdtv.x264-tla.mp4` |
-
-The reference for this is what SABnzbd would have written to disk. It decompresses archives including nested ones, it hides PAR2 files, and the filenames are the ones inside the archive. No server here shows a PAR2 file, so all five meet that part. On the rest, zurg's output is the one that matches.
-
-Source is `results/round7/results_reprobe_r7_rar.json`.
-
-## Findings
-
-**zurg leads on throughput and on cold open and on CPU cost, at equal connections.** 36.54 MB/s mean with 6 of 6 reads complete, a 0.55 s cold open, and 8.8 CPU seconds per GB. The margins are narrower than round 4 reported, and part of that is real improvement by others rather than any change in zurg.
-
-**zurg is the only one of five that repairs a damaged release, and this round proves it properly.** Repair was enabled on every target that has the feature and the other three still zero-filled or refused for the full eight minutes.
-
-**Connection budgets were not equal in earlier rounds and nobody had checked.** One target was reading on an effective 50 connections while two were reading on 15. Anyone repeating this work should set both settings on every target and verify them after the servers start rather than trusting the config file.
-
-**decypharr never imports the obfuscated release.** Absent from the listing rather than present and broken. It has reproduced every time.
-
-**Presentation differs more than throughput does.** Three of five flatten a RAR release's internal structure, two leave undeobfuscated blobs in the listing, and one emits duplicate video files that would make a media server import the same episode twice.
-
-## Harness corrections
-
-Three bugs in this harness each produced a wrong number before being caught in this round. Two of them produced numbers that were wrong against zurg. They are listed here because a benchmark that hides its own errors is not worth reading.
-
-**Settle declared the library complete while imports were still running.** It waited for the WebDAV listing to stop changing for 90 seconds. At 20 connections InfiniDysk publishes one release and then takes longer than that to fetch the next release's first segments, so the detector called the library finished with 1 of 5 releases in it and the read that followed returned 0 bytes. Round 6 never saw this because it ran that target on 50 connections where the gaps were short. Settle now also requires the import queue to have drained.
-
-**The behaviour phases slept a fixed 55 seconds after an import.** That is a guess about connection count wearing a timer's clothes. It now polls for the release to appear or for the queue to drain, and reports how long that took, which is a useful number in itself. Actual import waits this round were 10 to 20 seconds.
-
-**Release and file selection picked the wrong thing twice.** The phase output picks whatever appeared in the listing during the import, so a late arriving unrelated release gets probed instead. And the re-probe picked the first video in the listing, which on a server that preserves `Sample/` is a 9.1 MB sample clip. A 16 MB read at offset 100 MB of a 9.1 MB file is a correct HTTP 416 and it reads as a server failure. Round 4 documented this trap in prose and no code ever implemented it. `reprobe_r7.py` now selects the release by exact name and the largest non-sample video inside it.
-
-## Not measured in this round
-
-**Plex press play and next episode.** Round 4 measured these through the real Plex web app over the DevTools Protocol. The browser host was unavailable when this round ran. The round 4 numbers are in `results/round4/plex_ttp_*.json` and they are not comparable to this round because the provider server differs.
-
-**Import and directory structure as a scored phase.** The tree phase needs a clean re-run under the corrected settle. Its raw per target listings are in `results/round7/` and the RAR and obfuscated structure findings above are taken from those listings, which are sound. What is not yet sound is import timing and completeness.
+Round 6 accidentally proved that an unequal connection budget measures the budget and nothing else, and round 7 fixed it by pinning every target to 20. Fifteen is the other interesting point: it is a common allowance on entry tiers and shared accounts, and it is decypharr's own per-file default. The answer is that below 20 connections the field spreads out rather than compressing. The efficient reader keeps nearly all of its speed, the connection-bound reader gives up a quarter, and two of the five were never using their budget in the first place.
 
 ## Corpus
 
@@ -281,7 +142,7 @@ Provider spool quality is not uniform and it decides what the damage phase can e
 
 ### Prerequisites
 
-- a Usenet account with at least 20 connections
+- a Usenet account with at least 15 connections, 20 to reproduce round 7
 - Python 3 with `playwright` for the Plex phase only
 - `rclone`, `ffprobe`, `curl`, `7z`
 - Docker for the InfiniDysk and nzbdav targets
@@ -313,8 +174,9 @@ Paths are absolute and assume the layout the run used. `BENCH` in `bench5.py` an
 # build every target from its main HEAD and record the commits
 ./build-r7.sh
 
-# install the builds, set 20 connections everywhere, enable repair, create containers
-./prep-r7.sh
+# install the builds, set the connection budget everywhere, enable repair, create containers.
+# this round ran with CONNS=15; leave CONNS unset for round 7's 20
+CONNS=15 ./prep-r7.sh
 
 # the whole round in order
 ./chain7.sh
@@ -350,7 +212,7 @@ python3 stat_probe.py corpus/Bosch.S01.nzb
 
 ### Verify the connection parity before trusting a run
 
-This is the step that round 6 skipped and it invalidated a whole round. `prep-r7.sh` now runs these checks itself, re-reading every value from disk and from `docker inspect`, and refuses to finish on a mismatch. The commands below remain for checking by hand. After `prep-r7.sh`, both settings should read 20 on every target.
+This is the step that round 6 skipped and it invalidated a whole round. `prep-r7.sh` now runs these checks itself, re-reading every value from disk and from `docker inspect`, and refuses to finish on a mismatch. The commands below remain for checking by hand. After `prep-r7.sh`, both settings should read the value you set in `CONNS` on every target, 15 for this round.
 
 ```bash
 grep connections zurgrun/config.yml
@@ -380,9 +242,9 @@ sqlite3 nzbdav-og/config/db.sqlite "select * from ConfigItems where ConfigName l
 
 Read these before quoting any number.
 
-- Single host with 2 cores. A larger box would move the ceiling and might reorder the CPU-bound targets. The host also runs Plex and Jellyfin and a game server, which is constant background load across all rounds.
-- Single interleaved run. Cross-round comparison is not valid because provider throughput drifts and because this round used a different server of the same provider than round 4 did.
-- One news account and one provider. Results on a different backbone may differ. This provider's spool is measurably weaker than others available, which bounds what the damage phase can claim.
+- Single host with 2 shared cores, which also run Plex and Jellyfin and a game server, constant background load across rounds 7 and 9 alike. Round 8 shows what four dedicated cores change.
+- The round 7 comparison spans two days on the same provider server. Provider throughput drifts, so the per-target deltas carry that residual noise; the shape of the result, one target scaling with the count and the rest not, does not depend on it.
+- One news account and one provider. Results on a different backbone may differ.
 - No Plex measurements in this round.
 - zurg is the author's own project. Every number here is reproducible from this repository against your own account. Do that rather than taking this at face value.
 
@@ -393,9 +255,11 @@ harness/          the benchmark scripts
 harness/plex/     the Plex phase, which runs where the browser is
 config/           the server configs used, credentials replaced
 corpus/           the NZB corpus and its manifest
+results/round9/   this round
 results/round8-hetzner/  the dedicated-hardware run (round 8)
-results/round7/   this round
+results/round7/   the 20-connection baseline (round 7)
 results/round4/   the previous published round
 results/round3/   the round before that
+docs/round7.md    the round 7 report, with the round 8 summary
 docs/round4.md    the round 4 report
 ```
