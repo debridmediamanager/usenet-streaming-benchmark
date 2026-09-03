@@ -104,14 +104,41 @@ when "the archive format is supported by NZBDav". Benchmarking it would
 re-measure nzbdav with a search layer in front and report the result under a
 second name, so it is deliberately not in the field.
 
-### Comet is off by default
+### Comet is enabled, and expected to cost more than it returns
 
 It has no import API at all. A release can only be offered to it by standing up
 a Stremio addon of your own and pointing its discovery source at it. Worse, its
 engine materialises archives past the item boundary with no exposed idle signal
 to drain against, and under sustained load it deadlocks its own SQLite database
-at its shipped defaults. Enable it to reproduce that. Expect a finding rather
-than a row.
+at its shipped defaults.
+
+It runs by default like everything else, with a shorter budget than the rest, so
+it abandons its own rows rather than the round. `--disable comet` if you do not
+want the run to pay for it. Expect a finding rather than a row.
+
+## Switching targets on and off
+
+Everything registered runs unless something says otherwise. Three ways to
+narrow it, in order of precedence, so an explicit flag always beats a stored
+preference:
+
+```bash
+./harness/chain10.sh                     # all eleven
+./harness/chain10.sh --disable comet     # all but comet
+./harness/chain10.sh --only raw,zurg     # exactly these
+```
+
+`config/targets-r10.json` holds the same two keys for a preference that should
+outlive one command. A name that is not registered is a hard error rather than a
+silent skip: a round that quietly measured ten targets because one was
+misspelled would publish a field that never existed.
+
+Because everything is on by default, failure isolation is doing real work.
+Each target has a time budget. A target that wedges, deadlocks or never becomes
+ready costs its own rows and nothing else, its remaining entries are recorded
+with the reason rather than dropped, and the run moves to the next target. A
+target that will not release the news account is reported loudly, because that
+one contaminates whoever runs next.
 
 ## Mounts and addons must not be ranked together
 
@@ -163,8 +190,22 @@ span three articles and end inside a short final one.
 
 ## Running it
 
+The whole suite is one command:
+
 ```bash
-# what would run, and what is not ready
+./harness/chain10.sh
+```
+
+It extracts the corpus if it is not already extracted, derives the negative
+tier, measures a noise floor as two identical passes before anything else, runs
+every phase over every target, and writes `results/round10/report.md`. Any flag
+it does not use itself is passed through to `run_r10.py`, so `--entries`,
+`--reps`, `--only` and `--disable` all work on it, and `CONNS` sets the budget.
+
+The pieces are still runnable on their own:
+
+```bash
+# what would run, what is switched off, and what is not ready
 python3 harness/run_r10.py --list
 
 # build the negative tier from the published corpus
@@ -174,14 +215,15 @@ python3 harness/corpus_r10.py derive
 python3 harness/rawserve_r10.py corpus/ToyStory5.nzb 8099 --conns 15
 
 # a narrow pass while the new adapters are still being shaken down
-python3 harness/run_r10.py --targets raw,zurg,stremthru --entries plain-video
-
-# the whole field
-python3 harness/run_r10.py --tag r10
+python3 harness/run_r10.py --only raw,zurg,stremthru --entries plain-video
 ```
 
 Credentials come from the environment so a real run never edits a file:
 `NNTP_HOST`, `NNTP_PORT`, `NNTP_USER`, `NNTP_PASS`.
+
+The damaged entry gets the alignment-verified damage phase inside the same pass,
+on the URL already resolved, so there is no second script to run and no chance
+of the two disagreeing about which file they measured.
 
 ## Before a round 10 is published
 
