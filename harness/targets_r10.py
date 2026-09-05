@@ -239,6 +239,50 @@ TARGETS = {
     },
 }
 
+def _port_overrides():
+    """R10_PORTS="altmount=8181,zurg=9998" -- a port moved for one round.
+
+    A default port can be held by something that is not ours. On a shared host
+    that is a hazard rather than a nuisance: stop() frees a port by killing
+    whatever listens on it, so a round that assumed the port was free would kill
+    a stranger's process to make room for its own, and the first sign of it
+    would be somebody else's work gone. Moving the target is the cheap half of
+    the fix; the other half is that the drain check now asks who owns a socket
+    rather than assuming everything on :563 is a target.
+    """
+    out = {}
+    for item in os.environ.get("R10_PORTS", "").split(","):
+        if not item.strip():
+            continue
+        name, _, port = item.partition("=")
+        name, port = name.strip(), port.strip()
+        if name not in TARGETS or not port.isdigit():
+            raise SystemExit(f"R10_PORTS: cannot move {item.strip()!r}. "
+                             f"Registered: {', '.join(TARGETS)}")
+        out[name] = int(port)
+    return out
+
+
+def _move_ports():
+    """Rewrite the port and every URL that carries it, together.
+
+    Separately is how a target ends up started on one port and measured on
+    another, which reads as a server that will not answer.
+    """
+    for name, port in _port_overrides().items():
+        spec = TARGETS[name]
+        was = str(spec["port"])
+        spec["port"] = port
+        spec["moved_from"] = int(was)
+        for key in ("url", "root", "ready", "sab_api", "import_api", "play_api",
+                    "start"):
+            if isinstance(spec.get(key), str):
+                spec[key] = spec[key].replace(f":{was}", f":{port}")
+
+
+_move_ports()
+
+
 # every registered target, in a stable order. A round measures all of them
 # unless something is switched off explicitly
 DEFAULT = ["raw", "zurg", "altmount", "infinidysk", "nzbdav-og", "nzbdavex",

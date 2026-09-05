@@ -11,6 +11,7 @@ favour whoever always goes first. Every target reads the identical byte range.
 """
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -157,18 +158,41 @@ def pids_for(name):
 PROD_ZURG_PID = sh("systemctl show -p MainPID --value zurg.service") or "0"
 
 
+def target_pids():
+    """Every PID that belongs to a registered target, right now.
+
+    Which is what "is the account free" has to be asked about. Anything else on
+    :563 belongs to somebody else on this host and is not ours to wait for.
+    """
+    pids = set()
+    for name in SPEC:
+        try:
+            pids.update(pids_for(name))
+        except Exception:
+            continue
+    return pids
+
+
 def nntp_lines():
     """NNTP sockets belonging to a bench target, as their raw `ss` lines.
 
-    zen runs a production zurg.service against the same news account and keeps
-    a couple of sockets warm at idle, so a plain count never reaches zero and
-    every stop() burned its full 40s wait. Exclude that one PID; anything else
-    on :563 is a target we are still waiting on.
+    A socket is ours if a registered target owns it, or if it has no owner left
+    at all -- a process that exited a moment ago can leave one behind, and that
+    still spends a connection slot until the kernel lets go.
+
+    Everything else on :563 belongs to something else on this host. That used to
+    be one hardcoded exception, zen's production zurg.service, on the assumption
+    it was the only other consumer of the account. It is not: a second unrelated
+    zurg on the same box held four sockets and every stop() then raised "still
+    holds the account" for the full budget, which fails the run rather than
+    contaminating it -- honest, and still wrong. Ask who owns the socket instead
+    of naming the one process expected to.
 
     Matched on the peer address field ending in :563, not `grep ':563'`, which
     also matched an ephemeral local port like :56312 and burned the whole drain
     wait on a target that had already let go.
     """
+    mine = target_pids()
     lines = []
     for line in sh("ss -tnp 2>/dev/null").splitlines():
         parts = line.split()
@@ -177,7 +201,8 @@ def nntp_lines():
             continue
         if not parts[4].endswith(":563"):
             continue
-        if "pid=" + PROD_ZURG_PID + "," in line:
+        owners = {int(x) for x in re.findall(r"pid=(\d+)", line)}
+        if owners and not (owners & mine):
             continue
         lines.append(line.strip())
     return lines

@@ -533,7 +533,11 @@ def main():
         return
 
     life = load_lifecycle()
-    life.stop_all()
+    # only the field, never everything registered: stop() frees a port by
+    # killing whatever holds it, and a target that is not in this run may share
+    # its default port with something on this host that is nobody's target
+    for name in names:
+        life.stop(name)
     rows, memories = [], {}
     for rep in range(args.reps):
         order = names[rep % len(names):] + names[:rep % len(names)]
