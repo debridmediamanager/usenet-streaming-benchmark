@@ -12,8 +12,10 @@ The harness had no tests before this. Two things here are worth guarding:
 
 Run:  python3 harness/test_r10.py
 """
+import json
 import math
 import os
+import shutil
 import sys
 import threading
 import time
@@ -32,6 +34,7 @@ import nntp_r10 as N          # noqa: E402
 import procmon_r10 as P       # noqa: E402
 import rawserve_r10 as R      # noqa: E402
 import report_r10 as RP       # noqa: E402
+import run_r10 as RUN         # noqa: E402
 import targets_r10 as T       # noqa: E402
 
 FAILURES = []
@@ -687,6 +690,91 @@ def test_registry():
           all(T.TARGETS[n].get("note") for n in shakedown))
 
 
+def test_import_delivery():
+    """How a release is handed over, which is per target and was a guess.
+
+    Every one of these was paid for in a round: a generic addfile POST is
+    accepted by exactly one of the six SABnzbd-family targets, and the other
+    five each fail it in a way that looks like a server refusing the content.
+    """
+    sab = [n for n, s in T.TARGETS.items() if s["import_mode"] == T.SAB]
+    check("import: every SAB-family target says how the file arrives",
+          all(T.TARGETS[n].get("import_style") for n in sab))
+    check("import: and every style it names has a handler",
+          all(T.TARGETS[n]["import_style"] in
+              (T.DROP_DIR, T.PATH_JSON, T.SAB_NZBFILE, T.SAB_NAME, T.SAB_STD)
+              for n in sab))
+    check("import: a target outside the family claims no style",
+          all(not T.TARGETS[n].get("import_style")
+              for n, s in T.TARGETS.items() if s["import_mode"] != T.SAB))
+
+    # the three spellings are the point: two of them are not SABnzbd's
+    check("import: the .NET family gets nzbFile", T.FIELD[T.SAB_NZBFILE] == "nzbFile")
+    check("import: decypharr's mock gets name", T.FIELD[T.SAB_NAME] == "name")
+    check("import: and only sab-std is SABnzbd's own spelling",
+          T.FIELD[T.SAB_STD] == "nzbfile")
+
+    tmp = os.path.join(os.path.dirname(os.path.abspath(__file__)), "_t_import")
+    os.makedirs(tmp, exist_ok=True)
+    nzb = os.path.join(tmp, "ToyStory5.nzb")
+    with open(nzb, "wb") as handle:
+        handle.write(b"<nzb>body</nzb>")
+
+    body, content_type = RUN.multipart("nzbFile", nzb)
+    check("import: the field name reaches the wire",
+          b'name="nzbFile"' in body)
+    check("import: under the file's own name",
+          b'filename="ToyStory5.nzb"' in body)
+    check("import: with the file's bytes after the headers",
+          body.endswith(b"<nzb>body</nzb>\r\n------r10bench--\r\n"))
+    check("import: and a boundary the header agrees with",
+          "boundary=----r10bench" in content_type)
+
+    # HTTP 200 with a body that says no. A status-code check imports nothing
+    # and then waits out the full import budget for a release never queued
+    check("import: a 200 that says status false is a refusal",
+          RUN.refused('{"status": false, "error": "No files uploaded"}'))
+    check("import: however it spaces it",
+          RUN.refused('{"status":false}'))
+    check("import: a real acceptance is not read as one",
+          not RUN.refused('{"status": true, "nzo_ids": ["SABnzbd_nzo_x"]}'))
+
+    # zurg: the copy is the import
+    watched = os.path.join(tmp, "watched")
+    ok, detail = RUN.drop_in(watched, nzb)
+    landed = os.path.join(watched, "ToyStory5.nzb")
+    check("import: a watched directory is created and the NZB lands in it",
+          ok and os.path.exists(landed))
+    check("import: under its original name", "ToyStory5.nzb" in detail)
+    with open(landed, "wb") as handle:
+        handle.write(b"already loading")
+    RUN.drop_in(watched, nzb)
+    check("import: a re-import does not overwrite, which would restart the "
+          "load being timed",
+          open(landed, "rb").read() == b"already loading")
+
+    # altmount: handed a path, and it moves the file off that path
+    sent = {}
+    real_post = RUN.post
+    RUN.post = lambda url, body, ctype, timeout=300: (
+        sent.update(url=url, body=body) or (True, '{"success":true}'))
+    try:
+        ok, _ = RUN.hand_path("http://127.0.0.1:1/api/import/file", nzb)
+    finally:
+        RUN.post = real_post
+    handed = json.loads(sent["body"])["file_path"]
+    check("import: altmount is handed a path rather than a body", ok and handed)
+    check("import: the path is a throwaway copy, not the corpus file",
+          handed != nzb and os.path.exists(nzb))
+    check("import: the copy keeps the original filename, because altmount "
+          "names the release after the file it was handed",
+          os.path.basename(handed) == "ToyStory5.nzb")
+    check("import: the directory is what gets uniquified instead",
+          os.path.basename(os.path.dirname(handed)).startswith("am-import-"))
+
+    shutil.rmtree(tmp, ignore_errors=True)
+
+
 def test_enable_disable():
     everything = set(T.TARGETS)
 
@@ -873,6 +961,7 @@ if __name__ == "__main__":
     test_zero_run()
     test_damage_classification()
     test_registry()
+    test_import_delivery()
     test_enable_disable()
     test_shared_population()
     test_headline_medians()

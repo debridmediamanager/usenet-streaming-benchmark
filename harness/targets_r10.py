@@ -48,6 +48,21 @@ NATIVE_API = "native"    # its own upload endpoint
 DISCOVERY = "discovery"  # no import at all; it must be offered a release to find
 NONE = "none"            # nothing to import, the URL is the release
 
+# ...and the wire shape it wants, which is a separate question from the family
+# above. "SABnzbd-compatible" describes six of these targets and no two of them
+# agree on how the file arrives: one watches a directory, one is handed a path
+# and moves the file off it, and the three spellings of the multipart field name
+# below are all in live use. A generic addfile POST is accepted by exactly one
+# of the six. Round 7 carried this per target as a chain of `if name ==` and it
+# is registry data here, so a target cannot be added without answering it.
+DROP_DIR = "drop-dir"        # a watched directory: the copy is the import
+PATH_JSON = "path-json"      # handed a path, and it moves the file off it
+SAB_NZBFILE = "sab-nzbfile"  # multipart `nzbFile`, the .NET family
+SAB_NAME = "sab-name"        # multipart `name`, decypharr's mock
+SAB_STD = "sab-std"          # multipart `nzbfile`, SABnzbd's own spelling
+
+FIELD = {SAB_NZBFILE: "nzbFile", SAB_NAME: "name", SAB_STD: "nzbfile"}
+
 TARGETS = {
     # ---------------------------------------------------------------- ceiling
     "raw": {
@@ -71,6 +86,8 @@ TARGETS = {
 
     # ------------------------------------------------------- existing five
     "zurg": {
+        "import_style": DROP_DIR,
+        "drop_dir": "{bench}/zurgrun/nzbs",
         "kind": "native", "role": "target", "serve_mode": WEBDAV,
         "import_mode": SAB, "port": 9998, "language": "Go",
         "url": "http://localhost:9998/dav/all/{release}/{file}",
@@ -81,6 +98,8 @@ TARGETS = {
         "note": "the author's own project",
     },
     "altmount": {
+        "import_style": PATH_JSON,
+        "import_api": "http://localhost:8081/api/import/file",
         "kind": "native", "role": "target", "serve_mode": WEBDAV,
         "import_mode": SAB, "port": 8081, "language": "Go",
         "url": "http://localhost:8081/webdav/complete/{release}/{file}",
@@ -91,6 +110,8 @@ TARGETS = {
         "auth": AUTH, "verified": "upstream",
     },
     "decypharr": {
+        "import_style": SAB_NAME,
+        "category": "tv",
         "kind": "native", "role": "target", "serve_mode": WEBDAV,
         "import_mode": SAB, "port": 8282, "language": "Go",
         "url": "http://localhost:8282/webdav/__all__/{release}/{file}",
@@ -103,6 +124,7 @@ TARGETS = {
         "note": "its SABnzbd mock upload field is `name`, not `nzbfile`",
     },
     "infinidysk": {
+        "import_style": SAB_NZBFILE,
         "kind": "docker", "role": "target", "serve_mode": WEBDAV,
         "import_mode": SAB, "port": 8092, "language": "C# (.NET)",
         "container": "infinidysk-r10",
@@ -112,6 +134,7 @@ TARGETS = {
         "auth": AUTH, "verified": "upstream",
     },
     "nzbdav-og": {
+        "import_style": SAB_NZBFILE,
         "kind": "docker", "role": "target", "serve_mode": WEBDAV,
         "import_mode": SAB, "port": 8093, "language": "C# (.NET)",
         "container": "nzbdav-r10",
@@ -123,6 +146,7 @@ TARGETS = {
 
     # ------------------------------------------------------------ new targets
     "nzbdavex": {
+        "import_style": SAB_NZBFILE,
         "kind": "docker", "role": "target", "serve_mode": WEBDAV,
         "import_mode": SAB, "port": 8094, "language": "C# (.NET)",
         "container": "nzbdavex-r10",
@@ -141,6 +165,7 @@ TARGETS = {
                  "still alive before spending a round on it"),
     },
     "stremthru": {
+        "import_style": SAB_STD,
         "kind": "native", "role": "target", "serve_mode": WEBDAV,
         "import_mode": SAB, "port": 8484, "language": "Go",
         "repo": "MunifTanjim/stremthru",
@@ -159,6 +184,7 @@ TARGETS = {
                  "must be built before the Go build embeds it"),
     },
     "aiostreams": {
+        "import_style": SAB_STD,
         "kind": "native", "role": "target", "serve_mode": HTTP_RANGE,
         "import_mode": SAB, "port": 3000, "language": "TypeScript",
         "repo": "Viren070/AIOStreams",

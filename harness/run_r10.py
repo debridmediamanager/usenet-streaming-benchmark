@@ -24,6 +24,7 @@ import argparse
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -82,31 +83,107 @@ def load_lifecycle():
 # --------------------------------------------------------------------------
 # import
 # --------------------------------------------------------------------------
-def sab_addfile(api_url, nzb_path, api_key=registry.API_KEY, category="bench"):
-    """SABnzbd-compatible import. Six of the ten targets accept this."""
+def multipart(field, nzb_path):
+    """One file part under a given field name.
+
+    The field name is the whole reason this takes an argument. Six targets speak
+    something SABnzbd-shaped and three spellings of the field are in use across
+    them, so `registry.import_style` carries it per target rather than one call
+    guessing on everyone's behalf.
+    """
     boundary = "----r10bench"
     with open(nzb_path, "rb") as handle:
         payload = handle.read()
     name = os.path.basename(nzb_path)
     body = (
         f"--{boundary}\r\n"
-        f'Content-Disposition: form-data; name="nzbfile"; filename="{name}"\r\n'
+        f'Content-Disposition: form-data; name="{field}"; filename="{name}"\r\n'
         f"Content-Type: application/x-nzb\r\n\r\n").encode()
     body += payload + f"\r\n--{boundary}--\r\n".encode()
-    query = urllib.parse.urlencode({"mode": "addfile", "apikey": api_key,
-                                    "cat": category, "output": "json"})
-    req = urllib.request.Request(f"{api_url}?{query}", data=body, method="POST")
-    req.add_header("Content-Type", f"multipart/form-data; boundary={boundary}")
+    return body, f"multipart/form-data; boundary={boundary}"
+
+
+def post(url, body, content_type, timeout=300):
+    req = urllib.request.Request(url, data=body, method="POST")
+    req.add_header("Content-Type", content_type)
     try:
-        with urllib.request.urlopen(req, timeout=300) as resp:
-            text = resp.read().decode("utf-8", "replace")
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return True, resp.read().decode("utf-8", "replace")[:400]
     except Exception as exc:
         return False, f"{type(exc).__name__}: {exc}"[:160]
-    # decypharr answers HTTP 200 with {"status": false} on a wrong field name,
-    # so the status code alone is not an import
-    if '"status": false' in text.replace(" ", "") or '"status":false' in text:
+
+
+def refused(text):
+    """A body that says no while the status line says yes.
+
+    decypharr answers HTTP 200 with {"status": false, "error": "No files
+    uploaded"} when the field name is wrong, so a status-code check imports
+    nothing and then waits fifteen minutes for a release that was never queued.
+    """
+    flat = text.replace(" ", "")
+    return '"status":false' in flat or "No files uploaded" in text
+
+
+def sab_addfile(api_url, nzb_path, field="nzbfile", api_key=registry.API_KEY,
+                category="bench"):
+    """SABnzbd-shaped import, under whichever field name this target wants."""
+    body, content_type = multipart(field, nzb_path)
+    query = urllib.parse.urlencode({"mode": "addfile", "apikey": api_key,
+                                    "cat": category, "output": "json"})
+    ok, text = post(f"{api_url}?{query}", body, content_type)
+    if not ok:
+        return False, text
+    if refused(text):
         return False, text[:200]
     return True, text[:200]
+
+
+def drop_in(directory, nzb_path):
+    """zurg imports by watching a directory, so the copy is the import.
+
+    Never overwrite: a re-import of an entry already present would restart a
+    load that is the thing being timed.
+    """
+    os.makedirs(directory, exist_ok=True)
+    dest = os.path.join(directory, os.path.basename(nzb_path))
+    if not os.path.exists(dest):
+        shutil.copyfile(nzb_path, dest)
+    return True, f"present at {dest}"
+
+
+def hand_path(api_url, nzb_path, api_key=registry.API_KEY):
+    """altmount is handed a path, and it MOVES the file rather than copying it.
+
+    Its log records "Moved NZB to persistent storage" and the corpus file is
+    gone from where it was. So it gets a throwaway copy, and the copy keeps the
+    ORIGINAL filename because altmount names the release after the file it was
+    handed: a uniquified filename produced a release called
+    "am-import-1788277768923-ToyStory5Damaged" that no stem match could find,
+    and six repair passes recorded "no release" for that reason alone. The
+    directory is what gets uniquified.
+    """
+    scratch = os.path.join("/tmp", f"am-import-{int(time.time() * 1000)}")
+    os.makedirs(scratch, exist_ok=True)
+    throwaway = os.path.join(scratch, os.path.basename(nzb_path))
+    shutil.copyfile(nzb_path, throwaway)
+    body = json.dumps({"file_path": throwaway}).encode()
+    ok, text = post(f"{api_url}?apikey={api_key}", body, "application/json")
+    return ok and not refused(text), text[:200]
+
+
+def deliver(target, nzb_path):
+    """Hand one NZB to one target, its own way. Returns (accepted, detail)."""
+    spec = registry.TARGETS[target]
+    style = spec.get("import_style")
+    if style == registry.DROP_DIR:
+        return drop_in(spec["drop_dir"].format(bench=BENCH), nzb_path)
+    if style == registry.PATH_JSON:
+        return hand_path(spec["import_api"], nzb_path)
+    if style in (registry.SAB_NZBFILE, registry.SAB_NAME, registry.SAB_STD):
+        api = spec.get("sab_api") or f"http://127.0.0.1:{spec['port']}/api"
+        return sab_addfile(api, nzb_path, field=registry.FIELD[style],
+                           category=spec.get("category", "bench"))
+    return False, f"no import style registered for {target}"
 
 
 def propfind(url, auth, depth="1", timeout=240):
@@ -211,8 +288,8 @@ def import_entry(target, entry, nzb_path, auth):
         return url, size, meta
 
     if mode == registry.SAB:
-        api = spec.get("sab_api") or f"http://127.0.0.1:{spec['port']}/api"
-        ok, detail = sab_addfile(api, nzb_path)
+        ok, detail = deliver(target, nzb_path)
+        meta["import_style"] = spec.get("import_style")
         meta["import_accepted"] = ok
         meta["import_detail"] = detail
         if not ok:
