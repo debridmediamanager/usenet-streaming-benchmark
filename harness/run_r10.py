@@ -353,9 +353,15 @@ def start_for_entry(life, target, nzb, conns):
     every other target is started once and imported into repeatedly.
     """
     spec = registry.TARGETS[target]
-    if spec["kind"] != "docker" and "{nzb}" in (spec.get("start") or ""):
-        life.SPEC[target]["start"] = spec["start"].format(
-            bench=BENCH, nzb=nzb, conns=conns)
+    start = spec.get("start")
+    if spec["kind"] != "docker" and start:
+        # every placeholder, not just {nzb}. Filling in only the ceiling's left
+        # the other four native targets running `cd {bench}/zurgrun` literally,
+        # so nothing started and the run recorded "never became ready" -- a
+        # target that was never launched, reported as a target that would not
+        # come up
+        life.SPEC[target]["start"] = start.format(
+            bench=BENCH, nzb=nzb or "", conns=conns)
     return life.start(target)
 
 

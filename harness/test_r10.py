@@ -703,6 +703,15 @@ def test_registry():
     check("targets: aiostreams is measured as an addon, since it has no PROPFIND",
           "aiostreams" in addons)
 
+    # a start command is a template, and a placeholder left in it is a target
+    # that never launches while the run reports it as one that would not come up
+    for name, spec in T.TARGETS.items():
+        if spec["kind"] == "docker" or not spec.get("start"):
+            continue
+        filled = spec["start"].format(bench="/b", nzb="/n.nzb", conns=15)
+        check(f"targets: {name}'s start command has no placeholder left",
+              "{" not in filled)
+
     shakedown = T.needs_shakedown()
     check("targets: unproven adapters are declared rather than assumed",
           set(shakedown) == {"nzbdavex", "aiostreams", "comet"})
