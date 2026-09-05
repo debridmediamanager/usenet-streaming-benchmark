@@ -67,9 +67,18 @@ def yencode(data, line_len=128):
     return bytes(out)
 
 
-def article(payload, begin, part=1):
+def article(payload, begin, part=1, file_size=None):
+    """One yEnc article.
+
+    `file_size` is the whole file's size, which is what =ybegin carries in a
+    real multipart post while =yend carries this part's. Defaulting it to the
+    payload length is what a single-part article looks like, and it is also
+    what hid a bug: with the two sizes equal, a reader that took the trailer's
+    size for the file's was indistinguishable from one that did not.
+    """
     return (b"=ybegin part=%d line=128 size=%d name=test.bin\r\n"
-            b"=ypart begin=%d end=%d\r\n" % (part, len(payload), begin,
+            b"=ypart begin=%d end=%d\r\n" % (part,
+                                             file_size or len(payload), begin,
                                              begin + len(payload) - 1)
             + yencode(payload)
             + b"\r\n=yend size=%d part=%d pcrc32=%08x"
@@ -88,6 +97,14 @@ def test_yenc():
     got, meta = N.decode_article(article(blob, 4194305))
     check("yenc: random 300 KB round-trips", got == blob)
     check("yenc: begin offset parsed", meta.get("begin") == 4194305)
+
+    # =ybegin size is the file, =yend size is the part. One key, two meanings
+    part = os.urandom(4 << 10)
+    got, meta = N.decode_article(article(part, 4097, part=2, file_size=99_999_999))
+    check("yenc: multipart round-trips", got == part)
+    check("yenc: the trailer's size is this part's", meta.get("size") == len(part))
+    check("yenc: and the file's own size survives it",
+          meta.get("file_size") == 99_999_999)
 
     check("yenc: wrong crc detected", N.crc_ok(b"x", {"pcrc32": "deadbeef"}) is False)
     check("yenc: absent crc is None, not a failure", N.crc_ok(b"x", {}) is None)

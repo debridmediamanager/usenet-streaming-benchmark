@@ -102,7 +102,10 @@ class SegmentMap:
         if payload is None:
             raise RuntimeError(f"first article unavailable: {meta}")
         self.part_size = len(payload)
-        self.total = meta.get("size") or self.part_size * len(self.segments)
+        # the FILE size from =ybegin, never the part size the =yend trailer
+        # leaves in `size`
+        self.total = (meta.get("file_size")
+                      or self.part_size * len(self.segments))
         return payload, meta
 
     def index_for(self, offset):

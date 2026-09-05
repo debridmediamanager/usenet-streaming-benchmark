@@ -74,7 +74,16 @@ def decode_article(body):
     start, end = 0, len(lines)
     for ix, line in enumerate(lines):
         if line.startswith(b"=ybegin"):
-            meta.update(_ykv(line))
+            head = _ykv(line)
+            # `size` means two different things in a multipart article: on
+            # =ybegin it is the size of the whole FILE, on =yend it is the size
+            # of this PART. Both land in the same key and the trailer wins, so
+            # a reader that wants the file size has to be handed it separately
+            # -- the ceiling served a 6.6 GB release as a 4 MiB one for exactly
+            # this reason, and a 256 MB read of it is a correct 416.
+            if "size" in head:
+                meta["file_size"] = head["size"]
+            meta.update(head)
             start = ix + 1
         elif line.startswith(b"=ypart"):
             meta.update(_ykv(line))
