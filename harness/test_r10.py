@@ -182,11 +182,15 @@ def build_state():
     class FakeFetcher:
         depth = 3
 
+        def __init__(self):
+            self.asked = []
+
         def submit(self, message_ids):
             fut = Future()
             out = []
             for mid in message_ids:
                 ix = int(mid.split("@")[0][1:])
+                self.asked.append(ix)
                 out.append((payloads[ix], {"begin": ix * PART + 1}))
             fut.set_result(out)
             return fut
@@ -226,6 +230,22 @@ def test_raw_ranges():
             "into the short last article": (11 * PART, 11 * PART + TAIL - 1),
             "crossing into the short last article": (11 * PART - 20, 11 * PART + 30),
         }
+        # what a read costs upstream, not just what it returns. Fetching past
+        # the range is how a 1 MiB open ended up pulling 480 MB
+        state["fetcher"].asked.clear()
+        get("bytes=0-99")
+        check("raw: a small read does not fetch the whole file",
+              max(state["fetcher"].asked) < PARTS - 1)
+        check("raw: and asks for no more than one pipelined batch",
+              len(state["fetcher"].asked) <= state["fetcher"].depth)
+
+        state["fetcher"].asked.clear()
+        get(f"bytes={5 * PART}-{5 * PART + 10}")
+        check("raw: a mid-file read fetches nothing past its own last article",
+              max(state["fetcher"].asked) == 5)
+        check("raw: and nothing before its first",
+              min(state["fetcher"].asked) == 5)
+
         for label, (start, end) in cases.items():
             status, body, headers = get(f"bytes={start}-{end}")
             check(f"raw: {label} returns 206", status == 206)

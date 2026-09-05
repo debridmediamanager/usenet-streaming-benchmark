@@ -38,6 +38,9 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from nntp_r10 import NntpConn, parse_nzb  # noqa: E402
 
+# most bytes this may hold in flight, whatever the connection count
+READAHEAD_BYTES = 256 << 20
+
 HOST = os.environ.get("NNTP_HOST", "news.news-provider.example")
 PORT = int(os.environ.get("NNTP_PORT", "563"))
 USER = os.environ.get("NNTP_USER", "YOUR_USENET_USERNAME")
@@ -215,15 +218,24 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
 
         first = smap.index_for(start)
+        last = smap.index_for(end)
         segments = smap.segments
-        # bound the read-ahead so a client that stops reading cannot make this
-        # process hold the whole release in memory
-        window = max(2, state["conns"] * 2)
+        # Read-ahead is bounded by the request first and by memory second.
+        # Neither bound was here: a read of any size queued `conns * 2` batches
+        # of `depth` articles before waiting on the first one, which at this
+        # corpus's 4 MiB part size is 120 articles and 480 MB in flight -- to
+        # serve a 1 MiB cold open whose answer is in the very first article.
+        # The pool was saturated fetching bytes the request could never use, so
+        # the batch actually needed queued behind them: 73 s for a 1 MiB open,
+        # and a 30 s sequential read that delivered nothing at all.
+        part = smap.part_size or (1 << 20)
+        window = max(2, min(state["conns"] * 2,
+                            READAHEAD_BYTES // max(1, part * fetcher.depth)))
         pending, next_ix, written = [], first, 0
         try:
             while written < length:
-                while len(pending) < window and next_ix < len(segments):
-                    batch = segments[next_ix:next_ix + fetcher.depth]
+                while len(pending) < window and next_ix <= last:
+                    batch = segments[next_ix:min(next_ix + fetcher.depth, last + 1)]
                     pending.append((next_ix, fetcher.submit([s[2] for s in batch])))
                     next_ix += len(batch)
                 if not pending:
