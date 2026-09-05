@@ -149,20 +149,39 @@ got = [(p.get("MaxConnections"), p.get("Host")) for p in json.loads(row[0])["Pro
 row = db.execute("select ConfigValue from ConfigItems "
                  "where ConfigName='usenet.max-download-connections'").fetchone()
 download = row[0] if row else None
-# The library has to be empty for an import to be an import. These are the
-# tables that make a release visible again after a reseed.
-for table in ("DavItems", "QueueItems", "HistoryItems"):
+# The library has to be empty for an import to be an import -- but the tree it
+# hangs from does not. DavItems holds five fixed skeleton rows, created once on
+# first boot and never rebuilt on an already-migrated database: '/', '/nzbs',
+# '/content', '/completed-symlinks' and '/.ids', all with zero-prefixed ids.
+# Deleting the table wholesale takes those with it, and the release then imports
+# perfectly into a tree with no root: the app recreates '/content/uncategorized'
+# pointing at a '/content' that no longer exists, PROPFIND resolves nothing, and
+# the run waits out its whole 900 s import budget before recording "release
+# never appeared" against a target that had in fact imported it.
+skeleton = "Id not like '00000000-0000-0000-0000-%'"
+for table, where in (("DavItems", skeleton), ("DavNzbFiles", "1=1"),
+                     ("DavRarFiles", "1=1"), ("DavMultipartFiles", "1=1"),
+                     ("QueueItems", "1=1"), ("QueueNzbContents", "1=1"),
+                     ("HistoryItems", "1=1"), ("NzbNames", "1=1")):
     try:
-        db.execute(f"delete from {table}")
+        db.execute(f"delete from {table} where {where}")
     except sqlite3.Error:
         pass
 db.commit()
+
+roots = db.execute("select count(*) from DavItems where " + skeleton.replace(
+    "not like", "like")).fetchone()[0]
+left = db.execute("select count(*) from DavItems where " + skeleton).fetchone()[0]
 db.close()
 if set(x[0] for x in got) != {conns} or str(download) != str(conns):
     sys.exit(f"   nzbdav-og PARITY NOT SET: providers={got} "
              f"max-download-connections={download!r}")
+if roots < 3:
+    sys.exit(f"   nzbdav-og: only {roots} skeleton rows survived the wipe. "
+             f"The tree has no root and nothing will be listable")
 print(f"   nzbdav-og: MaxConnections={conns} max-download-connections={conns} "
-      f"host={got[0][1]} (library emptied)")
+      f"host={got[0][1]} (library emptied, {roots} skeleton rows kept, "
+      f"{left} release rows left)")
 PY
 
 PROVIDERS="{\"Providers\":[{\"ProviderId\":\"11111111-2222-3333-4444-555555555555\",\"Type\":1,\"Host\":\"$NNTP_HOST\",\"Port\":$PORT_NNTP,\"UseSsl\":true,\"SkipTlsVerification\":false,\"User\":\"$NNTP_USER\",\"Pass\":\"$NNTP_PASS\",\"MaxConnections\":$CONNS,\"MaxTransferConnections\":$CONNS,\"Priority\":0,\"StorageGroup\":\"\",\"BytesUsedOffset\":0,\"BytesUsedResetAt\":0}]}"
@@ -207,6 +226,18 @@ for port in 8092 8093; do
   code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "http://127.0.0.1:$port/health" || echo fail)
   echo "   :$port health -> $code"
   case "$code" in 2*|3*|4*) ;; *) die "container on :$port never answered" ;; esac
+
+  # Health is not the same question as "can the run see a library". A broken
+  # tree answers /health perfectly and lists nothing, and the run then spends
+  # its entire 900 s import budget per entry before blaming the target for a
+  # release it had actually imported. Ask the listing directly, here, once.
+  dav=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 -u usenet:usenet \
+        -X PROPFIND -H 'Depth: 1' \
+        "http://127.0.0.1:$port/content/uncategorized/" || echo fail)
+  echo "   :$port /content/uncategorized/ -> $dav"
+  case "$dav" in 200|207) ;; *) die "container on :$port serves no listing at \
+/content/uncategorized/ (got $dav). The run would wait out its import budget \
+on every entry and report the target as broken" ;; esac
 done
 docker stop infinidysk-r10 nzbdav-r10 >/dev/null
 echo "   both stopped. The run starts one target at a time"
