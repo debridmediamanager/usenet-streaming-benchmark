@@ -31,25 +31,32 @@ _YDEC = bytes((b - 42) & 0xFF for b in range(256))
 NZB_NS = "{http://www.newzbin.com/DTD/2003/nzb}"
 
 
+# an escaped byte's value, precomputed: -42 and -64 folded together
+_YESC = [bytes([(value - 106) & 0xFF]) for value in range(256)]
+
+
 def ydecode(data):
-    """Decode a yEnc payload. Escapes are rare, so the no-escape path is one memcpy."""
+    """Decode a yEnc payload. Escapes are rare, so the no-escape path is one memcpy.
+
+    Every '=' in an encoded stream is an escape marker -- the encoder escapes a
+    literal '=' too -- so splitting on it is unambiguous, and each piece after
+    the first is one escaped byte followed by a plain run. That keeps the work
+    per escape to three C calls instead of a find, two slices and a bytearray
+    append, which matters because this is the ceiling's inner loop and it holds
+    the GIL while fourteen other connections wait for it.
+    """
     if b"=" not in data:
         return data.translate(_YDEC)
-    out = bytearray()
-    i, n = 0, len(data)
-    while i < n:
-        j = data.find(b"=", i)
-        if j < 0:
-            out += data[i:].translate(_YDEC)
-            break
-        out += data[i:j].translate(_YDEC)
-        if j + 1 >= n:
-            # a payload ending on a bare '=' is malformed; drop it rather than
-            # index past the end and turn a bad article into a crash
-            break
-        out.append((data[j + 1] - 106) & 0xFF)  # -42 and -64 folded together
-        i = j + 2
-    return bytes(out)
+    pieces = data.split(b"=")
+    out = [pieces[0].translate(_YDEC)]
+    for piece in pieces[1:]:
+        # a payload ending on a bare '=' is malformed; drop it rather than
+        # index past the end and turn a bad article into a crash
+        if not piece:
+            continue
+        out.append(_YESC[piece[0]])
+        out.append(piece[1:].translate(_YDEC))
+    return b"".join(out)
 
 
 def unstuff(body):
@@ -70,29 +77,38 @@ def decode_article(body):
     """
     body = unstuff(body)
     meta = {}
-    lines = body.split(b"\r\n")
-    start, end = 0, len(lines)
-    for ix, line in enumerate(lines):
-        if line.startswith(b"=ybegin"):
-            head = _ykv(line)
+
+    # The headers sit at the very front and the trailer at the very end, so
+    # neither needs the body split into lines to find. Splitting a 4 MiB
+    # article on CRLF builds ~33 000 line objects and then joins them back,
+    # which cost more than the decode it was feeding.
+    start = 0
+    while body.startswith(b"=y", start):
+        stop = body.find(b"\r\n", start)
+        if stop < 0:
+            break
+        line = body[start:stop]
+        if line.startswith(b"=yend"):
+            break
+        head = _ykv(line)
+        if line.startswith(b"=ybegin") and "size" in head:
             # `size` means two different things in a multipart article: on
             # =ybegin it is the size of the whole FILE, on =yend it is the size
             # of this PART. Both land in the same key and the trailer wins, so
             # a reader that wants the file size has to be handed it separately
             # -- the ceiling served a 6.6 GB release as a 4 MiB one for exactly
             # this reason, and a 256 MB read of it is a correct 416.
-            if "size" in head:
-                meta["file_size"] = head["size"]
-            meta.update(head)
-            start = ix + 1
-        elif line.startswith(b"=ypart"):
-            meta.update(_ykv(line))
-            start = ix + 1
-        elif line.startswith(b"=yend"):
-            meta.update(_ykv(line))
-            end = ix
-            break
-    payload = ydecode(b"".join(lines[start:end]))
+            meta["file_size"] = head["size"]
+        meta.update(head)
+        start = stop + 2
+
+    end = len(body)
+    trailer = body.rfind(b"=yend")
+    if trailer >= 0 and (trailer == 0 or body[trailer - 2:trailer] == b"\r\n"):
+        meta.update(_ykv(body[trailer:]))
+        end = max(start, trailer - 2)
+
+    payload = ydecode(body[start:end].replace(b"\r\n", b""))
     return payload, meta
 
 
