@@ -171,7 +171,8 @@ class NntpConn:
             ctx = ssl.create_default_context()
             self.sock = ctx.wrap_socket(self.sock, server_hostname=host)
         self.sock.settimeout(timeout)
-        self.buf = b""
+        # a bytearray, and never re-scanned from the start: see _read_body
+        self.buf = bytearray()
         code, _ = self._status()
         if code not in (200, 201):
             raise NntpError(f"greeting {code}")
@@ -187,12 +188,16 @@ class NntpConn:
         self.sock.sendall(line.encode() + b"\r\n")
 
     def _readline(self):
-        while b"\r\n" not in self.buf:
+        while True:
+            ix = self.buf.find(b"\r\n")
+            if ix >= 0:
+                break
             chunk = self.sock.recv(65536)
             if not chunk:
                 raise NntpError("connection closed")
             self.buf += chunk
-        line, self.buf = self.buf.split(b"\r\n", 1)
+        line = bytes(self.buf[:ix])
+        del self.buf[:ix + 2]
         return line
 
     def _status(self):
@@ -203,13 +208,31 @@ class NntpConn:
             raise NntpError(f"bad status line {line[:80]!r}")
 
     def _read_body(self):
-        """Read a multi-line block up to the terminating '.' line."""
-        while b"\r\n.\r\n" not in self.buf:
+        """Read a multi-line block up to the terminating '.' line.
+
+        Scanning only what has just arrived is the whole point. Searching the
+        accumulated buffer from the start on every recv, and rebuilding it with
+        `buf = buf + chunk`, is quadratic in the article size: this corpus posts
+        4 MiB articles and TLS hands them over in ~16 KB records, so a single
+        article cost a few hundred MB of scanning and copying -- under the GIL,
+        which is where fifteen connections stop being fifteen. The ceiling read
+        at 0.99 MB/s and could not bound anything.
+
+        The overlap matters: the terminator can straddle two chunks, so the
+        search restarts four bytes behind what was already scanned.
+        """
+        scanned = 0
+        while True:
+            ix = self.buf.find(b"\r\n.\r\n", max(0, scanned - 4))
+            if ix >= 0:
+                break
+            scanned = len(self.buf)
             chunk = self.sock.recv(1 << 16)
             if not chunk:
                 raise NntpError("connection closed mid-body")
             self.buf += chunk
-        block, self.buf = self.buf.split(b"\r\n.\r\n", 1)
+        block = bytes(self.buf[:ix])
+        del self.buf[:ix + 5]
         return block
 
     def fetch(self, message_ids):

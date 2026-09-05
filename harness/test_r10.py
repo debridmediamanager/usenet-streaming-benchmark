@@ -118,6 +118,64 @@ def test_yenc():
           N.unstuff(b"..x\r\ny") == b".x\r\ny")
 
 
+class ChunkedSocket:
+    """A socket that hands over a scripted byte stream in fixed-size pieces.
+
+    Which is what TLS does: a 4 MiB article arrives as a few hundred records,
+    and the terminator lands wherever it lands -- including across a boundary.
+    """
+
+    def __init__(self, data, chunk):
+        self.data, self.chunk, self.pos = data, chunk, 0
+        self.sent = []
+
+    def recv(self, _size):
+        out = self.data[self.pos:self.pos + self.chunk]
+        self.pos += len(out)
+        return out
+
+    def sendall(self, data):
+        self.sent.append(data)
+
+    def settimeout(self, _):
+        pass
+
+
+def reader_on(stream, chunk):
+    conn = N.NntpConn.__new__(N.NntpConn)
+    conn.sock = ChunkedSocket(stream, chunk)
+    conn.buf = bytearray()
+    return conn
+
+
+def test_stream_reader():
+    body = b"line one\r\nline two\r\n" + b"x" * 200_000
+    stream = body + b"\r\n.\r\n" + b"222 next article\r\n"
+
+    for chunk in (1, 2, 3, 4, 5, 7, 1024, 65536):
+        conn = reader_on(stream, chunk)
+        check(f"reader: body reassembled from {chunk}-byte pieces",
+              conn._read_body() == body)
+        # the terminator can straddle a chunk boundary, and the search that
+        # starts from "what I already scanned" is exactly what would miss it
+        check(f"reader: and the stream continues past it at {chunk}",
+              conn._readline() == b"222 next article")
+
+    # a body whose payload itself contains the terminator's bytes, but not the
+    # terminator: '.' at a line start is dot-stuffed on the wire as '..'
+    tricky = b"a\r\n..b\r\nc"
+    conn = reader_on(tricky + b"\r\n.\r\n", 3)
+    check("reader: a stuffed dot line is not mistaken for the terminator",
+          conn._read_body() == tricky)
+
+    conn = reader_on(b"no terminator ever", 4)
+    try:
+        conn._read_body()
+        check("reader: a truncated body raises rather than hanging", False)
+    except N.NntpError:
+        check("reader: a truncated body raises rather than hanging", True)
+
+
 def test_nzb():
     nzb = ('<?xml version="1.0"?>\n'
            '<nzb xmlns="http://www.newzbin.com/DTD/2003/nzb">\n'
@@ -991,6 +1049,7 @@ def test_render_does_not_crash():
 
 if __name__ == "__main__":
     test_yenc()
+    test_stream_reader()
     test_nzb()
     test_pick_file()
     test_raw_ranges()
