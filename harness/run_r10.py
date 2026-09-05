@@ -125,11 +125,20 @@ def refused(text):
 
 
 def sab_addfile(api_url, nzb_path, field="nzbfile", api_key=registry.API_KEY,
-                category="bench"):
-    """SABnzbd-shaped import, under whichever field name this target wants."""
+                category=None):
+    """SABnzbd-shaped import, under whichever field name this target wants.
+
+    A category is sent only when the target asks for one. The category decides
+    where the release is filed, and the .NET family serves WebDAV under
+    /content/<category>/ -- so an invented default of "bench" files every
+    release somewhere the run does not look, and a successful import reads as a
+    release that never appeared.
+    """
     body, content_type = multipart(field, nzb_path)
-    query = urllib.parse.urlencode({"mode": "addfile", "apikey": api_key,
-                                    "cat": category, "output": "json"})
+    params = {"mode": "addfile", "apikey": api_key, "output": "json"}
+    if category:
+        params["cat"] = category
+    query = urllib.parse.urlencode(params)
     ok, text = post(f"{api_url}?{query}", body, content_type)
     if not ok:
         return False, text
@@ -182,7 +191,7 @@ def deliver(target, nzb_path):
     if style in (registry.SAB_NZBFILE, registry.SAB_NAME, registry.SAB_STD):
         api = spec.get("sab_api") or f"http://127.0.0.1:{spec['port']}/api"
         return sab_addfile(api, nzb_path, field=registry.FIELD[style],
-                           category=spec.get("category", "bench"))
+                           category=spec.get("category"))
     return False, f"no import style registered for {target}"
 
 

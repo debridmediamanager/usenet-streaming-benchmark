@@ -768,6 +768,24 @@ def test_import_delivery():
     check("import: a real acceptance is not read as one",
           not RUN.refused('{"status": true, "nzo_ids": ["SABnzbd_nzo_x"]}'))
 
+    # a category decides where a release is filed, and the .NET family serves
+    # WebDAV under /content/<category>/. An invented default files it somewhere
+    # the run does not look and the import reads as a release that never came
+    sent = {}
+    real_post = RUN.post
+    RUN.post = lambda url, body, ctype, timeout=300: (
+        sent.update(url=url) or (True, '{"status": true}'))
+    try:
+        RUN.sab_addfile("http://127.0.0.1:1/api", nzb, field="nzbFile")
+        check("import: no category is sent unless the target asks for one",
+              "cat=" not in sent["url"])
+        RUN.sab_addfile("http://127.0.0.1:1/api", nzb, field="name",
+                        category="tv")
+        check("import: and the one it asks for is the one sent",
+              "cat=tv" in sent["url"])
+    finally:
+        RUN.post = real_post
+
     # zurg: the copy is the import
     watched = os.path.join(tmp, "watched")
     ok, detail = RUN.drop_in(watched, nzb)
