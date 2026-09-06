@@ -880,6 +880,42 @@ def test_import_delivery():
     shutil.rmtree(tmp, ignore_errors=True)
 
 
+def test_drain_ownership():
+    """Which :563 sockets stop() is entitled to wait for.
+
+    Both directions were wrong once. Waiting for every socket on the account
+    failed runs on a host with another consumer; waiting for ownerless ones
+    made a stop burn its full budget and then report a target that had already
+    exited as one that would not let go.
+    """
+    import bench5
+
+    lines = [
+        "State  Recv-Q Send-Q Local  Peer",
+        'ESTAB 0 0 10.0.0.1:5001 1.2.3.4:563 users:(("zurg",pid=111,fd=7))',
+        'ESTAB 0 0 10.0.0.1:5002 1.2.3.4:563 users:(("zurg",pid=222,fd=7))',
+        "FIN-WAIT-1 0 0 10.0.0.1:5003 1.2.3.4:563 ",
+        'ESTAB 0 0 10.0.0.1:5004 1.2.3.4:56312 users:(("zurg",pid=111,fd=9))',
+    ]
+    real_sh, real_pids = bench5.sh, bench5.target_pids
+    bench5.sh = lambda cmd: "\n".join(lines)
+    bench5.target_pids = lambda: {111}
+    try:
+        got = bench5.nntp_lines()
+    finally:
+        bench5.sh, bench5.target_pids = real_sh, real_pids
+
+    check("drain: a socket the target under test owns is waited for",
+          any("pid=111" in line and ":563 " in line + " " for line in got))
+    check("drain: another process's socket on the same account is not",
+          not any("pid=222" in line for line in got))
+    check("drain: a closing socket with no owner is not, since nothing can "
+          "refill it", not any("FIN-WAIT" in line for line in got))
+    check("drain: an ephemeral local port that merely ends in 563 is not",
+          not any(":56312" in line for line in got))
+    check("drain: exactly one socket qualified", len(got) == 1)
+
+
 def test_enable_disable():
     everything = set(T.TARGETS)
 
@@ -1068,6 +1104,7 @@ if __name__ == "__main__":
     test_damage_classification()
     test_registry()
     test_import_delivery()
+    test_drain_ownership()
     test_enable_disable()
     test_shared_population()
     test_headline_medians()

@@ -176,9 +176,7 @@ def target_pids():
 def nntp_lines():
     """NNTP sockets belonging to a bench target, as their raw `ss` lines.
 
-    A socket is ours if a registered target owns it, or if it has no owner left
-    at all -- a process that exited a moment ago can leave one behind, and that
-    still spends a connection slot until the kernel lets go.
+    A socket is ours only while a live registered target owns it.
 
     Everything else on :563 belongs to something else on this host. That used to
     be one hardcoded exception, zen's production zurg.service, on the assumption
@@ -187,6 +185,14 @@ def nntp_lines():
     holds the account" for the full budget, which fails the run rather than
     contaminating it -- honest, and still wrong. Ask who owns the socket instead
     of naming the one process expected to.
+
+    An ownerless socket is NOT ours either, which is the opposite of what this
+    said first. A target whose process is gone leaves the odd socket behind in
+    a closing state; it belongs to no pid, cannot be refilled, and the kernel
+    reaps it on its own schedule. Counting those as still-held made every stop
+    wait out its full 90 s budget and then report a target that had already
+    exited as one that would not let go -- seen on zurg with an empty listener
+    list and exactly one socket left.
 
     Matched on the peer address field ending in :563, not `grep ':563'`, which
     also matched an ephemeral local port like :56312 and burned the whole drain
@@ -202,7 +208,7 @@ def nntp_lines():
         if not parts[4].endswith(":563"):
             continue
         owners = {int(x) for x in re.findall(r"pid=(\d+)", line)}
-        if owners and not (owners & mine):
+        if not (owners & mine):
             continue
         lines.append(line.strip())
     return lines
