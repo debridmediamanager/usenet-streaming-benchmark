@@ -237,3 +237,32 @@ of the two disagreeing about which file they measured.
    normalises the budget by configuration and configuration has been wrong
    before.
 5. Keep `raw` out of every ranking. It is a denominator.
+
+## The harness has now been run, and no round was published from it
+
+First run 6 September 2026, on two hosts. It is not published and its results
+are discarded: one target was found to be serving a healthy release with every
+byte displaced, and a field measured against a reader that silently returns the
+wrong bytes is not a measurement of anything. That target is being fixed first.
+
+What the run did establish is this harness. Fourteen defects in it were found by
+running it, each now carrying a test: a yEnc trailer that overwrote the file's
+own size, a read-ahead bounded by nothing, a quadratic socket read, a start
+command whose placeholders were never filled, an import that spoke one dialect
+to six targets that speak four, a stop that freed a port by killing whoever held
+it, a drain check that waited on sockets belonging to no one, a library wipe
+that deleted the tree the library hangs from, passes that left each other's
+caches warm, a percentile that timed how long the server took to answer rather
+than what it delivered, and a parity census that counted the benchmark's own
+connection as a rival target.
+
+Two things are worth carrying into whatever round is published first:
+
+- **`raw` bounds the field only on dedicated cores.** On two shared cores a
+  pure-Python reader cannot outrun the things it is meant to bound, and every
+  figure it produces is a floor. On four dedicated cores it reached 63.5 MB/s
+  and bounded all but one target.
+- **The host reorders the field.** With identical binaries and images, moving
+  from two shared cores to four dedicated ones left the most CPU-efficient
+  target roughly flat and nearly tripled the least efficient one. A round states
+  its hardware or it states nothing.
