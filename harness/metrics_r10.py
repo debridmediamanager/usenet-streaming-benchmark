@@ -52,7 +52,14 @@ def _request(url, auth=None, start=None, end=None):
 
 
 def windowed_rates(samples, window_ms=DEFAULT_WINDOW_MS):
-    """(elapsed_s, cumulative_bytes) -> MB/s for each complete fixed window.
+    """(seconds_since_first_byte, cumulative_bytes) -> MB/s per complete window.
+
+    Time is measured from the first byte on purpose. Measured from the request,
+    the opening window holds the whole TTFB and reports near zero, and because
+    the p05 index lands on the minimum for any transfer shorter than about
+    twenty windows, that startup window became the p05 for nearly every row in
+    the field. The metric said "a second at zero inside the read", and what it
+    actually reported was how long the server took to answer.
 
     The final partial window is dropped. It is short by construction and would
     report a rate below anything the transfer actually did, which would drag a
@@ -121,7 +128,13 @@ def timed_stream(url, auth=None, start=0, length=None, max_bytes=math.inf,
             total += len(chunk)
             if digest:
                 digest.update(chunk)
-            samples.append((now, total))
+            # windows are measured from the FIRST BYTE, not from the request.
+            # Timed from the request, window one always contains the TTFB dead
+            # time and delivers almost nothing, and since the p05 index is the
+            # minimum for any transfer under about twenty windows, p05 was the
+            # startup window every time -- it reported TTFB while claiming to
+            # report stalls. TTFB has its own column.
+            samples.append((now - first_byte_at, total))
             if now >= budget:
                 out["truncated_by_budget"] = True
                 break

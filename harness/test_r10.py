@@ -370,6 +370,37 @@ def test_windowed_rates():
     check("windows: an empty series yields no windows", M.windowed_rates([]) == [])
 
 
+def test_p05_measures_the_stream_not_the_wait():
+    """The window clock starts at the first byte, not at the request.
+
+    Timed from the request, window one holds the whole TTFB and reports near
+    zero. The p05 index is the minimum for any transfer shorter than about
+    twenty windows, so that startup window became the p05 for nearly every row
+    in the field: the column advertised as "a second at zero inside the read"
+    was reporting how long the server took to answer.
+    """
+    # a server that waits 2 s and then delivers 10 MB/s without ever stalling
+    steady = [(i / 10.0, i * 1_000_000) for i in range(1, 61)]
+    rates = M.windowed_rates(steady)
+    check("p05: a stream with no stall has no near-zero window",
+          rates and min(rates) > 9.0)
+    check("p05: and its windows report the delivered rate",
+          all(abs(r - 10.0) < 0.5 for r in rates))
+
+    # the same stream with a real stall in it: second four delivers nothing
+    stalled = []
+    cum = 0
+    for i in range(1, 61):
+        if not 30 < i <= 40:
+            cum += 1_000_000
+        stalled.append((i / 10.0, cum))
+    rates = M.windowed_rates(stalled)
+    check("p05: a real stall does show up as a near-zero window",
+          min(rates) < 1.0)
+    check("p05: and the other windows are unaffected",
+          sorted(rates)[-1] > 9.0)
+
+
 def test_p05_reporting():
     # a transfer with fewer than five windows must be flagged, never quoted
     short = [(0.4, 1_000_000), (0.8, 2_000_000)]
@@ -1091,6 +1122,7 @@ if __name__ == "__main__":
     test_raw_ranges()
     test_segment_map_corrections()
     test_windowed_rates()
+    test_p05_measures_the_stream_not_the_wait()
     test_p05_reporting()
     test_complete_rule()
     test_cpu_shape()
