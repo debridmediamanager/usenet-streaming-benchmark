@@ -43,6 +43,9 @@ def shared_population(rows, targets=None, threshold=SHARED_THRESHOLD):
     say why an entry is in or out rather than presenting the set as given.
     """
     targets = sorted(set(targets or [r["target"] for r in rows]))
+    # the negative tier is scored on outcome, never on rate, so it has no place
+    # in a population the medians are taken over
+    rows = [r for r in rows if r.get("tier") != "negative"]
     entries = sorted({r["entry"] for r in rows})
     detail = {}
     keep = []
@@ -58,9 +61,20 @@ def shared_population(rows, targets=None, threshold=SHARED_THRESHOLD):
 
 
 def _values(rows, target, field, entries=None):
+    """Performance values from the entries a target was supposed to serve.
+
+    A row from the negative tier never counts, even when the target served it.
+    Those entries are unservable by construction, so whatever came back is not
+    a delivery of the content: on the first full round, zurg answered a release
+    stripped of two thirds of its articles at 45.58 MB/s by zero-filling the
+    gaps, and counting that lifted its throughput median. A target must not be
+    credited for the speed of serving silence.
+    """
     out = []
     for row in rows:
         if row["target"] != target or not row.get("served"):
+            continue
+        if row.get("tier") == "negative":
             continue
         if entries is not None and row["entry"] not in entries:
             continue

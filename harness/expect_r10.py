@@ -106,7 +106,12 @@ def tally(rows):
         bucket = out.setdefault(target, {k: 0 for k in OUTCOMES})
         bucket.setdefault("skipped", 0)
         outcome = row.get("outcome")
-        if outcome is None:
+        # A row the run abandoned is not a verdict. A negative entry dropped
+        # because the target exhausted its time budget scored as REFUSED, which
+        # credits it for correctly rejecting content it never attempted --
+        # infinidysk was credited with a refusal it never made on the first
+        # full round, having simply run out of time.
+        if outcome is None or row.get("skipped"):
             bucket["skipped"] += 1
         else:
             bucket[outcome] += 1
