@@ -438,6 +438,41 @@ def test_p05_reporting():
     check("p05: nearest rank picks the slow window out of twenty", series[ix] == 3.0)
 
 
+def test_read_length_adapts_to_a_fast_link():
+    """A read too short to hold five windows is retried longer, once."""
+    size, offset = 6 << 30, 1 << 30
+
+    quick = {"p05_MBps": None, "MBps": 77.0, "bytes": 268435456, "windows": 3}
+    want = RUN.longer_read_for_p05(quick, size, offset)
+    check("length: a fast read that could not hold a percentile is extended",
+          want is not None and want > quick["bytes"])
+    check("length: to roughly the seconds a percentile wants",
+          want is not None and abs(want / (77.0 * 1e6) - RUN.P05_TARGET_S) < 1)
+
+    slow = {"p05_MBps": 4.2, "MBps": 8.0, "bytes": 268435456, "windows": 30}
+    check("length: a read that already has a percentile is left alone",
+          RUN.longer_read_for_p05(slow, size, offset) is None)
+
+    capped = {"p05_MBps": None, "MBps": 40.0, "bytes": 100,
+              "truncated_by_budget": True, "windows": 2}
+    check("length: a read the budget cut short is not extended, it is already "
+          "as long as it may be",
+          RUN.longer_read_for_p05(capped, size, offset) is None)
+
+    broken = {"p05_MBps": None, "MBps": None, "bytes": 0,
+              "error": "stream aborted", "windows": 0}
+    check("length: a failed read is not retried as a longer one",
+          RUN.longer_read_for_p05(broken, size, offset) is None)
+
+    huge = {"p05_MBps": None, "MBps": 5000.0, "bytes": 268435456, "windows": 1}
+    check("length: and the extension is capped rather than unbounded",
+          RUN.longer_read_for_p05(huge, size, offset) <= RUN.SEQ_BYTES_MAX)
+
+    near_end = {"p05_MBps": None, "MBps": 77.0, "bytes": 268435456, "windows": 3}
+    check("length: never past the end of the file",
+          RUN.longer_read_for_p05(near_end, size, size - (1 << 20)) is None)
+
+
 def test_complete_rule():
     check("complete: a full 206 counts",
           M.complete({"http": "206", "bytes": 100}, 100) is True)
@@ -1149,6 +1184,7 @@ if __name__ == "__main__":
     test_windowed_rates()
     test_p05_measures_the_stream_not_the_wait()
     test_p05_reporting()
+    test_read_length_adapts_to_a_fast_link()
     test_complete_rule()
     test_cpu_shape()
     test_memory_drift()
