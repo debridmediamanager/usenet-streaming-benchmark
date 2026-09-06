@@ -60,21 +60,47 @@ if missing:
     print("  no post:  " + ", ".join(missing))
 PY
 
+# Every pass starts from the same state, which means resetting between them.
+#
+# Without this the passes are not comparable and the main pass is not clean. A
+# pass leaves each target holding the release it imported, and leaves the disk
+# caches of the targets that have them holding the exact byte range the next
+# pass reads. Measured here on 2026-09-05: infinidysk served 18.33 MB/s on the
+# first pass and 112.51 MB/s on the second, three times the transport ceiling,
+# because the second read came off its segment cache -- and its import fell
+# from 20.68 s to 0.58 s because there was nothing left to import. A noise
+# floor built from those two passes reports a worst swing of 514% and licenses
+# nothing at all.
+#
+# The main pass has the same problem from the other side: whatever the noise
+# passes imported is already there, so the entry they used reports an import
+# time that never happened.
+reset () {
+  if ! "$HERE/prep-r10.sh" > "$OUT/prep_$1.log" 2>&1; then
+    die "prep before $1 failed, see $OUT/prep_$1.log"
+  fi
+}
+
 # ---------------------------------------------------------- noise floor
-# Two identical passes over one entry, before anything else. Without this the
-# report can say "provider throughput drifts" and still print a 12% gap as if
-# it meant something.
+# Two identical passes over one entry. Identical now includes the state each
+# one starts from.
+say "RESET for noise pass A"
+reset noise_a
 say "NOISE FLOOR pass A"
 python3 "$HERE/run_r10.py" --entries plain-video --conns "$CONNS" \
   --tag "${TAG}-noise-a" --out "$OUT/noise_a.json" "$@" \
   > "$OUT/noise_a.log" 2>&1 || say "noise pass A failed, see $OUT/noise_a.log"
 
+say "RESET for noise pass B"
+reset noise_b
 say "NOISE FLOOR pass B"
 python3 "$HERE/run_r10.py" --entries plain-video --conns "$CONNS" \
   --tag "${TAG}-noise-b" --out "$OUT/noise_b.json" "$@" \
   > "$OUT/noise_b.log" 2>&1 || say "noise pass B failed, see $OUT/noise_b.log"
 
 # ------------------------------------------------------------- main pass
+say "RESET for main pass"
+reset main
 say "MAIN PASS start"
 python3 "$HERE/run_r10.py" --conns "$CONNS" --tag "$TAG" \
   --out "$OUT/results_${TAG}.json" "$@" \
