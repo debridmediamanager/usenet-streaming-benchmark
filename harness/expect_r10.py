@@ -22,6 +22,7 @@ bare false: "wrongly served" and "the server refused" are opposite results and
 must never collapse into the same cell.
 """
 import json
+import hashlib
 
 # A failure clip is on the order of a few hundred KB. A real ranged read in this
 # harness asks for megabytes, so an absolute floor separates them without
@@ -89,6 +90,41 @@ def score(entry, observed, requested=None):
         "served": served, "reason": reason, "outcome": outcome,
         "http": observed.get("http"), "bytes": observed.get("bytes"),
     }
+
+
+_ZERO_MD5 = {}
+
+
+def zero_md5(length):
+    """md5 of `length` zero bytes, memoised. Small set of lengths in practice."""
+    if length not in _ZERO_MD5:
+        _ZERO_MD5[length] = hashlib.md5(b"\x00" * length).hexdigest()
+    return _ZERO_MD5[length]
+
+
+def zero_filled(integrity):
+    """How many sampled blocks came back as silence, and how many were checked.
+
+    Serving is not one behaviour. On a release stripped of two thirds of its
+    content articles, one mount answered with the ORIGINAL full size and filled
+    the gaps with zeros, while another reported a third of the size -- matching
+    the surviving articles to the decimal -- and served real bytes for all of
+    it. Both scored WRONGLY SERVED, and they are not the same failure: the
+    second is short and honest, the first asserts bytes it does not have.
+
+    A block of silence is identified by hash rather than by reading a rate,
+    because a fast row is exactly what zero-fill looks like from the outside.
+    """
+    checked = filled = 0
+    for sample in integrity or []:
+        digest, length = sample.get("md5"), sample.get("bytes")
+        if not digest or not length:
+            continue
+        checked += 1
+        if digest == zero_md5(length):
+            filled += 1
+    return {"samples_checked": checked, "samples_zero_filled": filled,
+            "zero_fill": bool(filled)}
 
 
 def tally(rows):

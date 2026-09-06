@@ -381,6 +381,10 @@ def measure_entry(target, url, size, auth, life, pids_fn):
         out["seeks"] = measure_seeks(url, size, auth)
         out["playback"] = measure_playback(url, size, auth)
         out["integrity"] = measure_integrity(url, size, auth)
+        # what the bytes were, not just that there were bytes: silence served
+        # under a full-size Content-Length is a different failure from a short
+        # file that is honest about what survived
+        out["silence"] = expect.zero_filled(out["integrity"])
 
     shape = sampler.stop()
     delivered = (seq.get("bytes") or 0) + (cold.get("bytes") or 0)

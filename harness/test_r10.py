@@ -716,6 +716,34 @@ def test_judge_served():
     check("judge: a truncated stream is not served", served is False)
 
 
+def test_zero_fill_is_named_by_hash():
+    """Serving silence and serving a short honest file are not the same failure."""
+    block = 2097152
+    silence = __import__("hashlib").md5(b"\x00" * block).hexdigest()
+
+    zurg_like = [{"offset": 1, "bytes": block, "md5": "2b82506b49648add"},
+                 {"offset": 2, "bytes": block, "md5": silence}]
+    got = X.zero_filled(zurg_like)
+    check("silence: a zero-filled block is identified by hash", got["zero_fill"])
+    check("silence: and counted against the blocks actually checked",
+          got["samples_zero_filled"] == 1 and got["samples_checked"] == 2)
+
+    altmount_like = [{"offset": 1, "bytes": block, "md5": "d4ff7fecbf9d58ce"},
+                     {"offset": 2, "bytes": block, "md5": "62f896a50f0125fc"}]
+    check("silence: a short file of real bytes is not called zero-fill",
+          not X.zero_filled(altmount_like)["zero_fill"])
+
+    check("silence: nothing sampled is not evidence of silence",
+          not X.zero_filled([])["zero_fill"])
+    check("silence: a sample with no hash is not counted as checked",
+          X.zero_filled([{"offset": 1, "bytes": block}])["samples_checked"] == 0)
+
+    # the length matters: the same hash is only silence for its own block size
+    check("silence: a zero block of another length does not match",
+          not X.zero_filled([{"offset": 1, "bytes": block // 2,
+                              "md5": silence}])["zero_fill"])
+
+
 def test_expect_matrix():
     want_serve = {"id": "e", "tier": "core", "expect": "serve"}
     want_reject = {"id": "n", "tier": "negative", "expect": "reject"}
@@ -1191,6 +1219,7 @@ if __name__ == "__main__":
     test_sampler_uses_live_pid_set()
     test_corpus_derivation()
     test_judge_served()
+    test_zero_fill_is_named_by_hash()
     test_expect_matrix()
     test_tally()
     test_zero_run()
