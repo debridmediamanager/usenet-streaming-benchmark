@@ -70,8 +70,24 @@ def yencode(data, line_len=128):
     return bytes(out)
 
 
+def stuff(body):
+    """Dot-stuff a body the way a news server does before putting it on the wire.
+
+    Without this the fixture is not what a reader ever receives, and
+    `decode_article` -- which correctly un-stuffs -- deletes a dot that should
+    never have been there. Encoded yEnc contains a line starting with ".."
+    roughly once in every 65 000 lines, so the round-trip test failed about 4%
+    of the time on random payloads and passed on every fixed one. A flake in the
+    decoder's own test is worse than no test: the obvious way to "fix" it is to
+    weaken the decoder.
+    """
+    if body.startswith(b"."):
+        body = b"." + body
+    return body.replace(b"\r\n.", b"\r\n..")
+
+
 def article(payload, begin, part=1, file_size=None):
-    """One yEnc article.
+    """One yEnc article, dot-stuffed as it arrives from a server.
 
     `file_size` is the whole file's size, which is what =ybegin carries in a
     real multipart post while =yend carries this part's. Defaulting it to the
@@ -79,13 +95,14 @@ def article(payload, begin, part=1, file_size=None):
     what hid a bug: with the two sizes equal, a reader that took the trailer's
     size for the file's was indistinguishable from one that did not.
     """
-    return (b"=ybegin part=%d line=128 size=%d name=test.bin\r\n"
-            b"=ypart begin=%d end=%d\r\n" % (part,
-                                             file_size or len(payload), begin,
-                                             begin + len(payload) - 1)
-            + yencode(payload)
-            + b"\r\n=yend size=%d part=%d pcrc32=%08x"
-              % (len(payload), part, zlib.crc32(payload) & 0xFFFFFFFF))
+    return stuff(
+        (b"=ybegin part=%d line=128 size=%d name=test.bin\r\n"
+         b"=ypart begin=%d end=%d\r\n" % (part,
+                                          file_size or len(payload), begin,
+                                          begin + len(payload) - 1)
+         + yencode(payload)
+         + b"\r\n=yend size=%d part=%d pcrc32=%08x"
+           % (len(payload), part, zlib.crc32(payload) & 0xFFFFFFFF)))
 
 
 def test_yenc():
@@ -96,9 +113,17 @@ def test_yenc():
     check("yenc: begin header parsed", meta.get("begin") == 1)
     check("yenc: crc verifies", N.crc_ok(got, meta) is True)
 
+    # random payloads on purpose: this is where a line beginning ".." turns up,
+    # and with it the dot-stuffing the fixture has to reproduce
+    bad = 0
+    for _ in range(25):
+        blob = os.urandom(300000)
+        got, meta = N.decode_article(article(blob, 4194305))
+        if got != blob:
+            bad += 1
+    check("yenc: 25 random 300 KB payloads round-trip", bad == 0)
     blob = os.urandom(300000)
     got, meta = N.decode_article(article(blob, 4194305))
-    check("yenc: random 300 KB round-trips", got == blob)
     check("yenc: begin offset parsed", meta.get("begin") == 4194305)
 
     # =ybegin size is the file, =yend size is the part. One key, two meanings
