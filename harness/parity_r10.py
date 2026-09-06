@@ -65,13 +65,32 @@ def load_samples(path):
     return samples
 
 
+def _under(cwd, roots):
+    return any(cwd == root or cwd.startswith(root + "/") for root in roots)
+
+
 def is_production(pid, owners, production):
     cwd = (owners.get(pid) or {}).get("cwd", "")
-    return any(cwd == root or cwd.startswith(root + "/") for root in production)
+    return _under(cwd, production)
+
+
+def is_harness(pid, owners, harness_root):
+    """The benchmark's own connection, which is not a competing target.
+
+    The damage phase fetches the true bytes from the provider itself, so it
+    holds one NNTP socket while the target under test is running. Counted as a
+    target, that single socket makes every damage entry look like two servers
+    on the account at once: 297 of 3653 samples in the first full round, and an
+    "isolation BROKEN" verdict on a round where isolation held.
+    """
+    if not harness_root:
+        return False
+    cwd = (owners.get(pid) or {}).get("cwd", "")
+    return _under(cwd, (harness_root,))
 
 
 def census(results_dir, production=PRODUCTION_CWDS, established_only=True,
-           since=None, until=None):
+           since=None, until=None, harness_root=None):
     """`since`/`until` are ISO stamps bounding the round being published.
 
     The census file is append-only and outlives any one attempt at a round, so
@@ -80,6 +99,9 @@ def census(results_dir, production=PRODUCTION_CWDS, established_only=True,
     """
     samples = load_samples(os.path.join(results_dir, "sockets.tsv"))
     owners = load_owners(os.path.join(results_dir, "sockets-pids.tsv"))
+    if harness_root is None:
+        # results/<round>/ -> the checkout the harness runs from
+        harness_root = os.path.dirname(os.path.dirname(os.path.abspath(results_dir)))
     if since or until:
         samples = collections.OrderedDict(
             (stamp, rows) for stamp, rows in samples.items()
@@ -94,8 +116,11 @@ def census(results_dir, production=PRODUCTION_CWDS, established_only=True,
             if established_only and state != "ESTAB":
                 continue
             counts[pid] += 1
-        bench = {p: n for p, n in counts.items() if not is_production(p, owners, production)}
+        bench = {p: n for p, n in counts.items()
+                 if not is_production(p, owners, production)
+                 and not is_harness(p, owners, harness_root)}
         foreign = {p: n for p, n in counts.items() if is_production(p, owners, production)}
+        harness = {p: n for p, n in counts.items() if is_harness(p, owners, harness_root)}
         for pid, count in counts.items():
             per_pid_max[pid] = max(per_pid_max[pid], count)
         if len(bench) > 1:
@@ -104,20 +129,27 @@ def census(results_dir, production=PRODUCTION_CWDS, established_only=True,
             concurrent_foreign += 1
         windows.append({"at": stamp, "bench": sum(bench.values()),
                         "foreign": sum(foreign.values()),
+                        "harness": sum(harness.values()),
                         "bench_pids": len(bench)})
 
-    targets, others = [], []
+    targets, others, harness_rows = [], [], []
     for pid, peak in sorted(per_pid_max.items(), key=lambda kv: -kv[1]):
         row = {"pid": pid, "peak_sockets": peak,
                "comm": (owners.get(pid) or {}).get("comm", "?"),
                "cwd": (owners.get(pid) or {}).get("cwd", "?")}
-        (others if is_production(pid, owners, production) else targets).append(row)
+        if is_production(pid, owners, production):
+            others.append(row)
+        elif is_harness(pid, owners, harness_root):
+            harness_rows.append(row)
+        else:
+            targets.append(row)
 
     return {
         "samples": len(samples),
         "window": ([next(iter(samples)), list(samples)[-1]] if samples else None),
         "targets": targets,
         "production": others,
+        "harness": harness_rows,
         "samples_with_two_targets_live": concurrent_foreign,
         "isolation_held": concurrent_foreign == 0,
         "windows": windows,
@@ -142,6 +174,14 @@ def render(report, budget=None):
                    + (f"{len(over)} held more than that; " if over else "None held more; ")
                    + (f"{len(under)} never filled it."
                       if under else "every one of them filled it."))
+        out.append("")
+    if report.get("harness"):
+        out.append("The benchmark's own damage-phase connection, which fetches "
+                   "the true bytes it verifies against:")
+        out.append("")
+        for row in report["harness"]:
+            out.append(f"- `{row['comm']}` in `{row['cwd']}`, "
+                       f"up to {row['peak_sockets']} socket(s)")
         out.append("")
     if report["production"]:
         out.append("Sharing the account throughout, and not part of the field:")
@@ -170,12 +210,16 @@ def main():
     ap.add_argument("--since", help="ignore samples before this ISO stamp, so an "
                                     "abandoned attempt does not enter the census")
     ap.add_argument("--until")
+    ap.add_argument("--harness-root",
+                    help="checkout the benchmark runs from; its own damage-phase "
+                         "connection is not a competing target")
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args()
 
     report = census(args.results_dir,
                     production=tuple(args.production or PRODUCTION_CWDS),
-                    since=args.since, until=args.until)
+                    since=args.since, until=args.until,
+                    harness_root=args.harness_root)
     if args.json:
         print(json.dumps(report, indent=1))
     else:
