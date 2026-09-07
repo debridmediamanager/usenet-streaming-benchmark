@@ -28,6 +28,7 @@ reports the spread, which is what licenses a claim about a gap between two
 targets or refuses it.
 """
 import json
+import math
 import statistics
 
 SHARED_THRESHOLD = 0.90
@@ -36,26 +37,51 @@ SHARED_THRESHOLD = 0.90
 # --------------------------------------------------------------------------
 # population-fixed medians
 # --------------------------------------------------------------------------
-def shared_population(rows, targets=None, threshold=SHARED_THRESHOLD):
-    """Entries that at least `threshold` of the field served.
+def required_to_share(field_size, threshold=SHARED_THRESHOLD):
+    """How many targets must have served an entry for it to join the population.
 
-    Returns (entries, detail). `detail` carries the served counts so a report can
-    say why an entry is in or out rather than presenting the set as given.
+    Never all of them. `threshold * n` rounds up to `n` as soon as the field is
+    small enough -- at six targets a 0.90 bar is 5.4, which is six -- and the
+    population is then the strict intersection, the one thing `shared_population`
+    is documented not to be. The first full round measured six targets over five
+    core entries, a different target failed each one, so every entry was excluded
+    and both headline tables printed a column of dashes over an empty population,
+    with nothing in the report saying why.
+
+    "All but one" is therefore the loosest bar this will ever apply, which is
+    what keeps a single broken engine from deciding the population for everybody.
+    Above that the threshold governs as written: nine of eleven at 0.80, ten of
+    eleven at 0.90.
+    """
+    if field_size <= 1:
+        return field_size
+    return min(math.ceil(threshold * field_size), field_size - 1)
+
+
+def shared_population(rows, targets=None, threshold=SHARED_THRESHOLD):
+    """Entries that at least `threshold` of the field served, never all of it.
+
+    Returns (entries, detail). `detail` carries the served counts and the bar
+    they were judged against, so a report can say why an entry is in or out
+    rather than presenting the set as given.
     """
     targets = sorted(set(targets or [r["target"] for r in rows]))
     # the negative tier is scored on outcome, never on rate, so it has no place
     # in a population the medians are taken over
     rows = [r for r in rows if r.get("tier") != "negative"]
     entries = sorted({r["entry"] for r in rows})
+    required = required_to_share(len(targets), threshold)
     detail = {}
     keep = []
     for entry in entries:
         served = {r["target"] for r in rows
                   if r["entry"] == entry and r.get("served")}
         share = len(served) / len(targets) if targets else 0
+        inside = len(served) >= required and bool(targets)
         detail[entry] = {"served_by": len(served), "of": len(targets),
-                         "share": round(share, 3), "in_population": share >= threshold}
-        if share >= threshold:
+                         "required": required, "share": round(share, 3),
+                         "in_population": inside}
+        if inside:
             keep.append(entry)
     return keep, detail
 

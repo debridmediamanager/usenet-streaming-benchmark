@@ -1106,9 +1106,52 @@ def test_shared_population():
     check("population: and the report can say why",
           detail["x"]["served_by"] == 1 and detail["x"]["in_population"] is False)
 
-    strict, _ = RP.shared_population(rows, ["A", "B", "C"], threshold=0.9)
-    check("population: a stricter bar drops the entries B failed",
-          "b1" not in strict and "s1" in strict)
+    # The bar is a fraction of the field and the field can be small, so the
+    # fraction has to be floored at "all but one" or it becomes the strict
+    # intersection that this is documented not to be.
+    strict, detail = RP.shared_population(rows, ["A", "B", "C"], threshold=0.9)
+    check("population: even the strictest bar never demands unanimity",
+          "b1" in strict and detail["b1"]["required"] == 2)
+    check("population: and an entry only one target served is still out",
+          "x" not in strict)
+
+    wide = ["T%d" % i for i in range(11)]
+    check("population: above that floor the threshold governs as written",
+          RP.required_to_share(11, 0.9) == 10 and RP.required_to_share(11, 0.8) == 9)
+    check("population: a one-target field is its own population",
+          RP.required_to_share(1, 0.9) == 1 and len(wide) == 11)
+
+
+def test_population_survives_one_failure_each():
+    """The shape the first full round produced, which emptied both headline tables.
+
+    Six targets over five core entries, every entry served by five of them and a
+    different target missing each one. At a bar of 0.90 that is 5.4 of 6, which
+    rounds to 6, so every entry was excluded, the population was empty and both
+    headline tables printed dashes with no row saying why.
+    """
+    targets = ["altmount", "decypharr", "infinidysk", "nzbdav-og", "raw", "zurg"]
+    misses = {"damaged-partial": "infinidysk", "obfuscated": "decypharr",
+              "plain-video": "infinidysk", "rar-stored": "decypharr",
+              "season-pack": "altmount"}
+    rows = [{"target": t, "entry": e, "served": t != missed,
+             "MBps": 20.0 if t != missed else None}
+            for e, missed in misses.items() for t in targets]
+
+    population, detail = RP.shared_population(rows, targets)
+    check("one-failure-each: every core entry is in the population",
+          sorted(population) == sorted(misses))
+    check("one-failure-each: judged against five of six, not six of six",
+          all(d["required"] == 5 for d in detail.values()))
+
+    out = RP.headline(rows, "MBps", targets)
+    check("one-failure-each: the headline is populated at all",
+          out["population_size"] == 5)
+    check("one-failure-each: a target that served everything shows a full n",
+          out["targets"]["zurg"]["n"] == 5)
+    check("one-failure-each: and one that missed two entries shows it",
+          out["targets"]["decypharr"]["n"] == 3
+          and "missed 2" in out["targets"]["decypharr"]["incomplete"])
 
 
 def test_headline_medians():
@@ -1229,6 +1272,7 @@ if __name__ == "__main__":
     test_drain_ownership()
     test_enable_disable()
     test_shared_population()
+    test_population_survives_one_failure_each()
     test_headline_medians()
     test_consensus()
     test_noise_floor()
