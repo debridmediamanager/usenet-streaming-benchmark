@@ -53,6 +53,8 @@ def rewrite_altmount(path, bench, conns, port=None):
     problems = []
     if set(int(x) for x in re.findall(r"max_connections: (\d+)", found)) - {conns}:
         problems.append("altmount max_connections")
+    if port and not re.search(r"(?m)^\s*port: %s\s*$" % port, found):
+        problems.append(f"altmount port {port}")
     if "/bench/" in found and bench.rstrip("/") not in found:
         problems.append("altmount paths still point elsewhere")
     return problems
@@ -88,6 +90,25 @@ def rewrite_decypharr(path, bench, conns):
     return [] if got == {conns} else [f"decypharr connections {sorted(got)}"]
 
 
+def _registry_port(name):
+    """The port this run will actually watch for `name`.
+
+    A config carries the port the host it came from needed. The source host may
+    have moved a target off its default because something else there held it
+    (R10_PORTS), and that port then arrives on a machine where the registry is
+    still watching the registered one. The result is not a failure anybody can
+    read: the server comes up somewhere the run does not look, the readiness
+    probe times out, stop() frees a port nothing is listening on so the old
+    process survives it, the next prep moves that survivor's database out from
+    under it, and it logs "disk I/O error" every five seconds while every later
+    start fails to bind. Round 11 lost AltMount to exactly this on its first
+    attempt. Normalising the port is this script's job, the same as the paths.
+    """
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import targets_r10
+    return targets_r10.TARGETS[name]["port"]
+
+
 def _repath(value, bench):
     """Move a path that lives under some .../bench/ to this host's bench root."""
     marker = "/bench/"
@@ -99,7 +120,7 @@ def _repath(value, bench):
 def main():
     bench = sys.argv[1] if len(sys.argv) > 1 else os.environ.get("BENCH", "/root/bench")
     conns = int(os.environ.get("CONNS", "15"))
-    port = os.environ.get("ALTMOUNT_PORT")
+    port = os.environ.get("ALTMOUNT_PORT") or _registry_port("altmount")
 
     problems = []
     plan = (
