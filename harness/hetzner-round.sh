@@ -180,8 +180,20 @@ ssh "$SOURCE" "tar -C \$HOME/bench -cf - \
     altmount/altmount-cli-linux-amd64 altmount/config.yaml \
     decypharr decyrun/config.json nzbdav-og/config/db.sqlite bin/rclone" \
   | ssh_to "tar -C /root/bench -xf -"
-ssh "$SOURCE" 'docker save $(docker images --format "{{.Repository}}:{{.Tag}}" \
-                  | grep -E "^(infinidysk|nzbdav):" | head -2) | gzip -1' \
+# prep-r10.sh starts the two .NET targets from the newest `infinidysk:r7-*` and
+# `nzbdav:r7-*` on the box, so those are the two tags that have to arrive. Taking
+# "the first two lines matching either name" instead can send two tags of the
+# SAME project: a build host carries r5, r6 and r7 tags of both, and which two
+# come out first is decided by build order. The round then dies on the far side
+# with "no infinidysk image built", after the provisioning and the copy have
+# already been paid for. Resolve each by name here and assert both before
+# anything crosses the wire.
+IMG_ID=$(ssh "$SOURCE" "docker images --format '{{.Repository}}:{{.Tag}}' | grep -m1 '^infinidysk:r7-'")
+IMG_ND=$(ssh "$SOURCE" "docker images --format '{{.Repository}}:{{.Tag}}' | grep -m1 '^nzbdav:r7-'")
+[ -n "$IMG_ID" ] || die "$SOURCE has no infinidysk:r7-* image. build-r7.sh has not run there"
+[ -n "$IMG_ND" ] || die "$SOURCE has no nzbdav:r7-* image. build-r7.sh has not run there"
+echo "   $IMG_ID and $IMG_ND"
+ssh "$SOURCE" "docker save '$IMG_ID' '$IMG_ND' | gzip -1" \
   | ssh_to 'gunzip | docker load' >/dev/null
 ssh_to 'chmod +x /root/bench/zurgrun/zurg /root/bench/decypharr \
                  /root/bench/altmount/altmount-cli-linux-amd64 /root/bench/bin/rclone 2>/dev/null
