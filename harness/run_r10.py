@@ -48,7 +48,6 @@ IMPORT_BUDGET_S = 900
 SEQ_BYTES = 256 << 20
 SEQ_BYTES_MAX = 2 << 30      # never read more than this to chase windows
 SEQ_BUDGET_MS = 30_000
-P05_TARGET_S = 12            # seconds of transfer a percentile wants under it
 
 
 # --------------------------------------------------------------------------
@@ -324,30 +323,32 @@ def import_entry(target, entry, nzb_path, auth):
 # --------------------------------------------------------------------------
 # phases
 # --------------------------------------------------------------------------
-def longer_read_for_p05(result, size, offset,
-                        floor=SEQ_BYTES, ceiling=SEQ_BYTES_MAX):
-    """How long the sequential read should have been, or None if it was fine.
+def sequential_plan(size, floor=SEQ_BYTES, ceiling=SEQ_BYTES_MAX):
+    """Where the sequential read starts and how much it may ask for.
 
-    A fixed read length stops characterising anything once the link is quick.
-    256 MB at 77 MB/s is three complete one-second windows, and a percentile
-    needs five, so on the faster host the three fastest targets were precisely
-    the ones that could not report a p05 -- the stall column went missing where
-    it would have been most interesting.
+    Decided from the file alone, before a single byte is read, which is the
+    whole point. This used to be decided from a first read: the harness asked
+    for a fixed 256 MB, and if that turned out too short to hold five one-second
+    windows it RE-READ THE SAME RANGE longer and kept the second result. The
+    first read had already pulled those bytes through the target, so what
+    replaced the measurement was a partly warm read, and it fed back on itself
+    -- the quicker a target was, the likelier the retry fired, and the retry
+    then made it quicker still.
 
-    Only a read that finished on its own is worth extending. One stopped by the
-    time budget is already as long as the budget allows, and a slow target has
-    all the windows it needs anyway.
+    Round 11 caught it: zurg on plain-video measured 51.6 and 55.8 MB/s on the
+    two passes where the retry did not fire and 141.2 on the one where it did,
+    same host, same entry, same connection budget. AltMount produced the run's
+    entire 58.7% "noise floor" the same way, so the floor was measuring this
+    code rather than the provider.
+
+    One read, bounded by `SEQ_BUDGET_MS` rather than by a byte count, gives a
+    slow target all the windows a percentile needs and a fast one the whole
+    range it can reach, without anybody reading a byte twice.
     """
-    if result.get("p05_MBps") is not None:
-        return None
-    if result.get("truncated_by_budget") or result.get("error"):
-        return None
-    rate = result.get("MBps")
-    if not rate or not size:
-        return None
-    want = int(rate * 1e6 * P05_TARGET_S)
-    want = min(max(want, floor), ceiling, max(0, size - offset))
-    return want if want > (result.get("bytes") or 0) else None
+    if not size:
+        return 0, ceiling
+    offset = min(int(size * 0.30), max(0, size - floor))
+    return offset, min(ceiling, max(0, size - offset))
 
 
 def measure_entry(target, url, size, auth, life, pids_fn):
@@ -361,16 +362,11 @@ def measure_entry(target, url, size, auth, life, pids_fn):
     out["cold_http"] = cold.get("http")
     out["cold_complete"] = complete(cold, 1 << 20)
 
-    seq_off = min(int(size * 0.30), max(0, size - SEQ_BYTES)) if size else 0
-    seq = timed_stream(url, auth, seq_off, SEQ_BYTES, max_ms=SEQ_BUDGET_MS)
-    longer = longer_read_for_p05(seq, size, seq_off)
-    if longer:
-        retry = timed_stream(url, auth, seq_off, longer, max_ms=SEQ_BUDGET_MS)
-        if retry.get("p05_MBps") is not None or (retry.get("windows") or 0) > (
-                seq.get("windows") or 0):
-            retry["lengthened_to"] = longer
-            seq = retry
-    out["seq_lengthened_to"] = seq.get("lengthened_to")
+    seq_off, seq_want = sequential_plan(size)
+    seq = timed_stream(url, auth, seq_off, seq_want, max_ms=SEQ_BUDGET_MS)
+    out["seq_offset"] = seq_off
+    out["seq_requested"] = seq_want
+    out["seq_budget_bound"] = bool(seq.get("truncated_by_budget"))
     out["MBps"] = seq.get("MBps")
     out["p05_MBps"] = seq.get("p05_MBps")
     out["p05_skipped"] = seq.get("p05_skipped")

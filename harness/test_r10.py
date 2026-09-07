@@ -438,39 +438,82 @@ def test_p05_reporting():
     check("p05: nearest rank picks the slow window out of twenty", series[ix] == 3.0)
 
 
-def test_read_length_adapts_to_a_fast_link():
-    """A read too short to hold five windows is retried longer, once."""
-    size, offset = 6 << 30, 1 << 30
+def test_sequential_plan_is_decided_before_any_read():
+    check("plan: a small file is read whole, from the start",
+          RUN.sequential_plan(100 << 20) == (0, 100 << 20))
 
-    quick = {"p05_MBps": None, "MBps": 77.0, "bytes": 268435456, "windows": 3}
-    want = RUN.longer_read_for_p05(quick, size, offset)
-    check("length: a fast read that could not hold a percentile is extended",
-          want is not None and want > quick["bytes"])
-    check("length: to roughly the seconds a percentile wants",
-          want is not None and abs(want / (77.0 * 1e6) - RUN.P05_TARGET_S) < 1)
+    offset, want = RUN.sequential_plan(1200 << 20)
+    check("plan: a large file is read from 30% in", offset == int((1200 << 20) * 0.30))
+    check("plan: and never past its end", offset + want <= (1200 << 20))
 
-    slow = {"p05_MBps": 4.2, "MBps": 8.0, "bytes": 268435456, "windows": 30}
-    check("length: a read that already has a percentile is left alone",
-          RUN.longer_read_for_p05(slow, size, offset) is None)
+    offset, want = RUN.sequential_plan(6 << 30)
+    check("plan: the request is capped rather than unbounded",
+          want <= RUN.SEQ_BYTES_MAX)
+    check("plan: a file of unknown size still yields a bounded plan",
+          RUN.sequential_plan(0) == (0, RUN.SEQ_BYTES_MAX))
 
-    capped = {"p05_MBps": None, "MBps": 40.0, "bytes": 100,
-              "truncated_by_budget": True, "windows": 2}
-    check("length: a read the budget cut short is not extended, it is already "
-          "as long as it may be",
-          RUN.longer_read_for_p05(capped, size, offset) is None)
+    check("plan: the retry that re-read a warm range is gone",
+          not hasattr(RUN, "longer_read_for_p05"))
 
-    broken = {"p05_MBps": None, "MBps": None, "bytes": 0,
-              "error": "stream aborted", "windows": 0}
-    check("length: a failed read is not retried as a longer one",
-          RUN.longer_read_for_p05(broken, size, offset) is None)
 
-    huge = {"p05_MBps": None, "MBps": 5000.0, "bytes": 268435456, "windows": 1}
-    check("length: and the extension is capped rather than unbounded",
-          RUN.longer_read_for_p05(huge, size, offset) <= RUN.SEQ_BYTES_MAX)
+def test_sequential_read_happens_once():
+    """The headline read is taken once, from the plan, and never re-read warm.
 
-    near_end = {"p05_MBps": None, "MBps": 77.0, "bytes": 268435456, "windows": 3}
-    check("length: never past the end of the file",
-          RUN.longer_read_for_p05(near_end, size, size - (1 << 20)) is None)
+    Round 11 lost its throughput column to the shape this pins. A 256 MB read
+    that could not hold five one-second windows was re-read longer FROM THE SAME
+    OFFSET and the second result replaced the first -- measured against bytes
+    the first read had just pulled through the target. zurg reported 51.6 and
+    55.8 MB/s on the passes where it did not fire and 141.2 where it did.
+    """
+    calls = []
+
+    def fake_stream(url, auth=None, start=0, length=None, **kw):
+        calls.append((start, length, kw.get("max_ms")))
+        # exactly the shape that used to trigger the retry: fast, and too few
+        # windows to hold a percentile
+        return {"http": "206", "bytes": length, "MBps": 141.15, "p05_MBps": None,
+                "windows": 3, "total_s": 4.2, "ttfb_s": 0.01,
+                "p05_skipped": "only 3 complete 1000ms windows"}
+
+    class FakeSampler:
+        samples, cpu_total_s = [], 0.0
+        def __init__(self, *a): pass
+        def start(self): return self
+        def stop(self): return {"rss_peak_MB": 1.0}
+
+    saved = {k: getattr(RUN, k) for k in ("timed_stream", "measure_seeks",
+                                          "measure_playback", "measure_integrity",
+                                          "complete")}
+    saved_sampler, saved_summarise = RUN.procmon.Sampler, RUN.procmon.summarise
+    saved_zero = RUN.expect.zero_filled
+    try:
+        RUN.timed_stream = fake_stream
+        RUN.measure_seeks = lambda *a, **k: {}
+        RUN.measure_playback = lambda *a, **k: {}
+        RUN.measure_integrity = lambda *a, **k: {}
+        RUN.complete = lambda *a, **k: True
+        RUN.procmon.Sampler = FakeSampler
+        RUN.procmon.summarise = lambda *a, **k: {}
+        RUN.expect.zero_filled = lambda *a, **k: False
+        size = 6 << 30
+        out = RUN.measure_entry("t", "http://x/f", size, None, None, lambda: [])
+    finally:
+        for k, v in saved.items():
+            setattr(RUN, k, v)
+        RUN.procmon.Sampler, RUN.procmon.summarise = saved_sampler, saved_summarise
+        RUN.expect.zero_filled = saved_zero
+
+    offsets = [c[0] for c in calls]
+    check("one-read: the cold open and the sequential read, and nothing more",
+          len(calls) == 2)
+    check("one-read: no offset is read twice", len(offsets) == len(set(offsets)))
+    plan = RUN.sequential_plan(size)
+    check("one-read: the sequential read is the planned one",
+          calls[1][0] == plan[0] and calls[1][1] == plan[1])
+    check("one-read: bounded by the time budget", calls[1][2] == RUN.SEQ_BUDGET_MS)
+    check("one-read: a read too short for a percentile says so rather than "
+          "being replaced by a warm one",
+          out["p05_MBps"] is None and out["MBps"] == 141.15)
 
 
 def test_complete_rule():
@@ -1255,7 +1298,8 @@ if __name__ == "__main__":
     test_windowed_rates()
     test_p05_measures_the_stream_not_the_wait()
     test_p05_reporting()
-    test_read_length_adapts_to_a_fast_link()
+    test_sequential_plan_is_decided_before_any_read()
+    test_sequential_read_happens_once()
     test_complete_rule()
     test_cpu_shape()
     test_memory_drift()
