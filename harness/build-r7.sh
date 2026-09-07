@@ -6,6 +6,23 @@
 # an alpine build links against musl, which zen's glibc answers with "No such
 # file or directory". Round 4 hit that trap and round 6 needed a second script
 # to undo it; here it is one step.
+#
+# Each Go target builds on the toolchain its own go.mod asks for, and no newer.
+# The images set GOTOOLCHAIN=local, so a target that has moved past its pin
+# fails loudly with "go.mod requires go >= X (running Y)" rather than quietly
+# downloading one -- which is how AltMount broke this script on 7 September once
+# it required 1.27.
+#
+# The temptation is to put all three on the newest toolchain so that no target
+# can be said to have had a better compiler than another. Do not: it changes
+# what is being measured. Built on 1.27, decypharr prints
+#
+#   sonic/ast only supports (go1.17~1.26 ...) ... will fallback to encoding/json
+#
+# at startup -- bytedance/sonic gates its assembly fast path on the Go version
+# it was compiled with, so a toolchain bump silently drops that target onto the
+# standard library's JSON and a round then reports a slowdown the project never
+# shipped. A target's toolchain is part of the target.
 set -u
 # Integrated BuildKit so the two image builds get a populated $BUILDPLATFORM.
 # infinidysk and nzbdav both start their Dockerfile with
@@ -19,6 +36,9 @@ CACHE_GLIBC=$BENCH/src/gomodcache-glibc
 mkdir -p "$OUT" "$CACHE" "$CACHE_GLIBC"
 STAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 MANIFEST=$BENCH/results_r7_versions.json
+# Descriptive only, and wrong by default for every round after the seventh.
+ROUND="${ROUND:-7}"
+PARITY_CONNS="${PARITY_CONNS:-20}"
 
 # mtime reference for the artifact check below. Each build here is non-fatal on
 # purpose (one broken target must not cost the other four), but the manifest
@@ -42,6 +62,10 @@ pin () {  # dir -> checkout origin/main, echo short sha
   git rev-parse --short=8 HEAD
 }
 
+modpath () {  # dir -> the module path its go.mod declares
+  awk '/^module /{print $2; exit}' "$1/go.mod"
+}
+
 ZC=$(pin /home/ben/zurgcode)
 AC=$(pin $BENCH/src/altmount-git)
 DC=$(pin $BENCH/src/decypharr-git)
@@ -49,14 +73,24 @@ IC=$(pin $BENCH/src/infinidysk-git)
 NC=$(pin $BENCH/src/nzbdav-git)
 echo "PINNED zurg=$ZC altmount=$AC decypharr=$DC infinidysk=$IC nzbdav=$NC"
 
+# A -X against a symbol that does not exist is silently ignored, so a renamed
+# module leaves the binary reporting no version at all while the manifest goes
+# on claiming the commit. AltMount moved from github.com/javi11/altmount to
+# github.com/kipsilabs/altmount and this script stamped the old path for as long
+# as it took someone to look. Read the path out of each go.mod instead.
+ZMOD=$(modpath /home/ben/zurgcode)
+AMOD=$(modpath $BENCH/src/altmount-git)
+DMOD=$(modpath $BENCH/src/decypharr-git)
+echo "MODULES zurg=$ZMOD altmount=$AMOD decypharr=$DMOD"
+
 echo "=== zurg $ZC ==="
 docker run --rm -v /home/ben/zurgcode:/src -v "$OUT":/out -v "$CACHE":/go/pkg/mod \
   -w /src golang:1.26-alpine sh -c "
     apk add --no-cache git gcc musl-dev bash >/dev/null 2>&1
     CGO_ENABLED=0 go build -trimpath -buildvcs=false -ldflags \"-s -w \
-      -X github.com/debridmediamanager/zurg/internal/version.BuiltAt=$STAMP \
-      -X github.com/debridmediamanager/zurg/internal/version.GitCommit=$ZC \
-      -X github.com/debridmediamanager/zurg/internal/version.Version=main-$ZC\" \
+      -X $ZMOD/internal/version.BuiltAt=$STAMP \
+      -X $ZMOD/internal/version.GitCommit=$ZC \
+      -X $ZMOD/internal/version.Version=main-$ZC\" \
       -o /out/zurg-r7 ./cmd/zurg && chown 1000:1000 /out/zurg-r7 && echo ZURG_OK
   " 2>&1 | tail -6
 
@@ -67,13 +101,25 @@ echo "=== altmount $AC ==="
 # first; it is untracked, so the pin checkout above keeps it in place.
 docker run --rm -v $BENCH/src/altmount-git/frontend:/app -w /app node:20-alpine \
   sh -c 'npm ci --no-audit --no-fund >/dev/null 2>&1 || npm install --no-audit --no-fund >/dev/null 2>&1; npm run build' 2>&1 | tail -3
-docker run --rm -v $BENCH/src/altmount-git:/src -v "$OUT":/out -v "$CACHE":/go/pkg/mod \
-  -w /src golang:1.26-alpine sh -c "
-    apk add --no-cache gcc g++ musl-dev >/dev/null 2>&1
+# glibc, not alpine, and no longer static. AltMount pulls in
+# github.com/javi11/gopar-turbo, which ships a PREBUILT archive
+# (gf16/libgf16_linux_amd64.a) compiled against glibc, so linking it under musl
+# fails on undefined `__memcpy_chk` -- a glibc fortify symbol musl does not
+# have -- whether the final link is static or not. It therefore builds where
+# decypharr builds, and comes out dynamically linked against glibc like
+# decypharr does, which is what the Debian and Ubuntu hosts a round runs on
+# want anyway. Upstream's own Makefile target for this binary (`build-cli`) is
+# not static either; only its container image is, and that one is built without
+# the cli tag.
+docker run --rm -v $BENCH/src/altmount-git:/src -v "$OUT":/out -v "$CACHE_GLIBC":/go/pkg/mod \
+  -w /src golang:1.27-bookworm sh -c "
+    apt-get update -qq >/dev/null 2>&1
+    apt-get install -y -qq gcc g++ libsqlite3-dev pkg-config >/dev/null 2>&1
     CGO_ENABLED=1 go build -trimpath -tags=cli \
-      -ldflags=\"-s -w -X 'github.com/javi11/altmount/internal/version.Version=main-$AC' -X 'github.com/javi11/altmount/internal/version.GitCommit=$AC' -X 'github.com/javi11/altmount/internal/version.Timestamp=$STAMP' -extldflags '-static'\" \
+      -ldflags=\"-s -w -X '$AMOD/internal/version.Version=main-$AC' -X '$AMOD/internal/version.GitCommit=$AC' -X '$AMOD/internal/version.Timestamp=$STAMP'\" \
       -o /out/altmount-r7 ./cmd/altmount/main.go && chown 1000:1000 /out/altmount-r7 && echo ALT_OK
   " 2>&1 | tail -6
+file "$OUT/altmount-r7" 2>/dev/null
 
 echo "=== decypharr $DC (bookworm/glibc) ==="
 docker run --rm -v $BENCH/src/decypharr-git:/src -v "$OUT":/out \
@@ -81,8 +127,8 @@ docker run --rm -v $BENCH/src/decypharr-git:/src -v "$OUT":/out \
     apt-get update -qq >/dev/null 2>&1
     apt-get install -y -qq gcc g++ libfuse-dev libfuse3-dev pkg-config >/dev/null 2>&1
     CGO_ENABLED=1 go build -trimpath -buildvcs=false -ldflags '-s -w \
-      -X github.com/sirrobot01/decypharr/pkg/version.Version=main-$DC \
-      -X github.com/sirrobot01/decypharr/pkg/version.Channel=main' \
+      -X $DMOD/pkg/version.Version=main-$DC \
+      -X $DMOD/pkg/version.Channel=main' \
       -o /out/decypharr-r7 . && chown 1000:1000 /out/decypharr-r7 && echo DECY_OK
   " 2>&1 | tail -6
 file "$OUT/decypharr-r7" 2>/dev/null
@@ -125,7 +171,7 @@ fi
 
 cat > "$MANIFEST" <<JSON
 {
- "round": 7,
+ "round": $ROUND,
  "built_at": "$STAMP",
  "commits": {
   "zurg": "$ZC",
@@ -139,7 +185,7 @@ cat > "$MANIFEST" <<JSON
   "nzbdav-og": "nzbdav:r7-$NC"
  },
  "parity": {
-  "nntp_connections_per_target": 20,
+  "nntp_connections_per_target": $PARITY_CONNS,
   "news_host": "news.news-provider.example",
   "repair": "enabled on every target that has the feature (nzbdav-og has none)"
  }
