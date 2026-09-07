@@ -157,10 +157,14 @@ if [ -n "$SELFTEST" ]; then
 fi
 
 # --------------------------------------------------------------------- deps
+# libstdc++6 is not optional. AltMount links it through the C++ in
+# gopar-turbo, and on this image a missing shared library surfaces much
+# later as a target that never became ready, rather than as a missing package.
 say "INSTALL dependencies"
 ssh_to 'export DEBIAN_FRONTEND=noninteractive
         apt-get update -qq >/dev/null 2>&1
-        apt-get install -y -qq p7zip-full curl ffmpeg lsof rsync git jq fuse3 >/dev/null 2>&1
+        apt-get install -y -qq p7zip-full curl ffmpeg lsof rsync git jq fuse3 \
+                              libstdc++6 >/dev/null 2>&1
         curl -fsSL https://get.docker.com | sh >/dev/null 2>&1
         python3 -V' || die "dependency install failed"
 
