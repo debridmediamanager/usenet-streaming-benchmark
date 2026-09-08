@@ -52,6 +52,36 @@ look quicker.
 | population fixed medians with `n` | a target flattered by its own failures |
 | measured noise floor | which differences a single pass can actually resolve. "Provider throughput drifts" is true and it is not a number |
 
+### The stall floor, defined
+
+`p05_MBps` is the fifth percentile of the one second windowed delivery rate,
+taken over the complete windows after the first one following the first byte.
+Three rules make it one statistic rather than a number whose meaning depends on
+how long the read lasted:
+
+- **The first window is a startup ramp and is reported on its own**, as
+  `first_window_MBps`. zurg delivers 1 to 5 MB/s through it while its read
+  ahead lands, and every target has some version of it. It is not a stall
+  inside the read and it is never the floor.
+- **Fewer than ten windows after the first is no floor.** The row carries
+  `p05_MBps: null` and `p05_skipped` says why. A read that finishes inside
+  eleven seconds is too short to hold a fifth percentile of anything.
+- **The percentile is interpolated between the two nearest ranks**, the way
+  `numpy.percentile` does by default, so it moves smoothly with the window
+  count instead of stepping. `min_window_MBps` is the lowest of the same
+  windows and `p05_windows` is how many there were.
+
+What it says is the rate the slowest twentieth of the read fell below. A stall
+through a tenth of a 40 s read is the floor. One stalled second in forty is
+under the fifth percentile and shows in `min_window_MBps`, not in `p05_MBps`.
+
+Until 8 September 2026 it was nearest rank, `ceil(0.05 n) - 1`, over every
+window including the first, with a minimum of five. That index is 0 for every
+`n` up to 20 and 1 from 21 to 40, so a target fast enough to finish the read in
+under 21 s had its ramp reported as its floor, and between 21 and 40 windows
+the second lowest window was reported, whatever it happened to be. Round 11 was
+measured that way and its report says so.
+
 ### The negative tier is derived, not hunted
 
 Three of the five negative entries are built deterministically from NZBs this
@@ -178,10 +208,10 @@ python3 harness/test_r10.py
 It covers the yEnc decoder against a reference encoder written from the spec
 (all 256 byte values, escapes, dot unstuffing, CRC), the `raw` baseline's range
 arithmetic (spanning articles, the short final article, suffix ranges, a range
-past EOF), the windowed rate and percentile maths, the CPU shape and memory
-drift statistics, the negative tier derivations, the expectation matrix, the
-damage classification, the registry invariants, and the population fixed
-medians and consensus logic.
+past EOF), the windowed rate, the interpolated percentile and the floor's three
+regimes, the CPU shape and memory drift statistics, the negative tier
+derivations, the expectation matrix, the damage classification, the registry
+invariants, and the population fixed medians and consensus logic.
 
 Two of those tests exist because they caught real bugs while this was being
 written: the damage classifier used a fixed byte slack that misread a complete

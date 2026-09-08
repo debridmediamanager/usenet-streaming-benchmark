@@ -13,7 +13,6 @@ The harness had no tests before this. Two things here are worth guarding:
 Run:  python3 harness/test_r10.py
 """
 import json
-import math
 import os
 import shutil
 import sys
@@ -339,6 +338,14 @@ def test_raw_ranges():
         status, body, _ = get("bytes=100-")
         check("raw: open-ended range runs to EOF", body == whole[100:])
 
+        # the floor reaches a read's result through timed_stream, and a read
+        # this short carries the reason rather than a number
+        streamed = M.timed_stream(base, start=0, length=len(whole))
+        check("stream: a timed read carries the floor's verdict",
+              streamed["p05_MBps"] is None
+              and "needs 10 after the first" in streamed["p05_skipped"]
+              and "first_window_MBps" in streamed)
+
         status, body, _ = get(f"bytes=-{TAIL}")
         check("raw: suffix range returns the tail", body == whole[-TAIL:])
 
@@ -426,16 +433,82 @@ def test_p05_measures_the_stream_not_the_wait():
           sorted(rates)[-1] > 9.0)
 
 
-def test_p05_reporting():
-    # a transfer with fewer than five windows must be flagged, never quoted
-    short = [(0.4, 1_000_000), (0.8, 2_000_000)]
-    rates = M.windowed_rates(short)
-    check("p05: a sub-window transfer produces no complete window", len(rates) == 0)
+def test_percentile_interpolates():
+    check("percentile: p05 of 1..10 is 1.45, as numpy's linear method has it",
+          abs(M.percentile(list(range(1, 11)), 5) - 1.45) < 1e-9)
+    check("percentile: the median of an even count is the mean of the middle two",
+          M.percentile([1, 2, 3, 4], 50) == 2.5)
+    check("percentile: p0 is the minimum and p100 the maximum",
+          M.percentile([5, 1, 9], 0) == 1 and M.percentile([5, 1, 9], 100) == 9)
+    check("percentile: order does not matter", M.percentile([9, 1, 5], 50) == 5)
+    check("percentile: a single value is its own percentile",
+          M.percentile([7], 5) == 7)
+    check("percentile: nothing has no percentile", M.percentile([], 5) is None)
 
-    # nearest-rank on a known series: 20 windows, one of them slow
-    series = sorted([50.0] * 19 + [3.0])
-    ix = max(0, int(math.ceil(0.05 * len(series))) - 1)
-    check("p05: nearest rank picks the slow window out of twenty", series[ix] == 3.0)
+
+def test_stall_floor_regimes():
+    """Too short for a floor, just long enough, and long.
+
+    Under nearest rank the floor was the minimum window for anything under 21
+    windows and the second-lowest from 21 to 40, and the first window after the
+    first byte is a startup ramp, so a target quick enough to finish the read
+    in under 21 s was quoted at its ramp and called stalled.
+    """
+    ramp = 2.0
+    # a sub-window transfer, then fewer than ten windows after the ramp
+    check("floor: a sub-window transfer produces no complete window",
+          M.windowed_rates([(0.4, 1_000_000), (0.8, 2_000_000)]) == [])
+    out = M.stall_floor([ramp] + [50.0] * 9)
+    check("floor: fewer than ten windows after the first reports no floor",
+          out["p05_MBps"] is None and "min_window_MBps" not in out)
+    check("floor: and says why in the row",
+          "needs 10 after the first" in out["p05_skipped"])
+    check("floor: the ramp is still reported on its own",
+          out["first_window_MBps"] == 2.0)
+    check("floor: and the window count is the whole read's", out["windows"] == 10)
+    check("floor: nothing read is no floor and no ramp",
+          M.stall_floor([]) == {"windows": 0, "first_window_MBps": None,
+                                "p05_MBps": None, "p05_skipped":
+                                "only 0 complete 1000ms windows; the floor "
+                                "needs 10 after the first"})
+
+    # exactly ten after the ramp: a floor, and the ramp is not it
+    out = M.stall_floor([ramp] + [50.0] * 10)
+    check("floor: ten windows after the first is enough for a floor",
+          out["p05_MBps"] == 50.0)
+    check("floor: the ramp is never the floor",
+          out["min_window_MBps"] == 50.0 and out["first_window_MBps"] == ramp)
+    check("floor: and the floor says how many windows it stands on",
+          out["p05_windows"] == 10)
+    out = M.stall_floor([ramp] + [50.0] * 9 + [3.0])
+    # rank 0.05 * 9 = 0.45 of the way from the slowest window to the next
+    check("floor: one slow window in ten interpolates toward the next",
+          abs(out["p05_MBps"] - 24.15) < 1e-9)
+    check("floor: while the minimum window is reported as itself",
+          out["min_window_MBps"] == 3.0)
+
+    # a long read. The floor is what 5% of the windows fell below, so a stall
+    # through a tenth of the read is the floor, and one second in forty is not
+    # -- that one is the minimum window's to show
+    long_stalled = M.stall_floor([ramp] + [50.0] * 36 + [0.0] * 4)
+    check("floor: a stall through a tenth of a long read is the floor",
+          long_stalled["p05_MBps"] == 0.0)
+    one_second = M.stall_floor([ramp] + [50.0] * 39 + [0.0])
+    check("floor: one stalled second in forty is under the fifth percentile",
+          one_second["p05_MBps"] == 50.0)
+    check("floor: and shows in the minimum window instead",
+          one_second["min_window_MBps"] == 0.0)
+
+    # the same shape at every length: nearest rank jumped from the slow window
+    # to the next one between 20 and 21 windows, a step of 47 MB/s on nothing
+    # but the read lasting a second longer
+    series = [M.stall_floor([ramp] + [50.0] * (n - 1) + [3.0])["p05_MBps"]
+              for n in range(10, 41)]
+    steps = [b - a for a, b in zip(series, series[1:])]
+    check("floor: the statistic moves smoothly with the window count",
+          all(0 <= s < 3.0 for s in steps))
+    check("floor: rather than sitting on the slow window and then leaving it",
+          series[0] < series[-1] and series[-1] == 50.0)
 
 
 def test_sequential_plan_is_decided_before_any_read():
@@ -1355,7 +1428,8 @@ if __name__ == "__main__":
     test_segment_map_corrections()
     test_windowed_rates()
     test_p05_measures_the_stream_not_the_wait()
-    test_p05_reporting()
+    test_percentile_interpolates()
+    test_stall_floor_regimes()
     test_sequential_plan_is_decided_before_any_read()
     test_sequential_read_happens_once()
     test_complete_rule()

@@ -399,6 +399,8 @@ def measure_entry(target, url, size, auth, life, pids_fn):
     out["MBps"] = seq.get("MBps")
     out["p05_MBps"] = seq.get("p05_MBps")
     out["p05_skipped"] = seq.get("p05_skipped")
+    out["p05_windows"] = seq.get("p05_windows")
+    out["first_window_MBps"] = seq.get("first_window_MBps")
     out["seq_bytes"] = seq.get("bytes")
     out["seq_windows"] = seq.get("windows")
 

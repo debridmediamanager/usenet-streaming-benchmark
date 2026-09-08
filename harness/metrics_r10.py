@@ -6,7 +6,11 @@ What rounds 3 through 9 measured, and where each one is blind:
   * mean MB/s over a whole read. A mean hides a stall completely: a read that
     runs at 60 MB/s for nine seconds and 0 for one reports 54, and a player
     stops during that second. `p05_MBps` is the fifth-percentile one-second
-    windowed rate, which is what the viewer actually feels.
+    windowed rate, which is what the viewer actually feels. Its definition is
+    `stall_floor` below: the first window after the first byte is a startup
+    ramp and is reported on its own, the percentile is interpolated over the
+    windows after it, and fewer than `MIN_WINDOWS_FOR_P05` of those is no
+    floor rather than a quoted one.
   * one scrub number, the median of eight 2 MB reads. That cannot say whether
     seeking near the end of a file costs more than seeking near the start, and
     it conflates two different things -- the moment a server answers a Range
@@ -37,8 +41,10 @@ import urllib.request
 
 CHUNK = 1 << 16
 DEFAULT_WINDOW_MS = 1000
-# fewer windows than this and a percentile is noise dressed as a number
-MIN_WINDOWS_FOR_P05 = 5
+# how many one-second windows the floor is taken over, not counting the first
+# one after the first byte. Fewer than this and a fifth percentile is one
+# window, however it is computed
+MIN_WINDOWS_FOR_P05 = 10
 
 
 def _request(url, auth=None, start=None, end=None):
@@ -83,6 +89,55 @@ def windowed_rates(samples, window_ms=DEFAULT_WINDOW_MS):
         prev_bytes = cum
         edge += width
     return rates
+
+
+def percentile(values, pct):
+    """Linear interpolation between the two nearest ranks, numpy's default.
+
+    Nearest rank is a step function of the sample size. `ceil(0.05 n) - 1` is
+    index 0 for every n up to 20 and index 1 from 21 to 40, so the same stream
+    reported its minimum window or its second-lowest window depending on how
+    long the read happened to last, and a fast target that finished in under
+    21 s was quoted at its worst second as a matter of arithmetic. Interpolated,
+    the statistic moves smoothly with n and means the same thing at every n.
+    """
+    if not values:
+        return None
+    ordered = sorted(values)
+    if len(ordered) == 1:
+        return ordered[0]
+    rank = pct / 100.0 * (len(ordered) - 1)
+    low = int(math.floor(rank))
+    high = min(low + 1, len(ordered) - 1)
+    return ordered[low] + (rank - low) * (ordered[high] - ordered[low])
+
+
+def stall_floor(rates, window_ms=DEFAULT_WINDOW_MS, min_windows=MIN_WINDOWS_FOR_P05):
+    """The floor statistic, or the reason there is none.
+
+    The first complete window after the first byte is a startup ramp, not a
+    stall: zurg delivers 1-5 MB/s through it while its read-ahead lands, and
+    every target has some version of it. Reported as `first_window_MBps` and
+    left out of the floor, because with nearest rank on a short read the ramp
+    WAS the floor, and the faster a target finished the more certain that was.
+
+    `p05_MBps` is then the interpolated fifth percentile of the windows after
+    the first, `min_window_MBps` the lowest of those same windows, and
+    `p05_windows` how many there were. Below `min_windows` of them nothing is
+    quoted and `p05_skipped` says why.
+    """
+    out = {"windows": len(rates),
+           "first_window_MBps": round(rates[0], 2) if rates else None}
+    body = rates[1:]
+    if len(body) < min_windows:
+        out["p05_MBps"] = None
+        out["p05_skipped"] = (f"only {len(rates)} complete {window_ms}ms windows; "
+                              f"the floor needs {min_windows} after the first")
+        return out
+    out["p05_MBps"] = round(percentile(body, 5), 2)
+    out["min_window_MBps"] = round(min(body), 2)
+    out["p05_windows"] = len(body)
+    return out
 
 
 def timed_stream(url, auth=None, start=0, length=None, max_bytes=math.inf,
@@ -154,18 +209,9 @@ def timed_stream(url, auth=None, start=0, length=None, max_bytes=math.inf,
     if digest:
         out["md5"] = digest.hexdigest()
 
-    rates = windowed_rates(samples, window_ms)
-    out["windows"] = len(rates)
-    if len(rates) >= MIN_WINDOWS_FOR_P05:
-        rates_sorted = sorted(rates)
-        ix = max(0, int(math.ceil(0.05 * len(rates_sorted))) - 1)
-        out["p05_MBps"] = round(rates_sorted[ix], 2)
-        out["min_window_MBps"] = round(rates_sorted[0], 2)
-    else:
-        # honesty rule: a transfer too short to hold five windows cannot support
-        # a percentile, so it is flagged rather than quoted
-        out["p05_MBps"] = None
-        out["p05_skipped"] = f"only {len(rates)} complete {window_ms}ms windows"
+    # honesty rule: a transfer too short to hold the floor's windows is flagged
+    # rather than quoted, and the ramp is never the floor
+    out.update(stall_floor(windowed_rates(samples, window_ms), window_ms))
     return out
 
 
