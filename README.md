@@ -11,14 +11,19 @@ one, both stay up and the later one says so.
 
 ## Latest
 
-**[Round 9, fifteen connections](docs/round9.md)**, measured 3 September 2026.
-Five targets at 15 NNTP connections instead of round 7's 20, on the same host,
-corpus and builds, to find which of them are actually connection bound. Raw
-output in [`results/round9/`](results/round9/).
+**[Round 11, current builds on the round 10 harness](docs/round11.md)**,
+measured 7 and 8 September 2026. Six targets at 10 NNTP connections on four
+dedicated Hetzner cores, every one built from its own upstream `main` on the
+day. The first round to carry a transport ceiling, a windowed stall floor, a
+negative tier of releases that are supposed to fail, and a byte identity check
+across the whole field. Raw output in [`results/round11/`](results/round11/).
 
-The short version: AltMount lost 27% to a 25% cut, which is the whole
-explanation of its round 7 second place, and zurg lost 7%. The tighter the
-account, the more reader efficiency matters.
+The short version: zurg leads the mean rate at 99.18 MB/s and the cold open at
+0.1246 s, and the mean is the least useful column in the round. AltMount holds
+51.41 MB/s on top of a **0.20 MB/s stall floor**, where NZBDav-og is fourth on
+the mean and first on the floor at 43.25. AltMount also serves the stored RAR
+entry more than three times faster than anyone else. Three of six targets
+answered every graded entry correctly.
 
 ## Every round
 
@@ -26,7 +31,8 @@ Newest first.
 
 | Round | Date | What it measured | Report | Raw output |
 |---|---|---|---|---|
-| **10** | not run | A harness change, not a round. Adds a transport ceiling, a p05 windowed rate, seek and playback profiles, CPU shape, memory drift, cross-target byte identity, alignment-verified damage, a corpus tier that is supposed to fail, and five more targets | [docs/round10-harness.md](docs/round10-harness.md) | none yet |
+| **11** | 7-8 Sep 2026 | Six targets at 10 connections on four dedicated cores, every one built from upstream main on the day. Throughput, cold open, stall floor, import, byte identity and a negative tier | [docs/round11.md](docs/round11.md) | [results/round11/](results/round11/) |
+| **10** | run, not published | The harness this round 11 uses. Run on 6 September and discarded, because a target was found serving a healthy release with every byte displaced and a field measured against a reader that returns the wrong bytes measures nothing. Fixed in zurg `c25edcbe`, and round 11 re-ran the check that caught it | [docs/round10-harness.md](docs/round10-harness.md) | none |
 | **9** | 3 Sep 2026 | Five targets at 15 connections. Which of them scale with the connection count | [docs/round9.md](docs/round9.md) | [results/round9/](results/round9/) |
 | **8** | 2 Sep 2026 | The round 7 configuration again on four dedicated Hetzner cores, to separate the software from the two shared cores it ran on | [inside docs/round7.md](docs/round7.md) | [results/round8-hetzner/](results/round8-hetzner/) |
 | **7** | 1 Sep 2026 | Five targets at 20 connections, repair on everywhere the feature exists. The baseline round 9 compares against | [docs/round7.md](docs/round7.md) | [results/round7/](results/round7/) |
