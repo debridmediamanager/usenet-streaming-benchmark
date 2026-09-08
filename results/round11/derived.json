@@ -1,0 +1,26 @@
+{
+ "dead-post": {
+  "segments_rewritten": 1010,
+  "sha256": "1509eddf4091c592",
+  "source": "FatherBrown.nzb",
+  "op": "dead_post",
+  "path": "corpus/derived/dead-post.nzb"
+ },
+ "incomplete-archive-set": {
+  "files_removed": [
+   "[ TOWN ]-[ www.town.ag ]-[ partner of www.ssl-news.info ]-[ TV ] [04/17] - \"pxAk"
+  ],
+  "sha256": "fab77b9744d443cd",
+  "source": "FatherBrown.nzb",
+  "op": "drop_volume",
+  "path": "corpus/derived/incomplete-archive-set.nzb"
+ },
+ "damaged-severe": {
+  "segments_dropped": 1050,
+  "segments_kept": 527,
+  "sha256": "c2deb10dd0691013",
+  "source": "ToyStory5.nzb",
+  "op": "decimate",
+  "path": "corpus/derived/damaged-severe.nzb"
+ }
+}

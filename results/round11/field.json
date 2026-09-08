@@ -1,0 +1,192 @@
+{
+ "registered": [
+  {
+   "target": "raw",
+   "role": "ceiling",
+   "serve": "http-range",
+   "import": "none",
+   "language": "Python (this harness)",
+   "repo": null,
+   "verified": "upstream",
+   "budget_s": 3600
+  },
+  {
+   "target": "zurg",
+   "role": "target",
+   "serve": "webdav",
+   "import": "sabnzbd",
+   "language": "Go",
+   "repo": null,
+   "verified": "upstream",
+   "budget_s": 3600
+  },
+  {
+   "target": "altmount",
+   "role": "target",
+   "serve": "webdav",
+   "import": "sabnzbd",
+   "language": "Go",
+   "repo": null,
+   "verified": "upstream",
+   "budget_s": 3600
+  },
+  {
+   "target": "decypharr",
+   "role": "target",
+   "serve": "webdav",
+   "import": "sabnzbd",
+   "language": "Go",
+   "repo": null,
+   "verified": "upstream",
+   "budget_s": 3600
+  },
+  {
+   "target": "infinidysk",
+   "role": "target",
+   "serve": "webdav",
+   "import": "sabnzbd",
+   "language": "C# (.NET)",
+   "repo": null,
+   "verified": "upstream",
+   "budget_s": 3600
+  },
+  {
+   "target": "nzbdav-og",
+   "role": "target",
+   "serve": "webdav",
+   "import": "sabnzbd",
+   "language": "C# (.NET)",
+   "repo": null,
+   "verified": "upstream",
+   "budget_s": 3600
+  },
+  {
+   "target": "nzbdavex",
+   "role": "target",
+   "serve": "webdav",
+   "import": "sabnzbd",
+   "language": "C# (.NET)",
+   "repo": "qooode/nzbdavex",
+   "verified": "shakedown",
+   "budget_s": 3600
+  },
+  {
+   "target": "stremthru",
+   "role": "target",
+   "serve": "webdav",
+   "import": "sabnzbd",
+   "language": "Go",
+   "repo": "MunifTanjim/stremthru",
+   "verified": "upstream",
+   "budget_s": 3600
+  },
+  {
+   "target": "aiostreams",
+   "role": "target",
+   "serve": "http-range",
+   "import": "sabnzbd",
+   "language": "TypeScript",
+   "repo": "Viren070/AIOStreams",
+   "verified": "shakedown",
+   "budget_s": 3600
+  },
+  {
+   "target": "streamnzb",
+   "role": "target",
+   "serve": "http-range",
+   "import": "native",
+   "language": "Go",
+   "repo": "Gaisberg/streamnzb",
+   "verified": "upstream",
+   "budget_s": 3600
+  },
+  {
+   "target": "comet",
+   "role": "target",
+   "serve": "http-range",
+   "import": "discovery",
+   "language": "Python + Rust",
+   "repo": "g0ldyy/comet",
+   "verified": "shakedown",
+   "budget_s": 1800
+  }
+ ],
+ "running": [
+  "raw",
+  "zurg",
+  "altmount",
+  "infinidysk",
+  "nzbdav-og",
+  "decypharr"
+ ],
+ "disabled": [
+  "nzbdavex",
+  "stremthru",
+  "aiostreams",
+  "streamnzb",
+  "comet"
+ ],
+ "shakedown": [],
+ "corpus": [
+  {
+   "id": "plain-video",
+   "tier": "core",
+   "expect": "serve",
+   "available": true
+  },
+  {
+   "id": "damaged-partial",
+   "tier": "failure",
+   "expect": "serve",
+   "available": true
+  },
+  {
+   "id": "obfuscated",
+   "tier": "core",
+   "expect": "serve",
+   "available": true
+  },
+  {
+   "id": "rar-stored",
+   "tier": "core",
+   "expect": "serve",
+   "available": true
+  },
+  {
+   "id": "season-pack",
+   "tier": "stress",
+   "expect": "serve",
+   "available": true
+  },
+  {
+   "id": "dead-post",
+   "tier": "negative",
+   "expect": "reject",
+   "available": true
+  },
+  {
+   "id": "incomplete-archive-set",
+   "tier": "negative",
+   "expect": "reject",
+   "available": true
+  },
+  {
+   "id": "damaged-severe",
+   "tier": "negative",
+   "expect": "reject",
+   "available": true
+  },
+  {
+   "id": "compressed-archive",
+   "tier": "negative",
+   "expect": "reject",
+   "available": false
+  },
+  {
+   "id": "encrypted-no-password",
+   "tier": "negative",
+   "expect": "reject",
+   "available": false
+  }
+ ]
+}

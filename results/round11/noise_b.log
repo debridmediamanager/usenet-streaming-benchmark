@@ -1,0 +1,20 @@
+{"target": "raw", "entry": "plain-video", "outcome": "pass", "MBps": 89.46, "p05_MBps": 33.55, "cold_open_s": 0.8304, "import_s": 0.03}
+{"target": "zurg", "entry": "plain-video", "outcome": "pass", "MBps": 101.88, "p05_MBps": 5.24, "cold_open_s": 0.0034, "import_s": 5.052}
+{"target": "altmount", "entry": "plain-video", "outcome": "pass", "MBps": 53.73, "p05_MBps": 16.58, "cold_open_s": 1.0441, "import_s": 5.041}
+{"target": "infinidysk", "entry": "plain-video", "outcome": "pass", "MBps": 73.13, "p05_MBps": 33.55, "cold_open_s": 2.1789, "import_s": 15.412}
+{"target": "nzbdav-og", "entry": "plain-video", "outcome": "pass", "MBps": 76.61, "p05_MBps": 55.64, "cold_open_s": 0.4432, "import_s": 5.912}
+{"target": "decypharr", "entry": "plain-video", "outcome": "pass", "MBps": 6.6, "p05_MBps": 0.0, "cold_open_s": 3.8525, "import_s": 11.267}
+
+wrote /root/usenet-streaming-benchmark/results/round10/noise_b.json
+### Sequential throughput
+
+Median over the 1 entries at least 90% of the field served. `n` is how many of those the target itself served; `own` is its median over everything it served, which is the flattering number when the two differ.
+
+| target | n | median | own | gap |
+|---|---|---|---|---|
+| zurg | 1/1 | 101.88 MB/s | 101.88 MB/s | 0.0 |
+| raw | 1/1 | 89.46 MB/s | 89.46 MB/s | 0.0 |
+| nzbdav-og | 1/1 | 76.61 MB/s | 76.61 MB/s | 0.0 |
+| infinidysk | 1/1 | 73.13 MB/s | 73.13 MB/s | 0.0 |
+| altmount | 1/1 | 53.73 MB/s | 53.73 MB/s | 0.0 |
+| decypharr | 1/1 | 6.6 MB/s | 6.6 MB/s | 0.0 |

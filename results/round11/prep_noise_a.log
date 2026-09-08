@@ -1,0 +1,20 @@
+== corpus
+   /root/bench/r10-nzbs: 8 nzbs
+== ceiling
+   rawserve_r10.py and nntp_r10.py staged in /root/bench
+== zurg
+== altmount
+== decypharr
+== containers
+   nzbdav-og: MaxConnections=10 max-download-connections=10 host=news.news-provider.example (library emptied, 5 skeleton rows kept, 0 release rows left)
+   infinidysk-r10 on infinidysk:r7-581833f8 (MaxConnections=10)
+   nzbdav-r10 on nzbdav:r7-0c7d8e21
+   :8092 health -> 200
+   :8092 /content/uncategorized/ -> 207
+   :8093 health -> 200
+   :8093 /content/uncategorized/ -> 207
+   both stopped. The run starts one target at a time
+== parity (10 connections)
+   zurg, altmount and decypharr all at 10
+
+== ready. Nothing holds a library; every import in the run is a real one.
