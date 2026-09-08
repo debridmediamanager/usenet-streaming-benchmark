@@ -300,3 +300,40 @@ primary IPs survived.
 
 Raw output keeps the harness filenames it was written with, inside
 [`results/round11/`](../results/round11/), the same way round 9 did.
+
+## Corrections after the fact
+
+8 September 2026. Two measurement defects in the harness were found while
+reproducing this round on a fresh host, after it was published. The numbers
+above stay as they were measured. This section says which of them the defects
+touch, and the raw output is where each claim below can be checked.
+
+**Every mount's `damaged-partial` row is a re-read of `plain-video`.** The
+harness matched a release name by substring in both directions,
+`ToyStory5Damaged` was imported after `ToyStory5` was already listed, and the
+shorter name is inside the longer one. The raw output records the URL each row
+read. For zurg, AltMount, InfiniDysk, NZBDav-og and decypharr the
+`damaged-partial` URL is under `ToyStory5/`, the healthy release's directory,
+with an import time between 0.027 s and 0.485 s where a real import on the same
+target took 5 s or more. Those five rows measured a warm second read of the
+healthy file, so the throughput, cold open, stall floor and import columns for
+`damaged-partial` on every mount, and the damage phase that ran against that
+URL, are not measurements of the damaged release. `raw` is not affected: it is
+restarted per entry against that entry's own NZB. The harness now matches the
+stem exactly, with a test that imports a name that is a prefix of another.
+
+**The stall floor for a read under 21 windows was its minimum window, and the
+first window is a startup ramp.** The percentile was nearest rank over every
+window including the first, and `ceil(0.05 n) - 1` is index 0 for every `n` up
+to 20 and index 1 from 21 to 40. Every row with fewer than 21 windows therefore
+reports its slowest single second as its floor, and the first second after the
+first byte is the read ahead ramp on every target. Rows in that regime here are
+zurg on plain-video (19 windows), damaged-partial (18), obfuscated (18) and
+rar-stored (17), and InfiniDysk on rar-stored (13), so zurg's floor median of
+15.73 stands on four rows that report a minimum window. Every other row in the
+stall floor table has between 22 and 31 windows and reports its second lowest
+window. The floor is now defined in
+[docs/round10-harness.md](round10-harness.md): the first window is reported on
+its own, the fifth percentile is interpolated over the windows after it, and
+fewer than ten of those is no floor. The table above was computed under the old
+rule and is not recomputed here.
