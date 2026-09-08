@@ -1042,6 +1042,64 @@ def test_import_delivery():
     shutil.rmtree(tmp, ignore_errors=True)
 
 
+def test_release_is_matched_exactly():
+    """One stem must never resolve to a release whose name merely contains it.
+
+    The corpus imports `ToyStory5Damaged` after `ToyStory5` is already listed.
+    The match was a substring test in both directions, so the damaged entry
+    resolved to the healthy release in 0.04 s and every mount's damaged-partial
+    row in round 11 is a re-read of plain-video.
+    """
+    root = "http://localhost:9998/dav/all/"
+    listed = [root + "ToyStory5", root + "ToyStory5Damaged", root + "Obfuscated",
+              root + "ToyStory5%20(1)", root + "Bosch.S01"]
+
+    check("release: the exact stem picks its own directory and nothing else",
+          RUN.pick_release(listed, "ToyStory5Damaged") == [root + "ToyStory5Damaged"])
+    check("release: a stem that is a prefix of another release is not fooled",
+          RUN.pick_release(listed, "ToyStory5")[0] == root + "ToyStory5")
+    check("release: nor is one that a longer name contains",
+          all("Damaged" not in url for url in RUN.pick_release(listed, "ToyStory5")))
+    check("release: a stem nobody listed matches nothing",
+          RUN.pick_release(listed, "ToyStory") == []
+          and RUN.pick_release(listed, "Story5") == [])
+    check("release: case does not decide it",
+          RUN.pick_release(listed, "obfuscated") == [root + "Obfuscated"])
+    check("release: a dotted name is matched literally, not as a pattern",
+          RUN.pick_release(listed, "Bosch.S01") == [root + "Bosch.S01"]
+          and RUN.pick_release(listed, "BoschXS01") == [])
+    check("release: a re-import's ' (N)' duplicate is accepted after the original",
+          RUN.pick_release(listed, "ToyStory5") == [root + "ToyStory5",
+                                                    root + "ToyStory5%20(1)"])
+    check("release: and on its own when the original is gone",
+          RUN.pick_release([root + "ToyStory5%20(2)", root + "ToyStory5%20(1)"],
+                           "ToyStory5")
+          == [root + "ToyStory5%20(1)", root + "ToyStory5%20(2)"])
+
+    # through the poll itself: what is listed is what the harness sees
+    shown = {"listing": [root + "ToyStory5"]}
+    real_children, real_video = RUN.children, RUN.largest_video
+    RUN.children = lambda url, auth: list(shown["listing"])
+    RUN.largest_video = lambda url, auth, depth=0: (url + "/feature.mkv", 7)
+    try:
+        url, size, error = RUN.wait_for_release("zurg", "ToyStory5Damaged", None,
+                                                budget=0.3, poll_s=0.05)
+        check("release: waiting for the damaged release while only the healthy "
+              "one is listed times out rather than reading the wrong bytes",
+              url is None and "never appeared" in error)
+        shown["listing"].append(root + "ToyStory5Damaged")
+        url, size, error = RUN.wait_for_release("zurg", "ToyStory5Damaged", None,
+                                                budget=0.3, poll_s=0.05)
+        check("release: and resolves to its own directory once that is listed",
+              url == root + "ToyStory5Damaged/feature.mkv" and error is None)
+        url, _, _ = RUN.wait_for_release("zurg", "ToyStory5", None,
+                                         budget=0.3, poll_s=0.05)
+        check("release: the healthy release still resolves to itself",
+              url == root + "ToyStory5/feature.mkv")
+    finally:
+        RUN.children, RUN.largest_video = real_children, real_video
+
+
 def test_drain_ownership():
     """Which :563 sockets stop() is entitled to wait for.
 
@@ -1313,6 +1371,7 @@ if __name__ == "__main__":
     test_damage_classification()
     test_registry()
     test_import_delivery()
+    test_release_is_matched_exactly()
     test_drain_ownership()
     test_enable_disable()
     test_shared_population()

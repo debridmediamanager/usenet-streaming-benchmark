@@ -261,7 +261,39 @@ def largest_video(url, auth, depth=0):
     return best, best_size
 
 
-def wait_for_release(target, stem, auth, budget=IMPORT_BUDGET_S):
+def pick_release(listed, stem):
+    """The listed directories that ARE the release imported as `stem`, best first.
+
+    Every mount in the field names a release after the NZB file it was handed:
+    round 11 recorded `ToyStory5`, `Obfuscated`, `FatherBrown`, `Bosch.S01` and
+    `damaged-severe` on all five, and altmount's import keeps the original
+    filename for exactly that reason. So the match is the stem, exactly, case
+    aside. The one decoration allowed is the " (N)" the .NET family appends when
+    the same NZB is imported twice, and the undecorated directory wins over any
+    duplicate, which is the round-7 rule from `reprobe_r7.pick_release`.
+
+    This used to be a substring test in both directions, and the corpus has two
+    entries whose stems are a prefix of each other. `ToyStory5Damaged` was asked
+    for after `ToyStory5` was already listed, "toystory5" is inside
+    "toystory5damaged", and the harness read the healthy release's bytes for the
+    damaged entry in 0.04 s on every mount in round 11. A target that renames
+    releases needs its rule written here, not the match loosened again.
+    """
+    exact, dupes = [], []
+    dupe = re.compile(re.escape(stem) + r" \((\d+)\)$", re.I)
+    for url in listed:
+        leaf = urllib.parse.unquote(url.rstrip("/").rsplit("/", 1)[-1])
+        if leaf.lower() == stem.lower():
+            exact.append(url)
+        else:
+            hit = dupe.fullmatch(leaf)
+            if hit:
+                dupes.append((int(hit.group(1)), url))
+    return sorted(exact) + [url for _, url in sorted(dupes)]
+
+
+def wait_for_release(target, stem, auth, budget=IMPORT_BUDGET_S,
+                     poll_s=IMPORT_POLL_S):
     """Poll the listing for the release by name, never by 'whatever appeared'.
 
     A fixed sleep after an import is a guess about connection count, and picking
@@ -271,15 +303,12 @@ def wait_for_release(target, stem, auth, budget=IMPORT_BUDGET_S):
     if not root:
         return None, None, "target has no WebDAV root"
     deadline = time.time() + budget
-    wanted = stem.lower()
     while time.time() < deadline:
-        for child in children(root, auth):
-            leaf = urllib.parse.unquote(child.rsplit("/", 1)[-1]).lower()
-            if wanted in leaf or leaf in wanted:
-                video, size = largest_video(child, auth)
-                if video:
-                    return video, size, None
-        time.sleep(IMPORT_POLL_S)
+        for child in pick_release(children(root, auth), stem):
+            video, size = largest_video(child, auth)
+            if video:
+                return video, size, None
+        time.sleep(poll_s)
     return None, None, f"release {stem} never appeared within {budget}s"
 
 
