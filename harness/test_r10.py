@@ -12,6 +12,8 @@ The harness had no tests before this. Two things here are worth guarding:
 
 Run:  python3 harness/test_r10.py
 """
+import contextlib
+import io
 import json
 import os
 import shutil
@@ -1173,6 +1175,92 @@ def test_release_is_matched_exactly():
         RUN.children, RUN.largest_video = real_children, real_video
 
 
+def test_every_row_reaches_the_log():
+    """A refused entry is a verdict, and it cost the whole import budget.
+
+    The loop recorded a refused negative-tier row and `continue`d past the
+    print, so a target's log showed its passes and none of its refusals, and
+    the three rows that had each spent 900 s waiting for a release that never
+    appeared were the three the log did not mention.
+    """
+    tmp = os.path.join(os.path.dirname(os.path.abspath(__file__)), "_t_log")
+    os.makedirs(tmp, exist_ok=True)
+    nzb = os.path.join(tmp, "dead-post.nzb")
+    with open(nzb, "wb") as handle:
+        handle.write(b"<nzb/>")
+
+    class FakeLife:
+        SPEC = {"zurg": {"start": ""}}
+        stopped = []
+
+        def start(self, target): return True
+        def stop(self, target): self.stopped.append(target)
+        def pids_for(self, target): return []
+
+    entries = [
+        {"id": "dead-post", "tier": "negative", "expect": "reject"},
+        {"id": "damaged-severe", "tier": "negative", "expect": "reject"},
+        {"id": "compressed-archive", "tier": "negative", "expect": "reject",
+         "needs_real_post": True},
+    ]
+    outcomes = {
+        # waited the whole budget for a release that never appeared
+        "dead-post": (None, None, {"import_mode": "sabnzbd", "import_accepted": True,
+                                   "import_detail": "present", "import_s": 900.2,
+                                   "error": "release dead-post never appeared "
+                                            "within 900s"}),
+        # turned away at the door, with the body that said so
+        "damaged-severe": (None, None, {"import_mode": "sabnzbd",
+                                        "import_accepted": False,
+                                        "import_detail": '{"status": false}',
+                                        "import_s": None}),
+    }
+    saved = {k: getattr(RUN, k) for k in ("import_entry", "IDLE_SETTLE_S")}
+    saved_resolve = RUN.corpus.resolve
+    saved_idle, saved_rss = RUN.procmon.sample_idle, RUN.procmon.rss_kb
+    captured = io.StringIO()
+    try:
+        RUN.import_entry = lambda target, entry, path, auth: outcomes[entry["id"]]
+        RUN.IDLE_SETTLE_S = 0
+        RUN.corpus.resolve = lambda entry: None if entry.get("needs_real_post") else nzb
+        RUN.procmon.sample_idle = lambda *a, **k: {"idle_rss_MB": 1}
+        RUN.procmon.rss_kb = lambda pids: 0
+        with contextlib.redirect_stdout(captured):
+            rows = RUN.run_target("zurg", entries, FakeLife(), "t.0",
+                                  P.RunMemory(), 10)
+    finally:
+        for k, v in saved.items():
+            setattr(RUN, k, v)
+        RUN.corpus.resolve = saved_resolve
+        RUN.procmon.sample_idle, RUN.procmon.rss_kb = saved_idle, saved_rss
+        shutil.rmtree(tmp, ignore_errors=True)
+
+    lines = [json.loads(l) for l in captured.getvalue().splitlines()
+             if l.startswith("{")]
+    by_entry = {l["entry"]: l for l in lines}
+    check("log: every row the run records reaches the log",
+          len(rows) == 3 and sorted(by_entry) == sorted(e["id"] for e in entries))
+
+    refused = by_entry.get("dead-post", {})
+    check("log: a refused entry is printed as the verdict it is",
+          refused.get("outcome") == X.REFUSED)
+    check("log: with the reason", "never appeared" in (refused.get("error") or ""))
+    check("log: and the time it spent", refused.get("import_s") == 900.2)
+    check("log: every line says what the entry cost the target's budget",
+          all(isinstance(l.get("entry_s"), (int, float)) for l in lines))
+
+    turned_away = by_entry.get("damaged-severe", {})
+    check("log: an import the target refused at the door carries its body",
+          turned_away.get("import_detail") == '{"status": false}'
+          and turned_away.get("outcome") == X.REFUSED)
+    check("log: an entry with no post says so, rather than going missing",
+          "no post" in (by_entry.get("compressed-archive", {}).get("skipped") or ""))
+    check("log: a pass would print no error and no skip",
+          "error" not in turned_away and "skipped" not in refused)
+    check("log: and the target was still stopped afterwards",
+          FakeLife.stopped == ["zurg"])
+
+
 def test_drain_ownership():
     """Which :563 sockets stop() is entitled to wait for.
 
@@ -1446,6 +1534,7 @@ if __name__ == "__main__":
     test_registry()
     test_import_delivery()
     test_release_is_matched_exactly()
+    test_every_row_reaches_the_log()
     test_drain_ownership()
     test_enable_disable()
     test_shared_population()

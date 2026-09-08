@@ -48,6 +48,7 @@ IMPORT_BUDGET_S = 900
 SEQ_BYTES = 256 << 20
 SEQ_BYTES_MAX = 2 << 30      # never read more than this to chase windows
 SEQ_BUDGET_MS = 30_000
+IDLE_SETTLE_S = 20           # what a target still holds once the work stops
 
 
 # --------------------------------------------------------------------------
@@ -441,6 +442,29 @@ def start_for_entry(life, target, nzb, conns):
     return life.start(target)
 
 
+LOG_KEYS = ("target", "entry", "outcome", "MBps", "p05_MBps", "cold_open_s",
+            "import_s", "entry_s")
+
+
+def log_row(row):
+    """One line per row, every row, with why it is short and what it cost.
+
+    A refused negative-tier entry used to skip this line: the loop recorded the
+    row and moved on, so the log for a target showed five entries where the
+    results file had eight, and the three missing ones were the ones that had
+    each spent the whole 900 s import budget. Fifteen minutes of a run with
+    nothing printed reads as a hang, and a refusal is a verdict that belongs in
+    the log next to the passes.
+    """
+    line = {k: row.get(k) for k in LOG_KEYS}
+    for key in ("error", "skipped"):
+        if row.get(key):
+            line[key] = row[key]
+    if row.get("import_accepted") is False:
+        line["import_detail"] = row.get("import_detail")
+    print(json.dumps(line), flush=True)
+
+
 def run_target(target, entries, life, reps_tag, memory, conns):
     """Every entry against one target, inside that target's time budget.
 
@@ -488,10 +512,18 @@ def run_target(target, entries, life, reps_tag, memory, conns):
             row = {"target": target, "entry": entry["id"],
                    "tier": entry.get("tier"), "expect": entry.get("expect"),
                    "tag": reps_tag}
+            entry_started = time.time()
+
+            def record(row):
+                # every row costs the target's budget, and every row is logged
+                row["entry_s"] = round(time.time() - entry_started, 3)
+                rows.append(row)
+                log_row(row)
+
             if entry.get("needs_real_post") or not nzb or not os.path.exists(nzb):
                 row.update(expect.score(entry, {}, None))
                 row["skipped"] = "no post available for this entry"
-                rows.append(row)
+                record(row)
                 continue
 
             try:
@@ -512,7 +544,7 @@ def run_target(target, entries, life, reps_tag, memory, conns):
                     row.update(expect.score(
                         entry, {"http": None, "bytes": 0,
                                 "error": meta.get("error")}, None))
-                    rows.append(row)
+                    record(row)
                     continue
 
                 measured = measure_entry(target, url, size, auth, life, pids_fn)
@@ -538,14 +570,11 @@ def run_target(target, entries, life, reps_tag, memory, conns):
                 row["error"] = f"{type(exc).__name__}: {exc}"[:200]
                 row.update(expect.score(entry, {"error": row["error"]}, None))
 
-            rows.append(row)
-            print(json.dumps({k: row.get(k) for k in
-                              ("target", "entry", "outcome", "MBps", "p05_MBps",
-                               "cold_open_s", "import_s")}), flush=True)
+            record(row)
 
         if started:
             # what it still holds once the work stops, before it is killed
-            time.sleep(20)
+            time.sleep(IDLE_SETTLE_S)
             memory.after_idle_MB = (procmon.rss_kb(pids_fn()) // 1024) or None
     except Exception as exc:
         reason = f"{type(exc).__name__}: {exc}"[:200]
