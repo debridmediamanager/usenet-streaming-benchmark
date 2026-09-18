@@ -1,0 +1,74 @@
+{"target": "raw", "entry": "plain-video", "outcome": "pass", "MBps": 92.61, "p05_MBps": 32.29, "cold_open_s": 0.5631, "import_s": 0.039, "entry_s": 51.662}
+{"target": "raw", "entry": "damaged-partial", "outcome": "pass", "MBps": 81.59, "p05_MBps": 26.0, "cold_open_s": 0.6537, "import_s": 0.002, "entry_s": 350.478}
+{"target": "raw", "entry": "obfuscated", "outcome": "pass", "MBps": 79.61, "p05_MBps": 18.45, "cold_open_s": 0.557, "import_s": 0.002, "entry_s": 52.381}
+{"target": "raw", "entry": "rar-stored", "outcome": "pass", "MBps": 7.48, "p05_MBps": null, "cold_open_s": 0.8719, "import_s": 0.002, "entry_s": 24.851}
+{"target": "raw", "entry": "season-pack", "outcome": "pass", "MBps": 7.8, "p05_MBps": 0.0, "cold_open_s": 2.0491, "import_s": 0.001, "entry_s": 79.524}
+{"target": "raw", "entry": "dead-post", "outcome": "refused", "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": null, "entry_s": 94.235, "error": "RuntimeError: raw never became ready at http://127.0.0.1:8099/stream, last code 000"}
+{"target": "raw", "entry": "incomplete-archive-set", "outcome": "WRONGLY SERVED", "MBps": 26.72, "p05_MBps": null, "cold_open_s": 0.4508, "import_s": 0.002, "entry_s": 19.644}
+{"target": "raw", "entry": "damaged-severe", "outcome": "refused", "MBps": 0.0, "p05_MBps": null, "cold_open_s": 0.4895, "import_s": 0.002, "entry_s": 30.854}
+{"target": "raw", "entry": "compressed-archive", "outcome": null, "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": null, "entry_s": 0.0, "skipped": "no post available for this entry"}
+{"target": "raw", "entry": "encrypted-no-password", "outcome": null, "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": null, "entry_s": 0.0, "skipped": "no post available for this entry"}
+{"target": "zurg", "entry": "plain-video", "outcome": "pass", "MBps": 83.3, "p05_MBps": 62.95, "cold_open_s": 0.0031, "import_s": 5.061, "entry_s": 40.621}
+{"target": "zurg", "entry": "damaged-partial", "outcome": "pass", "MBps": 86.13, "p05_MBps": 29.15, "cold_open_s": 0.0028, "import_s": 5.054, "entry_s": 263.976}
+{"target": "zurg", "entry": "obfuscated", "outcome": "pass", "MBps": 61.29, "p05_MBps": 16.29, "cold_open_s": 0.0024, "import_s": 5.059, "entry_s": 44.219}
+{"target": "zurg", "entry": "rar-stored", "outcome": "pass", "MBps": 6.78, "p05_MBps": 0.0, "cold_open_s": 0.7386, "import_s": 6.003, "entry_s": 65.874}
+{"target": "zurg", "entry": "season-pack", "outcome": "pass", "MBps": 9.49, "p05_MBps": 0.0, "cold_open_s": 0.949, "import_s": 5.041, "entry_s": 74.798}
+{"target": "zurg", "entry": "dead-post", "outcome": "refused", "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": 903.358, "entry_s": 903.358, "error": "release dead-post never appeared within 900s"}
+{"target": "zurg", "entry": "incomplete-archive-set", "outcome": "refused", "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": 901.742, "entry_s": 901.742, "error": "release incomplete-archive-set never appeared within 900s"}
+{"target": "zurg", "entry": "damaged-severe", "outcome": "refused", "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": 5.063, "entry_s": 5.115}
+{"target": "zurg", "entry": "compressed-archive", "outcome": null, "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": null, "entry_s": 0.0, "skipped": "no post available for this entry"}
+{"target": "zurg", "entry": "encrypted-no-password", "outcome": null, "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": null, "entry_s": 0.0, "skipped": "no post available for this entry"}
+{"target": "altmount", "entry": "plain-video", "outcome": "pass", "MBps": 87.27, "p05_MBps": 2.65, "cold_open_s": 0.0037, "import_s": 5.05, "entry_s": 35.511}
+{"target": "altmount", "entry": "damaged-partial", "outcome": "pass", "MBps": 64.14, "p05_MBps": 14.9, "cold_open_s": 0.1918, "import_s": 10.059, "entry_s": 157.399}
+{"target": "altmount", "entry": "obfuscated", "outcome": "pass", "MBps": 106.62, "p05_MBps": 48.59, "cold_open_s": 0.0027, "import_s": 5.047, "entry_s": 31.181}
+{"target": "altmount", "entry": "rar-stored", "outcome": "pass", "MBps": 14.1, "p05_MBps": 0.0, "cold_open_s": 0.2961, "import_s": 5.058, "entry_s": 28.234}
+{"target": "altmount", "entry": "season-pack", "outcome": "pass", "MBps": 11.33, "p05_MBps": 0.0, "cold_open_s": 0.8014, "import_s": 15.107, "entry_s": 61.171}
+{"target": "altmount", "entry": "dead-post", "outcome": "refused", "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": 902.688, "entry_s": 902.689, "error": "release dead-post never appeared within 900s"}
+{"target": "altmount", "entry": "incomplete-archive-set", "outcome": "refused", "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": 902.668, "entry_s": 902.668, "error": "release incomplete-archive-set never appeared within 900s"}
+{"target": "altmount", "entry": "damaged-severe", "outcome": "WRONGLY SERVED", "MBps": 52.83, "p05_MBps": 5.18, "cold_open_s": 1.3299, "import_s": 5.054, "entry_s": 42.356}
+{"target": "altmount", "entry": "compressed-archive", "outcome": null, "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": null, "entry_s": 0.0, "skipped": "no post available for this entry"}
+{"target": "altmount", "entry": "encrypted-no-password", "outcome": null, "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": null, "entry_s": 0.0, "skipped": "no post available for this entry"}
+{"target": "infinidysk", "entry": "plain-video", "outcome": "pass", "MBps": 62.28, "p05_MBps": 4.19, "cold_open_s": 2.0542, "import_s": 15.405, "entry_s": 66.369}
+{"target": "infinidysk", "entry": "damaged-partial", "outcome": "pass", "MBps": 75.57, "p05_MBps": 25.59, "cold_open_s": 1.0396, "import_s": 10.11, "entry_s": 155.331}
+{"target": "infinidysk", "entry": "obfuscated", "outcome": "pass", "MBps": 72.46, "p05_MBps": 43.62, "cold_open_s": 0.9733, "import_s": 15.171, "entry_s": 59.918}
+{"target": "infinidysk", "entry": "rar-stored", "outcome": "pass", "MBps": 14.31, "p05_MBps": 4.38, "cold_open_s": 0.4419, "import_s": 10.131, "entry_s": 41.684}
+{"target": "infinidysk", "entry": "season-pack", "outcome": "pass", "MBps": 10.83, "p05_MBps": 5.01, "cold_open_s": 0.9291, "import_s": 20.19, "entry_s": 76.119}
+{"target": "infinidysk", "entry": "dead-post", "outcome": "refused", "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": 903.084, "entry_s": 903.084, "error": "release dead-post never appeared within 900s"}
+{"target": "infinidysk", "entry": "incomplete-archive-set", "outcome": "refused", "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": 903.077, "entry_s": 903.078, "error": "release incomplete-archive-set never appeared within 900s"}
+{"target": "infinidysk", "entry": "damaged-severe", "outcome": "refused", "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": 903.065, "entry_s": 903.065, "error": "release damaged-severe never appeared within 900s"}
+{"target": "infinidysk", "entry": "compressed-archive", "outcome": null, "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": null, "entry_s": 0.0, "skipped": "no post available for this entry"}
+{"target": "infinidysk", "entry": "encrypted-no-password", "outcome": null, "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": null, "entry_s": 0.0, "skipped": "no post available for this entry"}
+{"target": "nzbdav-og", "entry": "plain-video", "outcome": "pass", "MBps": 68.55, "p05_MBps": 55.31, "cold_open_s": 0.4358, "import_s": 5.979, "entry_s": 46.768}
+{"target": "nzbdav-og", "entry": "damaged-partial", "outcome": "pass", "MBps": 74.23, "p05_MBps": 59.22, "cold_open_s": 0.316, "import_s": 5.56, "entry_s": 142.932}
+{"target": "nzbdav-og", "entry": "obfuscated", "outcome": "pass", "MBps": 75.51, "p05_MBps": 60.36, "cold_open_s": 0.2926, "import_s": 6.089, "entry_s": 44.612}
+{"target": "nzbdav-og", "entry": "rar-stored", "outcome": "pass", "MBps": 9.05, "p05_MBps": 5.78, "cold_open_s": 0.5795, "import_s": 5.881, "entry_s": 55.37}
+{"target": "nzbdav-og", "entry": "season-pack", "outcome": "pass", "MBps": 13.74, "p05_MBps": null, "cold_open_s": 0.8904, "import_s": 6.411, "entry_s": 28.006}
+{"target": "nzbdav-og", "entry": "dead-post", "outcome": "refused", "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": 902.778, "entry_s": 902.778, "error": "release dead-post never appeared within 900s"}
+{"target": "nzbdav-og", "entry": "incomplete-archive-set", "outcome": "refused", "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": 902.422, "entry_s": 902.422, "error": "release incomplete-archive-set never appeared within 900s"}
+{"target": "nzbdav-og", "entry": "damaged-severe", "outcome": "refused", "MBps": null, "p05_MBps": null, "cold_open_s": 0.4506, "import_s": 5.572, "entry_s": 13.4}
+{"target": "nzbdav-og", "entry": "compressed-archive", "outcome": null, "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": null, "entry_s": 0.0, "skipped": "no post available for this entry"}
+{"target": "nzbdav-og", "entry": "encrypted-no-password", "outcome": null, "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": null, "entry_s": 0.0, "skipped": "no post available for this entry"}
+{"target": "decypharr", "entry": "plain-video", "outcome": "pass", "MBps": 5.43, "p05_MBps": 0.0, "cold_open_s": 3.8662, "import_s": 11.283, "entry_s": 118.662}
+{"target": "decypharr", "entry": "damaged-partial", "outcome": "pass", "MBps": 6.16, "p05_MBps": 0.0, "cold_open_s": 2.9591, "import_s": 10.227, "entry_s": 224.931}
+{"target": "decypharr", "entry": "obfuscated", "outcome": "FAIL", "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": 906.801, "entry_s": 906.801, "error": "release Obfuscated never appeared within 900s"}
+{"target": "decypharr", "entry": "rar-stored", "outcome": "pass", "MBps": 3.86, "p05_MBps": 1.05, "cold_open_s": 0.5815, "import_s": 10.225, "entry_s": 54.143}
+{"target": "decypharr", "entry": "season-pack", "outcome": "pass", "MBps": 3.15, "p05_MBps": 1.05, "cold_open_s": 1.1745, "import_s": 85.568, "entry_s": 170.788}
+{"target": "decypharr", "entry": "dead-post", "outcome": "refused", "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": null, "entry_s": 0.565, "import_detail": "HTTPError: HTTP Error 500: Internal Server Error"}
+{"target": "decypharr", "entry": "incomplete-archive-set", "outcome": "WRONGLY SERVED", "MBps": 4.87, "p05_MBps": 2.46, "cold_open_s": 0.8733, "import_s": 10.227, "entry_s": 71.214}
+{"target": "decypharr", "entry": "damaged-severe", "outcome": "refused", "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": 903.125, "entry_s": 903.125, "error": "release damaged-severe never appeared within 900s"}
+{"target": "decypharr", "entry": "compressed-archive", "outcome": null, "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": null, "entry_s": 0.0, "skipped": "no post available for this entry"}
+{"target": "decypharr", "entry": "encrypted-no-password", "outcome": null, "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": null, "entry_s": 0.0, "skipped": "no post available for this entry"}
+
+wrote /root/usenet-streaming-benchmark/results/round12/results_r12.json
+### Sequential throughput
+
+Median over the 5 entries at least 90% of the field served. `n` is how many of those the target itself served; `own` is its median over everything it served, which is the flattering number when the two differ.
+
+| target | n | median | own | gap |
+|---|---|---|---|---|
+| raw | 5/5 | 79.61 MB/s | 79.61 MB/s | 0.0 |
+| nzbdav-og | 5/5 | 68.55 MB/s | 68.55 MB/s | 0.0 |
+| altmount | 5/5 | 64.14 MB/s | 64.14 MB/s | 0.0 |
+| infinidysk | 5/5 | 62.28 MB/s | 62.28 MB/s | 0.0 |
+| zurg | 5/5 | 61.29 MB/s | 61.29 MB/s | 0.0 |
+| decypharr | 4/5 | 4.645 MB/s | 4.645 MB/s | 0.0 |

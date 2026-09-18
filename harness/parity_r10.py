@@ -156,7 +156,7 @@ def census(results_dir, production=PRODUCTION_CWDS, established_only=True,
     }
 
 
-def render(report, budget=None):
+def render(report, budget=None, aggregate_cwds=()):
     out = ["### Connection parity, from live sockets", "",
            f"{report['samples']} samples, one every five seconds.", ""]
     if report.get("window"):
@@ -168,8 +168,15 @@ def render(report, budget=None):
                    f"| {row['peak_sockets']} |")
     out.append("")
     if budget:
-        over = [r for r in report["targets"] if r["peak_sockets"] > budget]
-        under = [r for r in report["targets"] if r["peak_sockets"] < budget]
+        aggregates = set(aggregate_cwds or ())
+        checked = [row for row in report["targets"]
+                   if row.get("cwd") not in aggregates]
+        for cwd in aggregates:
+            members = [row for row in report["targets"] if row.get("cwd") == cwd]
+            checked.append({"peak_sockets": max(
+                [row.get("peak_sockets", 0) for row in members] or [0])})
+        over = [r for r in checked if r["peak_sockets"] > budget]
+        under = [r for r in checked if r["peak_sockets"] < budget]
         out.append(f"Budget was {budget}. "
                    + (f"{len(over)} held more than that; " if over else "None held more; ")
                    + (f"{len(under)} never filled it."
@@ -200,6 +207,37 @@ def render(report, budget=None):
     return "\n".join(out)
 
 
+def budget_mismatches(report, budget, aggregate_cwds=()):
+    """Rows that did not prove the requested peak.
+
+    The raw ceiling restarts once per corpus entry. Its negative-entry helpers
+    may only need one socket, so explicitly named raw working directories are
+    treated as one target and their maximum is checked. Every application is a
+    long-lived process and remains a per-process requirement; grouping all rows
+    by cwd would incorrectly merge the two .NET containers, which both report
+    `/app/backend`.
+    """
+    rows = report.get("targets") or []
+    aggregates = set(aggregate_cwds or ())
+    wrong = []
+    for cwd in aggregates:
+        members = [row for row in rows if row.get("cwd") == cwd]
+        if not members or max(row.get("peak_sockets", 0) for row in members) != budget:
+            wrong.append({"pid": "*", "comm": "aggregate", "cwd": cwd,
+                          "peak_sockets": max(
+                              [row.get("peak_sockets", 0) for row in members] or [0])})
+    wrong.extend(row for row in rows
+                 if row.get("cwd") not in aggregates
+                 and row.get("peak_sockets") != budget)
+    return wrong
+
+
+def exact_budget(report, budget, aggregate_cwds=()):
+    """Every measured software target reached the budget and none exceeded it."""
+    rows = report.get("targets") or []
+    return bool(rows) and not budget_mismatches(report, budget, aggregate_cwds)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -213,6 +251,11 @@ def main():
     ap.add_argument("--harness-root",
                     help="checkout the benchmark runs from; its own damage-phase "
                          "connection is not a competing target")
+    ap.add_argument("--expect-exact", action="store_true",
+                    help="fail unless every measured target process peaked at --budget")
+    ap.add_argument("--aggregate-cwd", action="append", default=[],
+                    help="working directory whose per-entry processes form one target "
+                         "(use for the raw ceiling; repeatable)")
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args()
 
@@ -223,8 +266,22 @@ def main():
     if args.json:
         print(json.dumps(report, indent=1))
     else:
-        print(render(report, args.budget))
-    return 0 if report["isolation_held"] else 1
+        print(render(report, args.budget, args.aggregate_cwd))
+    if not report["isolation_held"]:
+        return 1
+    if args.expect_exact and not exact_budget(
+            report, args.budget, args.aggregate_cwd):
+        mismatches = budget_mismatches(
+            report, args.budget, args.aggregate_cwd)
+        wrong = ", ".join(
+            f"{row['comm']}[{row['pid']}]={row['peak_sockets']}"
+            for row in mismatches)
+        print(f"\nFAIL: expected every target process to peak at {args.budget}: "
+              f"{wrong or 'no target processes sampled'}", file=sys.stderr)
+        return 1
+    if args.expect_exact:
+        print(f"\nExact parity held: every software target peaked at {args.budget}.")
+    return 0
 
 
 if __name__ == "__main__":

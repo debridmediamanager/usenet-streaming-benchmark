@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""CPU shape and memory shape: what a total and a peak cannot say.
+"""CPU, memory and disk shape: what a total and a peak cannot say.
 
 Rounds 3 through 9 reported one CPU number, `cpu_s_per_GB`, and one memory
 number, peak RSS. Both are the right headline and neither is the whole result.
@@ -15,6 +15,11 @@ reads never had the chance to spike. So a run records the per-read peaks, the
 count they were taken over, the drift between the start of a run and the end,
 and what the process is still holding once the work stops. Drift is the one
 that catches a leak; a peak never will.
+
+Disk. Process I/O counters and state-directory growth answer different
+questions, so both are reported. `/proc/<pid>/io` says how much storage traffic
+the target generated; allocated bytes in its state directories say how much it
+kept. Source trees and container images are deliberately outside those paths.
 
 Both are bounded below by the sample interval. A spike shorter than one second
 is averaged away, so these understate burstiness and never overstate it -- and
@@ -51,6 +56,27 @@ def cpu_ticks(pids):
     return total
 
 
+def cpu_ticks_by_pid(pids):
+    """utime + stime keyed by pid, so process replacement keeps its CPU."""
+    out = {}
+    for pid in pids:
+        try:
+            with open(f"/proc/{pid}/stat") as handle:
+                parts = handle.read().rsplit(")", 1)[1].split()
+            out[int(pid)] = int(parts[11]) + int(parts[12])
+        except Exception:
+            pass
+    return out
+
+
+def cpu_tick_delta(current, previous):
+    """Non-negative interval CPU for either per-pid or legacy total counters."""
+    if isinstance(current, dict):
+        return sum(max(0, ticks - previous.get(pid, 0))
+                   for pid, ticks in current.items())
+    return max(0, current - previous)
+
+
 def rss_kb(pids):
     """Resident set across a process set, in KiB."""
     total = 0
@@ -63,6 +89,66 @@ def rss_kb(pids):
                         break
         except Exception:
             pass
+    return total
+
+
+def io_bytes_by_pid(pids):
+    """Per-pid physical storage reads and writes from Linux `/proc`.
+
+    `read_bytes` and `write_bytes` count block-device traffic rather than bytes
+    satisfied from the page cache. Returning a mapping lets `Sampler` retain a
+    child's final contribution when the process set changes between ticks.
+    """
+    out = {}
+    for pid in pids:
+        values = {"read_bytes": 0, "write_bytes": 0}
+        try:
+            with open(f"/proc/{pid}/io") as handle:
+                for line in handle:
+                    key, _, value = line.partition(":")
+                    if key in values:
+                        values[key] = int(value.strip())
+            out[int(pid)] = (values["read_bytes"], values["write_bytes"])
+        except Exception:
+            pass
+    return out
+
+
+def disk_usage_bytes(paths):
+    """Allocated bytes below explicit target-state paths.
+
+    `st_blocks` measures disk actually allocated in 512-byte units, so sparse
+    cache files are not charged at their logical size. Symlinks are counted as
+    links and never followed outside the target's state tree.
+    """
+    total = 0
+    seen = set()
+    for root in paths:
+        if not root or not os.path.lexists(root):
+            continue
+        try:
+            root_stat = os.lstat(root)
+        except OSError:
+            continue
+        identity = (root_stat.st_dev, root_stat.st_ino)
+        if identity in seen:
+            continue
+        seen.add(identity)
+        total += getattr(root_stat, "st_blocks", 0) * 512
+        if not os.path.isdir(root) or os.path.islink(root):
+            continue
+        for directory, names, files in os.walk(root, followlinks=False):
+            for name in names + files:
+                path = os.path.join(directory, name)
+                try:
+                    stat = os.lstat(path)
+                except OSError:
+                    continue
+                identity = (stat.st_dev, stat.st_ino)
+                if identity in seen:
+                    continue
+                seen.add(identity)
+                total += getattr(stat, "st_blocks", 0) * 512
     return total
 
 
@@ -95,37 +181,53 @@ class Sampler:
     """
 
     def __init__(self, pids_fn, interval=DEFAULT_INTERVAL,
-                 cpu_fn=cpu_ticks, rss_fn=rss_kb):
+                 cpu_fn=cpu_ticks_by_pid, rss_fn=rss_kb,
+                 io_fn=io_bytes_by_pid):
         self.pids_fn = pids_fn
         self.interval = interval
         self.cpu_fn = cpu_fn
         self.rss_fn = rss_fn
+        self.io_fn = io_fn
         self.samples = []          # (elapsed_s, cores_this_tick, rss_kb)
         self._stop = threading.Event()
         self._thread = None
         self.cpu_total_s = 0.0
+        self.io_read_bytes = 0
+        self.io_write_bytes = 0
 
     def _run(self):
         t0 = time.perf_counter()
         pids = self.pids_fn()
         last_ticks = self.cpu_fn(pids)
-        first_ticks = last_ticks
+        last_io = self.io_fn(pids)
         last_t = t0
         while not self._stop.wait(self.interval):
             now = time.perf_counter()
             pids = self.pids_fn()
             ticks = self.cpu_fn(pids)
+            current_io = self.io_fn(pids)
             span = now - last_t
             # a process set that shrank (a restart mid-window) can read as
             # negative; clamp rather than report a negative core count
-            cores = max(0.0, (ticks - last_ticks) / HZ / span) if span > 0 else 0.0
+            tick_delta = cpu_tick_delta(ticks, last_ticks)
+            cores = tick_delta / HZ / span if span > 0 else 0.0
+            # Accumulate each interval. Using final-minus-first loses all CPU
+            # from a process that exits or is restarted during the phase.
+            self.cpu_total_s += tick_delta / HZ
             self.samples.append((round(now - t0, 3), round(cores, 4), self.rss_fn(pids)))
+            for pid, (read_now, write_now) in current_io.items():
+                read_before, write_before = last_io.get(pid, (0, 0))
+                self.io_read_bytes += max(0, read_now - read_before)
+                self.io_write_bytes += max(0, write_now - write_before)
+            last_io = current_io
             last_ticks, last_t = ticks, now
-        self.cpu_total_s = max(0.0, (last_ticks - first_ticks) / HZ)
 
     def start(self):
         self._stop.clear()
         self.samples = []
+        self.cpu_total_s = 0.0
+        self.io_read_bytes = 0
+        self.io_write_bytes = 0
         self._thread = threading.Thread(target=self._run, daemon=True)
         self._thread.start()
         return self
@@ -138,11 +240,13 @@ class Sampler:
 
     def summary(self, bytes_delivered=None):
         return summarise(self.samples, self.cpu_total_s, bytes_delivered,
-                         self.interval)
+                         self.interval, io_read_bytes=self.io_read_bytes,
+                         io_write_bytes=self.io_write_bytes)
 
 
 def summarise(samples, cpu_total_s, bytes_delivered=None,
-              interval=DEFAULT_INTERVAL):
+              interval=DEFAULT_INTERVAL, io_read_bytes=0, io_write_bytes=0,
+              disk_start_bytes=None, disk_end_bytes=None):
     """Turn a sample series into the shape columns.
 
     `steady` is the share of sampled seconds at or above half the p95 level. A
@@ -158,6 +262,21 @@ def summarise(samples, cpu_total_s, bytes_delivered=None,
     if bytes_delivered:
         gib = bytes_delivered / (1 << 30)
         out["cpu_s_per_GiB"] = round(cpu_total_s / gib, 2) if gib else None
+    out["disk_read_MB"] = round(io_read_bytes / (1 << 20), 2)
+    out["disk_write_MB"] = round(io_write_bytes / (1 << 20), 2)
+    if bytes_delivered:
+        gib = bytes_delivered / (1 << 30)
+        out["disk_read_MB_per_GiB"] = round(
+            io_read_bytes / (1 << 20) / gib, 2) if gib else None
+        out["disk_write_MB_per_GiB"] = round(
+            io_write_bytes / (1 << 20) / gib, 2) if gib else None
+    if disk_start_bytes is not None:
+        out["state_disk_start_MB"] = round(disk_start_bytes / (1 << 20), 2)
+    if disk_end_bytes is not None:
+        out["state_disk_end_MB"] = round(disk_end_bytes / (1 << 20), 2)
+    if disk_start_bytes is not None and disk_end_bytes is not None:
+        out["state_disk_delta_MB"] = round(
+            (disk_end_bytes - disk_start_bytes) / (1 << 20), 2)
 
     rss = [s[2] for s in samples if s[2]]
     if rss:
@@ -202,29 +321,34 @@ class RunMemory:
         self.peaks = []
         self.idle_rss_MB = None
         self.after_idle_MB = None
+        self.phases = []
 
     def record(self, peak_MB):
         if peak_MB:
             self.peaks.append(peak_MB)
 
+    def record_phase(self, resources):
+        self.phases.append(resources)
+
     def summary(self):
         out = {"reads": len(self.peaks)}
         if self.idle_rss_MB is not None:
             out["idle_rss_MB"] = self.idle_rss_MB
-        if not self.peaks:
-            return out
-        out["rss_per_read_MB"] = round(statistics.median(self.peaks))
-        out["rss_peak_MB"] = max(self.peaks)
-        out["peak_over_reads"] = len(self.peaks)
-        third = len(self.peaks) // 3
-        if third >= 1:
-            first = statistics.median(self.peaks[:third])
-            last = statistics.median(self.peaks[-third:])
-            out["drift_MB"] = round(last - first)
-        else:
-            out["drift_skipped"] = f"{len(self.peaks)} reads, need 3"
+        if self.peaks:
+            out["rss_per_read_MB"] = round(statistics.median(self.peaks))
+            out["rss_peak_MB"] = max(self.peaks)
+            out["peak_over_reads"] = len(self.peaks)
+            third = len(self.peaks) // 3
+            if third >= 1:
+                first = statistics.median(self.peaks[:third])
+                last = statistics.median(self.peaks[-third:])
+                out["drift_MB"] = round(last - first)
+            else:
+                out["drift_skipped"] = f"{len(self.peaks)} reads, need 3"
         if self.after_idle_MB is not None:
             out["after_idle_MB"] = self.after_idle_MB
+        if self.phases:
+            out["phase_resources"] = self.phases
         return out
 
 

@@ -1,0 +1,28 @@
+{
+  "measured_at_utc": "2026-09-18",
+  "provider": "Hetzner Cloud",
+  "location": "nbg1",
+  "server_type": "ccx23",
+  "cpu": {
+    "cores": 4,
+    "allocation": "dedicated",
+    "architecture": "x86"
+  },
+  "memory_gib": 16,
+  "local_disk_gib": 160,
+  "os": "Ubuntu 24.04",
+  "nntp_connections_per_target": 10,
+  "main_window_utc": {
+    "start": "2026-09-18T04:01:57Z",
+    "end": "2026-09-18T07:39:51Z"
+  },
+  "concurrency_gate": {
+    "range_mib": 512,
+    "isolated_mount_vm_mb_s": [52.416545, 42.481018],
+    "isolated_stremio_vm_mb_s": [63.770146, 59.53667],
+    "concurrent_mount_vm_mb_s": 30.988794,
+    "concurrent_stremio_vm_mb_s": 30.307914,
+    "peak_connections_each": 10,
+    "decision": "measurement windows serialized because the shared account capped the concurrent aggregate"
+  }
+}

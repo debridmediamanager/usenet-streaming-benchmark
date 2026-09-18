@@ -13,8 +13,9 @@
 #
 #   sockets.tsv       timestamp, state, pid          one row per socket
 #   sockets-pids.tsv  pid, comm, cwd                 one row per pid, once
-out=$HOME/usenet-streaming-benchmark/results/round10/sockets.tsv
-owners=$HOME/usenet-streaming-benchmark/results/round10/sockets-pids.tsv
+out_dir=${OUT:-$HOME/usenet-streaming-benchmark/results/round10}
+out=${SOCKETS_OUT:-$out_dir/sockets.tsv}
+owners=${SOCKET_OWNERS_OUT:-$out_dir/sockets-pids.tsv}
 mkdir -p "$(dirname "$out")"
 : >> "$out"
 : >> "$owners"
@@ -28,7 +29,7 @@ done < "$owners"
 # Keying the loop on "is the chain running" meant starting the sampler during
 # the prep phase -- before the chain exists -- exited it immediately, and the
 # census for that round was empty when it came time to prove parity.
-stop=$HOME/stop-sock-sampler
+stop=${SOCKETS_STOP_FILE:-$HOME/stop-sock-sampler}
 rm -f "$stop"
 while [ ! -f "$stop" ]; do
   now=$(date -u +%FT%TZ)

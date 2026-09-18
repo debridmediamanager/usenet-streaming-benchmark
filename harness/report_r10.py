@@ -34,6 +34,12 @@ import statistics
 SHARED_THRESHOLD = 0.90
 
 
+def round_title(tag):
+    """A human heading derived from the exact tag written by the run."""
+    value = str(tag or "r10")
+    return f"Round {value[1:]}" if value[:1].lower() == "r" else value
+
+
 # --------------------------------------------------------------------------
 # population-fixed medians
 # --------------------------------------------------------------------------
@@ -211,8 +217,19 @@ def noise_floor(pass_a, pass_b, field="MBps"):
     "provider throughput drifts" and still print a 12% gap as if it meant
     something.
     """
-    index_a = {(r["target"], r["entry"]): r.get(field) for r in pass_a}
-    index_b = {(r["target"], r["entry"]): r.get(field) for r in pass_b}
+    def measured(rows):
+        out = {}
+        for row in rows:
+            # A numeric rate can survive on a truncated/failed row. Comparing
+            # that with a later success calls a correctness transition
+            # "provider noise" and can inflate the floor by orders of magnitude.
+            outcome = row.get("outcome")
+            valid = outcome is None or outcome in ("pass", "served")
+            out[(row["target"], row["entry"])] = row.get(field) if valid else None
+        return out
+
+    index_a = measured(pass_a)
+    index_b = measured(pass_b)
     deltas = []
     per_entry = {}
     for key, first in index_a.items():
@@ -258,6 +275,30 @@ def table(headers, rows):
     return "\n".join(out)
 
 
+def ranked_names(rows, key):
+    """Format a lower-is-better ranking without inventing order inside ties."""
+    ordered = sorted(
+        [row for row in rows if row.get(key) is not None],
+        key=lambda row: (row[key], row["target"]),
+    )
+    groups = []
+    for row in ordered:
+        if not groups or groups[-1][0] != row[key]:
+            groups.append((row[key], [row["target"]]))
+        else:
+            groups[-1][1].append(row["target"])
+
+    parts = []
+    rank = 1
+    for _value, names in groups:
+        if len(names) == 1:
+            parts.append(f"{rank}. {names[0]}")
+        else:
+            parts.append(f"{rank} (tie). {', '.join(names)}")
+        rank += len(names)
+    return " < ".join(parts)
+
+
 def render_headline(result, label, unit="", lower_is_better=True):
     lines = [f"### {label}", ""]
     lines.append(f"Median over the {result['population_size']} entries at least "
@@ -298,6 +339,64 @@ def render_consensus(result):
         lines.append("")
         lines.append(f"{len(unresolved)} ranges had no two targets agreeing, so "
                      f"they carry no consensus and prove nothing either way.")
+    return "\n".join(lines)
+
+
+def render_resources(memory):
+    """Render whole-target CPU, memory, physical I/O and retained state."""
+    rows = []
+    for target, values in memory.items():
+        phases = values.get("phase_resources") or []
+        if not phases:
+            continue
+        phase = phases[-1]
+        rows.append({
+            "target": target,
+            "cpu_s_per_GiB": phase.get("cpu_s_per_GiB"),
+            "cores_p95": phase.get("cores_p95"),
+            "rss_peak_MB": phase.get("rss_peak_MB", values.get("rss_peak_MB")),
+            "disk_read_MB_per_GiB": phase.get("disk_read_MB_per_GiB"),
+            "disk_write_MB_per_GiB": phase.get("disk_write_MB_per_GiB"),
+            "state_disk_delta_MB": phase.get("state_disk_delta_MB"),
+        })
+    if not rows:
+        return "### Resources\n\nNot measured in this round."
+
+    lines = [
+        "### Resources",
+        "",
+        "One-second samples cover startup, import and every read. CPU and physical "
+        "block I/O are normalized by delivered sequential GiB; state disk is "
+        "allocated growth in each target's explicit state directories. `raw` is "
+        "the transport ceiling and is shown as context, not ranked as software.",
+        "",
+    ]
+    body = []
+    for row in sorted(rows, key=lambda item: item["target"]):
+        body.append([
+            row["target"], row["cpu_s_per_GiB"], row["cores_p95"],
+            row["rss_peak_MB"], row["disk_read_MB_per_GiB"],
+            row["disk_write_MB_per_GiB"], row["state_disk_delta_MB"],
+        ])
+    lines.append(table([
+        "target", "CPU s/GiB", "CPU p95 cores", "peak RSS MB",
+        "disk read MB/GiB", "disk write MB/GiB", "state delta MB",
+    ], body))
+
+    competitors = [row for row in rows if row["target"] != "raw"]
+    metrics = [
+        ("cpu_s_per_GiB", "CPU seconds/GiB"),
+        ("cores_p95", "CPU p95 cores"),
+        ("rss_peak_MB", "peak RSS"),
+        ("disk_read_MB_per_GiB", "disk reads/GiB"),
+        ("disk_write_MB_per_GiB", "disk writes/GiB"),
+        ("state_disk_delta_MB", "state growth"),
+    ]
+    lines.append("")
+    for key, label in metrics:
+        ranked = ranked_names(competitors, key)
+        if ranked:
+            lines.append(f"- {label} (lower is better): {ranked}")
     return "\n".join(lines)
 
 

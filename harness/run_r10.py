@@ -414,11 +414,13 @@ def measure_entry(target, url, size, auth, life, pids_fn):
         # file that is honest about what survived
         out["silence"] = expect.zero_filled(out["integrity"])
 
-    shape = sampler.stop()
+    sampler.stop()
     delivered = (seq.get("bytes") or 0) + (cold.get("bytes") or 0)
     out["shape"] = procmon.summarise(sampler.samples, sampler.cpu_total_s,
-                                     delivered or None)
-    out["rss_peak_MB"] = shape.get("rss_peak_MB")
+                                     delivered or None,
+                                     io_read_bytes=getattr(sampler, "io_read_bytes", 0),
+                                     io_write_bytes=getattr(sampler, "io_write_bytes", 0))
+    out["rss_peak_MB"] = out["shape"].get("rss_peak_MB")
     return out
 
 
@@ -486,6 +488,11 @@ def run_target(target, entries, life, reps_tag, memory, conns):
             return life.pids_for(target)
         except Exception:
             return []
+
+    state_paths = [path.format(bench=BENCH)
+                   for path in spec.get("state_paths", [])]
+    disk_before = procmon.disk_usage_bytes(state_paths)
+    phase_sampler = procmon.Sampler(pids_fn).start()
 
     def abandon(remaining, reason):
         for pending in remaining:
@@ -582,6 +589,16 @@ def run_target(target, entries, life, reps_tag, memory, conns):
         abandon([e for e in entries if e["id"] not in done], reason)
         print(f"!! {target} abandoned: {reason}", flush=True)
     finally:
+        phase_sampler.stop()
+        disk_after = procmon.disk_usage_bytes(state_paths)
+        delivered = sum((row.get("seq_bytes") or 0) for row in rows)
+        phase_resources = procmon.summarise(
+            phase_sampler.samples, phase_sampler.cpu_total_s,
+            delivered or None,
+            io_read_bytes=getattr(phase_sampler, "io_read_bytes", 0),
+            io_write_bytes=getattr(phase_sampler, "io_write_bytes", 0),
+            disk_start_bytes=disk_before, disk_end_bytes=disk_after)
+        memory.record_phase(phase_resources)
         try:
             life.stop(target)
         except Exception as exc:

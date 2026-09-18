@@ -1,0 +1,20 @@
+{"target": "raw", "entry": "plain-video", "outcome": "pass", "MBps": 67.15, "p05_MBps": 0.0, "cold_open_s": 1.0449, "import_s": 0.046, "entry_s": 58.189}
+{"target": "zurg", "entry": "plain-video", "outcome": "pass", "MBps": 68.81, "p05_MBps": 23.97, "cold_open_s": 0.0032, "import_s": 5.061, "entry_s": 44.087}
+{"target": "altmount", "entry": "plain-video", "outcome": "pass", "MBps": 77.68, "p05_MBps": 6.45, "cold_open_s": 0.0033, "import_s": 5.051, "entry_s": 38.112}
+{"target": "infinidysk", "entry": "plain-video", "outcome": "pass", "MBps": 69.51, "p05_MBps": 36.7, "cold_open_s": 2.0716, "import_s": 15.407, "entry_s": 66.956}
+{"target": "nzbdav-og", "entry": "plain-video", "outcome": "pass", "MBps": 73.6, "p05_MBps": 59.98, "cold_open_s": 0.4258, "import_s": 5.992, "entry_s": 45.799}
+{"target": "decypharr", "entry": "plain-video", "outcome": "pass", "MBps": 6.9, "p05_MBps": 0.0, "cold_open_s": 4.2721, "import_s": 16.305, "entry_s": 129.513}
+
+wrote /root/usenet-streaming-benchmark/results/round12/noise_b.json
+### Sequential throughput
+
+Median over the 1 entries at least 90% of the field served. `n` is how many of those the target itself served; `own` is its median over everything it served, which is the flattering number when the two differ.
+
+| target | n | median | own | gap |
+|---|---|---|---|---|
+| altmount | 1/1 | 77.68 MB/s | 77.68 MB/s | 0.0 |
+| nzbdav-og | 1/1 | 73.6 MB/s | 73.6 MB/s | 0.0 |
+| infinidysk | 1/1 | 69.51 MB/s | 69.51 MB/s | 0.0 |
+| zurg | 1/1 | 68.81 MB/s | 68.81 MB/s | 0.0 |
+| raw | 1/1 | 67.15 MB/s | 67.15 MB/s | 0.0 |
+| decypharr | 1/1 | 6.9 MB/s | 6.9 MB/s | 0.0 |

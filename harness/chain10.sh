@@ -29,6 +29,20 @@ die () { echo "!! $1" >&2; exit 1; }
 
 mkdir -p "$OUT"
 
+# Run the live connection census for the same window as every phase. The paths
+# follow OUT so a new round cannot silently write its parity proof into round10.
+SOCKETS_STOP_FILE="${SOCKETS_STOP_FILE:-$OUT/stop-sock-sampler}"
+rm -f "$SOCKETS_STOP_FILE"
+OUT="$OUT" SOCKETS_STOP_FILE="$SOCKETS_STOP_FILE" \
+  "$HERE/sock-sample-r10.sh" > "$OUT/socket-sampler.log" 2>&1 &
+SOCKET_SAMPLER_PID=$!
+stop_socket_sampler () {
+  touch "$SOCKETS_STOP_FILE"
+  wait "$SOCKET_SAMPLER_PID" 2>/dev/null || true
+  rm -f "$SOCKETS_STOP_FILE"
+}
+trap stop_socket_sampler EXIT
+
 # ---------------------------------------------------------------- corpus
 say "CORPUS check"
 if ! ls "$REPO"/corpus/*.nzb >/dev/null 2>&1; then
@@ -117,7 +131,7 @@ import report_r10 as report
 
 main = json.load(open(sys.argv[1]))
 rows = main["rows"]
-parts = ["# Round 10", "",
+parts = [f"# {report.round_title(main.get('tag'))}", "",
          "Field: " + ", ".join(main["field"]),
          "", f"Connections: {main['connections']}", ""]
 if main.get("disabled"):
@@ -128,6 +142,8 @@ parts.append(report.render_headline(main["throughput"], "Sequential throughput",
 parts.append("")
 parts.append(report.render_headline(main["cold_open"], "Cold open",
                                     unit=" s", lower_is_better=True))
+parts.append("")
+parts.append(report.render_resources(main.get("memory") or {}))
 parts.append("")
 parts.append(report.render_consensus(main["consensus"]))
 parts.append("")

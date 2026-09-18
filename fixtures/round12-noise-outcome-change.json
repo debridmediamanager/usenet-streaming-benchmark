@@ -1,0 +1,10 @@
+{
+  "pass_a": [
+    {"target": "infinidysk", "entry": "plain-video", "outcome": "FAIL", "MBps": 0.49},
+    {"target": "zurg", "entry": "plain-video", "outcome": "pass", "MBps": 50.42}
+  ],
+  "pass_b": [
+    {"target": "infinidysk", "entry": "plain-video", "outcome": "pass", "MBps": 69.51},
+    {"target": "zurg", "entry": "plain-video", "outcome": "pass", "MBps": 68.81}
+  ]
+}

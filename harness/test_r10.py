@@ -18,6 +18,7 @@ import json
 import os
 import shutil
 import sys
+import tempfile
 import threading
 import time
 import urllib.request
@@ -32,6 +33,7 @@ import damage_r10 as D        # noqa: E402
 import expect_r10 as X        # noqa: E402
 import metrics_r10 as M       # noqa: E402
 import nntp_r10 as N          # noqa: E402
+import parity_r10 as PARITY    # noqa: E402
 import procmon_r10 as P       # noqa: E402
 import rawserve_r10 as R      # noqa: E402
 import report_r10 as RP       # noqa: E402
@@ -646,6 +648,49 @@ def test_cpu_shape():
     check("shape: a restart mid-window never reports negative cores",
           all(c >= 0 for _, c, _ in monitor.samples))
     check("shape: nor negative total cpu", out["cpu_s"] >= 0)
+
+    # A helper can exit and be replaced between samples. Subtracting the two
+    # process-tree totals loses the replacement's CPU when its smaller fresh
+    # counter is below the old process's accumulated counter.
+    tick_delta = getattr(P, "cpu_tick_delta", lambda current, previous: -1)
+    check("shape: replacement process CPU is retained",
+          tick_delta({2: 50}, {1: 100}) == 50)
+
+
+def test_disk_and_io_accounting():
+    with tempfile.TemporaryDirectory() as directory:
+        payload = os.path.join(directory, "state.bin")
+        with open(payload, "wb") as handle:
+            handle.write(b"x" * 8192)
+        used = P.disk_usage_bytes([directory])
+        check("resources: target state has measurable allocated disk", used >= 8192)
+
+    shaped = P.summarise(
+        samples([0.5] * 10), cpu_total_s=5.0, bytes_delivered=1 << 30,
+        io_read_bytes=64 << 20, io_write_bytes=8 << 20,
+        disk_start_bytes=4 << 20, disk_end_bytes=10 << 20)
+    check("resources: process read I/O is reported in MiB",
+          shaped["disk_read_MB"] == 64.0)
+    check("resources: process write I/O is reported in MiB",
+          shaped["disk_write_MB"] == 8.0)
+    check("resources: state growth is reported separately from I/O",
+          shaped["state_disk_delta_MB"] == 6.0)
+
+    rendered = RP.render_resources({
+        "raw": {"phase_resources": [{"cpu_s_per_GiB": 1.0}]},
+        "slower": {"phase_resources": [{"cpu_s_per_GiB": 4.0}]},
+        "faster": {"phase_resources": [{"cpu_s_per_GiB": 2.0}]},
+    })
+    check("resources: competitors are ranked without the raw ceiling",
+          "1. faster < 2. slower" in rendered and "1. raw" not in rendered)
+
+    tied = RP.ranked_names([
+        {"target": "zeta", "value": 0.0},
+        {"target": "alpha", "value": 0.0},
+        {"target": "later", "value": 1.0},
+    ], "value")
+    check("resources: equal measurements are ranked as a tie",
+          tied == "1 (tie). alpha, zeta < 3. later")
 
 
 def test_memory_drift():
@@ -1492,8 +1537,52 @@ def test_noise_floor():
     check("noise: two passes sharing nothing say so, rather than reporting zero",
           empty["comparable"] == 0)
 
+    fixture = json.load(open(os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "fixtures", "round12-noise-outcome-change.json")))
+    outcome_change = RP.noise_floor(fixture["pass_a"], fixture["pass_b"])
+    check("noise: a failed row is not provider-rate variance",
+          outcome_change["comparable"] == 1)
+    check("noise: the real successful pair still qualifies",
+          outcome_change["per_entry_worst_pct"] == 36.5)
+
+
+def test_exact_connection_budget():
+    report = {"targets": [
+        {"pid": "1", "comm": "one", "peak_sockets": 10},
+        {"pid": "2", "comm": "two", "peak_sockets": 10},
+    ]}
+    check("parity: every target at ten passes the strict gate",
+          PARITY.exact_budget(report, 10))
+    report["targets"][1]["peak_sockets"] = 9
+    check("parity: under-filling the requested budget fails the strict gate",
+          not PARITY.exact_budget(report, 10))
+    report["targets"][1]["peak_sockets"] = 11
+    check("parity: exceeding the requested budget fails the strict gate",
+          not PARITY.exact_budget(report, 10))
+    check("parity: no sampled target cannot prove exact parity",
+          not PARITY.exact_budget({"targets": []}, 10))
+    raw = {"targets": [
+        {"pid": "3", "comm": "python3", "cwd": "/bench", "peak_sockets": 10},
+        {"pid": "4", "comm": "python3", "cwd": "/bench", "peak_sockets": 1},
+        {"pid": "5", "comm": "zurg", "cwd": "/bench/zurg", "peak_sockets": 10},
+    ]}
+    check("parity: raw per-entry helpers aggregate into one ceiling target",
+          PARITY.exact_budget(raw, 10, ["/bench"]))
+    check("parity: rendered budget verdict also aggregates raw helpers",
+          "every one of them filled it" in PARITY.render(
+              {**raw, "samples": 1, "window": None, "harness": [],
+               "production": [], "isolation_held": True,
+               "samples_with_two_targets_live": 0}, 10, ["/bench"]))
+    raw["targets"][2]["peak_sockets"] = 9
+    check("parity: applications remain strict when the raw ceiling is aggregated",
+          not PARITY.exact_budget(raw, 10, ["/bench"]))
+
 
 def test_render_does_not_crash():
+    title = getattr(RP, "round_title", lambda tag: "missing")
+    check("render: report heading follows the measured tag",
+          title("r12") == "Round 12")
     rows = report_rows()
     out = RP.headline(rows, "import_s", ["A", "B", "C"], threshold=0.6)
     text = RP.render_headline(out, "Import time", unit=" s")
@@ -1522,6 +1611,7 @@ if __name__ == "__main__":
     test_sequential_read_happens_once()
     test_complete_rule()
     test_cpu_shape()
+    test_disk_and_io_accounting()
     test_memory_drift()
     test_sampler_uses_live_pid_set()
     test_corpus_derivation()
@@ -1542,6 +1632,7 @@ if __name__ == "__main__":
     test_headline_medians()
     test_consensus()
     test_noise_floor()
+    test_exact_connection_budget()
     test_render_does_not_crash()
     print()
     if FAILURES:

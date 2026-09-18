@@ -77,6 +77,7 @@ TARGETS = {
         "start": ("cd {bench} && nohup python3 rawserve_r10.py {nzb} 8099 "
                   "--conns {conns} > raw.log 2>&1 &"),
         "auth": None,
+        "state_paths": [],
         "verified": "upstream",
         "note": ("not a competitor and never ranked as one. It is this harness "
                  "pulling the same articles with no application in the middle, so "
@@ -95,6 +96,7 @@ TARGETS = {
         "ready": "http://localhost:9998/dav/all/",
         "start": "cd {bench}/zurgrun && nohup ./zurg > zurg.log 2>&1 &",
         "auth": None, "verified": "upstream",
+        "state_paths": ["{bench}/zurgrun/data", "{bench}/zurgrun/nzbs"],
         "note": "the author's own project",
     },
     "altmount": {
@@ -108,6 +110,7 @@ TARGETS = {
         "start": ("cd {bench}/altmount && nohup ./altmount-cli-linux-amd64 serve "
                   "--config ./config.yaml > altmount.out 2>&1 &"),
         "auth": AUTH, "verified": "upstream",
+        "state_paths": ["{bench}/altmount/cfg", "/tmp/.altmount-queue"],
     },
     "decypharr": {
         "import_style": SAB_NAME,
@@ -121,6 +124,9 @@ TARGETS = {
         "start": ("cd {bench}/decyrun && nohup {bench}/decypharr "
                   "--config {bench}/decyrun/ > decypharr.log 2>&1 &"),
         "auth": None, "verified": "upstream",
+        "state_paths": ["{bench}/decyrun/db", "{bench}/decyrun/usenet",
+                        "{bench}/decyrun/downloads", "{bench}/decyrun/streams",
+                        "{bench}/dfscache"],
         "note": "its SABnzbd mock upload field is `name`, not `nzbfile`",
     },
     "infinidysk": {
@@ -132,6 +138,7 @@ TARGETS = {
         "root": "http://127.0.0.1:8092/content/uncategorized/",
         "ready": "http://127.0.0.1:8092/health",
         "auth": AUTH, "verified": "upstream",
+        "state_paths": ["{bench}/infinidysk/config-r10"],
     },
     "nzbdav-og": {
         "import_style": SAB_NZBFILE,
@@ -142,6 +149,7 @@ TARGETS = {
         "root": "http://127.0.0.1:8093/content/uncategorized/",
         "ready": "http://127.0.0.1:8093/health",
         "auth": AUTH, "verified": "upstream",
+        "state_paths": ["{bench}/nzbdav-og/config-r10"],
     },
 
     # ------------------------------------------------------------ new targets

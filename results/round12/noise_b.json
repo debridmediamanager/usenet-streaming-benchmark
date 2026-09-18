@@ -1,0 +1,1437 @@
+{
+ "tag": "r12-noise-b",
+ "field": [
+  "raw",
+  "zurg",
+  "altmount",
+  "infinidysk",
+  "nzbdav-og",
+  "decypharr"
+ ],
+ "disabled": [
+  "nzbdavex",
+  "stremthru",
+  "aiostreams",
+  "streamnzb",
+  "comet"
+ ],
+ "connections": 10,
+ "rows": [
+  {
+   "target": "raw",
+   "entry": "plain-video",
+   "tier": "core",
+   "expect": "serve",
+   "tag": "r12-noise-b.0",
+   "import_mode": "none",
+   "import_s": 0.046,
+   "url": "http://127.0.0.1:8099/stream",
+   "size": 6608994141,
+   "cold_open_s": 1.0449,
+   "cold_ttfb_s": 1.0442,
+   "cold_http": "206",
+   "cold_complete": true,
+   "seq_offset": 1982698242,
+   "seq_requested": 2147483648,
+   "seq_budget_bound": true,
+   "MBps": 67.15,
+   "p05_MBps": 0.0,
+   "p05_skipped": null,
+   "p05_windows": 26,
+   "first_window_MBps": 181.53,
+   "seq_bytes": 2014511104,
+   "seq_windows": 27,
+   "seeks": {
+    "points": [
+     {
+      "fraction": 0.01,
+      "offset": 66089941,
+      "ttfb_s": 1.0698,
+      "full_s": 1.078,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     },
+     {
+      "fraction": 0.25,
+      "offset": 1652248535,
+      "ttfb_s": 1.3258,
+      "full_s": 1.3293,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     },
+     {
+      "fraction": 0.5,
+      "offset": 3304497070,
+      "ttfb_s": 1.0425,
+      "full_s": 1.0451,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     },
+     {
+      "fraction": 0.75,
+      "offset": 4956745605,
+      "ttfb_s": 1.2845,
+      "full_s": 1.2892,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     },
+     {
+      "fraction": 0.95,
+      "offset": 6278544433,
+      "ttfb_s": 1.7967,
+      "full_s": 1.8018,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     }
+    ],
+    "read_bytes": 8388608,
+    "backward": {
+     "offset": 660899414,
+     "ttfb_s": 1.0039,
+     "full_s": 1.0059,
+     "http": "206",
+     "complete": true,
+     "error": null
+    },
+    "n_complete": 5,
+    "n_attempted": 5,
+    "ttfb_median_s": 1.2845,
+    "ttfb_worst_s": 1.7967,
+    "full_median_s": 1.2892,
+    "full_worst_s": 1.8018
+   },
+   "playback": {
+    "bitrate_mbps": 25,
+    "seconds_of_media": 30,
+    "offset": 1982698242,
+    "bytes": 93750000,
+    "http": "206",
+    "total_s": 2.1148,
+    "MBps": 44.33,
+    "p05_MBps": null,
+    "error": null,
+    "media_seconds_delivered": 30.0,
+    "realtime_ratio": 14.19,
+    "to_buffer_s": 0.7,
+    "sustains_bitrate": null
+   },
+   "integrity": [
+    {
+     "offset": 1652248535,
+     "length": 2097152,
+     "md5": "08bfe6cbe5645b85132485cfff677d5b",
+     "http": "206",
+     "bytes": 2097152,
+     "error": null
+    },
+    {
+     "offset": 3304497070,
+     "length": 2097152,
+     "md5": "696b3a1f56f3e9992319ad3c0aca8411",
+     "http": "206",
+     "bytes": 2097152,
+     "error": null
+    },
+    {
+     "offset": 4956745605,
+     "length": 2097152,
+     "md5": "5be132dd93dd516ffd142eadcc1d5db4",
+     "http": "206",
+     "bytes": 2097152,
+     "error": null
+    }
+   ],
+   "silence": {
+    "samples_checked": 3,
+    "samples_zero_filled": 0,
+    "zero_fill": false
+   },
+   "shape": {
+    "samples": 41,
+    "sample_interval_s": 1.0,
+    "cpu_s": 35.19,
+    "cpu_s_per_GiB": 18.75,
+    "disk_read_MB": 0.0,
+    "disk_write_MB": 0.0,
+    "disk_read_MB_per_GiB": 0.0,
+    "disk_write_MB_per_GiB": 0.0,
+    "rss_peak_MB": 488,
+    "rss_median_MB": 416,
+    "rss_final_MB": 386,
+    "cores_p95": 1.25,
+    "cores_max": 1.27,
+    "cores_median": 0.97,
+    "steady_pct": 71
+   },
+   "rss_peak_MB": 488,
+   "served": true,
+   "reason": "2014511104 bytes over HTTP 206",
+   "outcome": "pass",
+   "http": "206",
+   "bytes": 2014511104,
+   "entry_s": 58.189
+  },
+  {
+   "target": "zurg",
+   "entry": "plain-video",
+   "tier": "core",
+   "expect": "serve",
+   "tag": "r12-noise-b.0",
+   "import_mode": "sabnzbd",
+   "import_style": "drop-dir",
+   "import_accepted": true,
+   "import_detail": "present at /home/ben/bench/zurgrun/nzbs/ToyStory5.nzb",
+   "import_s": 5.061,
+   "url": "http://localhost:9998/dav/all/ToyStory5/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+   "size": 6608994141,
+   "cold_open_s": 0.0032,
+   "cold_ttfb_s": 0.002,
+   "cold_http": "206",
+   "cold_complete": true,
+   "seq_offset": 1982698242,
+   "seq_requested": 2147483648,
+   "seq_budget_bound": true,
+   "MBps": 68.81,
+   "p05_MBps": 23.97,
+   "p05_skipped": null,
+   "p05_windows": 27,
+   "first_window_MBps": 15.47,
+   "seq_bytes": 2065498112,
+   "seq_windows": 28,
+   "seeks": {
+    "points": [
+     {
+      "fraction": 0.01,
+      "offset": 66089941,
+      "ttfb_s": 0.3336,
+      "full_s": 0.8105,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     },
+     {
+      "fraction": 0.25,
+      "offset": 1652248535,
+      "ttfb_s": 0.6261,
+      "full_s": 1.0047,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     },
+     {
+      "fraction": 0.5,
+      "offset": 3304497070,
+      "ttfb_s": 0.3568,
+      "full_s": 0.8648,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     },
+     {
+      "fraction": 0.75,
+      "offset": 4956745605,
+      "ttfb_s": 0.5457,
+      "full_s": 0.9791,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     },
+     {
+      "fraction": 0.95,
+      "offset": 6278544433,
+      "ttfb_s": 0.5303,
+      "full_s": 0.9718,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     }
+    ],
+    "read_bytes": 8388608,
+    "backward": {
+     "offset": 660899414,
+     "ttfb_s": 0.5059,
+     "full_s": 1.3786,
+     "http": "206",
+     "complete": true,
+     "error": null
+    },
+    "n_complete": 5,
+    "n_attempted": 5,
+    "ttfb_median_s": 0.5303,
+    "ttfb_worst_s": 0.6261,
+    "full_median_s": 0.9718,
+    "full_worst_s": 1.0047
+   },
+   "playback": {
+    "bitrate_mbps": 25,
+    "seconds_of_media": 30,
+    "offset": 1982698242,
+    "bytes": 93750000,
+    "http": "206",
+    "total_s": 2.9591,
+    "MBps": 31.68,
+    "p05_MBps": null,
+    "error": null,
+    "media_seconds_delivered": 30.0,
+    "realtime_ratio": 10.14,
+    "to_buffer_s": 0.99,
+    "sustains_bitrate": null
+   },
+   "integrity": [
+    {
+     "offset": 1652248535,
+     "length": 2097152,
+     "md5": "08bfe6cbe5645b85132485cfff677d5b",
+     "http": "206",
+     "bytes": 2097152,
+     "error": null
+    },
+    {
+     "offset": 3304497070,
+     "length": 2097152,
+     "md5": "696b3a1f56f3e9992319ad3c0aca8411",
+     "http": "206",
+     "bytes": 2097152,
+     "error": null
+    },
+    {
+     "offset": 4956745605,
+     "length": 2097152,
+     "md5": "5be132dd93dd516ffd142eadcc1d5db4",
+     "http": "206",
+     "bytes": 2097152,
+     "error": null
+    }
+   ],
+   "silence": {
+    "samples_checked": 3,
+    "samples_zero_filled": 0,
+    "zero_fill": false
+   },
+   "shape": {
+    "samples": 36,
+    "sample_interval_s": 1.0,
+    "cpu_s": 28.11,
+    "cpu_s_per_GiB": 14.61,
+    "disk_read_MB": 0.0,
+    "disk_write_MB": 2410.38,
+    "disk_read_MB_per_GiB": 0.0,
+    "disk_write_MB_per_GiB": 1252.39,
+    "rss_peak_MB": 840,
+    "rss_median_MB": 829,
+    "rss_final_MB": 826,
+    "cores_p95": 1.13,
+    "cores_max": 1.24,
+    "cores_median": 0.75,
+    "steady_pct": 72
+   },
+   "rss_peak_MB": 840,
+   "served": true,
+   "reason": "2065498112 bytes over HTTP 206",
+   "outcome": "pass",
+   "http": "206",
+   "bytes": 2065498112,
+   "entry_s": 44.087
+  },
+  {
+   "target": "altmount",
+   "entry": "plain-video",
+   "tier": "core",
+   "expect": "serve",
+   "tag": "r12-noise-b.0",
+   "import_mode": "sabnzbd",
+   "import_style": "path-json",
+   "import_accepted": true,
+   "import_detail": "{\"data\":{\"queue_id\":1,\"message\":\"File successfully added to import queue with ID 1\"},\"success\":true}",
+   "import_s": 5.051,
+   "url": "http://localhost:8081/webdav/complete/ToyStory5/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+   "size": 6608994141,
+   "cold_open_s": 0.0033,
+   "cold_ttfb_s": 0.0022,
+   "cold_http": "206",
+   "cold_complete": true,
+   "seq_offset": 1982698242,
+   "seq_requested": 2147483648,
+   "seq_budget_bound": false,
+   "MBps": 77.68,
+   "p05_MBps": 6.45,
+   "p05_skipped": null,
+   "p05_windows": 25,
+   "first_window_MBps": 5.37,
+   "seq_bytes": 2147483648,
+   "seq_windows": 26,
+   "seeks": {
+    "points": [
+     {
+      "fraction": 0.01,
+      "offset": 66089941,
+      "ttfb_s": 0.311,
+      "full_s": 0.5803,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     },
+     {
+      "fraction": 0.25,
+      "offset": 1652248535,
+      "ttfb_s": 0.3451,
+      "full_s": 0.7812,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     },
+     {
+      "fraction": 0.5,
+      "offset": 3304497070,
+      "ttfb_s": 0.3621,
+      "full_s": 0.6404,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     },
+     {
+      "fraction": 0.75,
+      "offset": 4956745605,
+      "ttfb_s": 0.2805,
+      "full_s": 0.5559,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     },
+     {
+      "fraction": 0.95,
+      "offset": 6278544433,
+      "ttfb_s": 0.3335,
+      "full_s": 0.6684,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     }
+    ],
+    "read_bytes": 8388608,
+    "backward": {
+     "offset": 660899414,
+     "ttfb_s": 0.287,
+     "full_s": 0.5396,
+     "http": "206",
+     "complete": true,
+     "error": null
+    },
+    "n_complete": 5,
+    "n_attempted": 5,
+    "ttfb_median_s": 0.3335,
+    "ttfb_worst_s": 0.3621,
+    "full_median_s": 0.6404,
+    "full_worst_s": 0.7812
+   },
+   "playback": {
+    "bitrate_mbps": 25,
+    "seconds_of_media": 30,
+    "offset": 1982698242,
+    "bytes": 93750000,
+    "http": "206",
+    "total_s": 1.6047,
+    "MBps": 58.42,
+    "p05_MBps": null,
+    "error": null,
+    "media_seconds_delivered": 30.0,
+    "realtime_ratio": 18.7,
+    "to_buffer_s": 0.53,
+    "sustains_bitrate": null
+   },
+   "integrity": [
+    {
+     "offset": 1652248535,
+     "length": 2097152,
+     "md5": "08bfe6cbe5645b85132485cfff677d5b",
+     "http": "206",
+     "bytes": 2097152,
+     "error": null
+    },
+    {
+     "offset": 3304497070,
+     "length": 2097152,
+     "md5": "696b3a1f56f3e9992319ad3c0aca8411",
+     "http": "206",
+     "bytes": 2097152,
+     "error": null
+    },
+    {
+     "offset": 4956745605,
+     "length": 2097152,
+     "md5": "5be132dd93dd516ffd142eadcc1d5db4",
+     "http": "206",
+     "bytes": 2097152,
+     "error": null
+    }
+   ],
+   "silence": {
+    "samples_checked": 3,
+    "samples_zero_filled": 0,
+    "zero_fill": false
+   },
+   "shape": {
+    "samples": 31,
+    "sample_interval_s": 1.0,
+    "cpu_s": 14.83,
+    "cpu_s_per_GiB": 7.41,
+    "disk_read_MB": 0.0,
+    "disk_write_MB": 0.09,
+    "disk_read_MB_per_GiB": 0.0,
+    "disk_write_MB_per_GiB": 0.05,
+    "rss_peak_MB": 753,
+    "rss_median_MB": 739,
+    "rss_final_MB": 753,
+    "cores_p95": 0.75,
+    "cores_max": 0.77,
+    "cores_median": 0.49,
+    "steady_pct": 68
+   },
+   "rss_peak_MB": 753,
+   "served": true,
+   "reason": "2147483648 bytes over HTTP 206",
+   "outcome": "pass",
+   "http": "206",
+   "bytes": 2147483648,
+   "entry_s": 38.112
+  },
+  {
+   "target": "infinidysk",
+   "entry": "plain-video",
+   "tier": "core",
+   "expect": "serve",
+   "tag": "r12-noise-b.0",
+   "import_mode": "sabnzbd",
+   "import_style": "sab-nzbfile",
+   "import_accepted": true,
+   "import_detail": "{\"nzo_ids\":[\"14e33614-40f6-49f2-971c-ae1c9c007cfe\"],\"status\":true,\"error\":null}",
+   "import_s": 15.407,
+   "url": "http://127.0.0.1:8092/content/uncategorized/ToyStory5/ToyStory5.mkv",
+   "size": 6608994141,
+   "cold_open_s": 2.0716,
+   "cold_ttfb_s": 1.5337,
+   "cold_http": "206",
+   "cold_complete": true,
+   "seq_offset": 1982698242,
+   "seq_requested": 2147483648,
+   "seq_budget_bound": true,
+   "MBps": 69.51,
+   "p05_MBps": 36.7,
+   "p05_skipped": null,
+   "p05_windows": 26,
+   "first_window_MBps": 1.18,
+   "seq_bytes": 2085814272,
+   "seq_windows": 27,
+   "seeks": {
+    "points": [
+     {
+      "fraction": 0.01,
+      "offset": 66089941,
+      "ttfb_s": 0.399,
+      "full_s": 1.1504,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     },
+     {
+      "fraction": 0.25,
+      "offset": 1652248535,
+      "ttfb_s": 0.453,
+      "full_s": 1.0427,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     },
+     {
+      "fraction": 0.5,
+      "offset": 3304497070,
+      "ttfb_s": 0.3323,
+      "full_s": 1.2623,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     },
+     {
+      "fraction": 0.75,
+      "offset": 4956745605,
+      "ttfb_s": 0.3249,
+      "full_s": 0.9519,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     },
+     {
+      "fraction": 0.95,
+      "offset": 6278544433,
+      "ttfb_s": 0.3465,
+      "full_s": 0.9226,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     }
+    ],
+    "read_bytes": 8388608,
+    "backward": {
+     "offset": 660899414,
+     "ttfb_s": 0.2539,
+     "full_s": 0.8558,
+     "http": "206",
+     "complete": true,
+     "error": null
+    },
+    "n_complete": 5,
+    "n_attempted": 5,
+    "ttfb_median_s": 0.3465,
+    "ttfb_worst_s": 0.453,
+    "full_median_s": 1.0427,
+    "full_worst_s": 1.2623
+   },
+   "playback": {
+    "bitrate_mbps": 25,
+    "seconds_of_media": 30,
+    "offset": 1982698242,
+    "bytes": 93750000,
+    "http": "206",
+    "total_s": 5.436,
+    "MBps": 17.25,
+    "p05_MBps": null,
+    "error": null,
+    "media_seconds_delivered": 30.0,
+    "realtime_ratio": 5.52,
+    "to_buffer_s": 1.81,
+    "sustains_bitrate": null
+   },
+   "integrity": [
+    {
+     "offset": 1652248535,
+     "length": 2097152,
+     "md5": "08bfe6cbe5645b85132485cfff677d5b",
+     "http": "206",
+     "bytes": 2097152,
+     "error": null
+    },
+    {
+     "offset": 3304497070,
+     "length": 2097152,
+     "md5": "696b3a1f56f3e9992319ad3c0aca8411",
+     "http": "206",
+     "bytes": 2097152,
+     "error": null
+    },
+    {
+     "offset": 4956745605,
+     "length": 2097152,
+     "md5": "5be132dd93dd516ffd142eadcc1d5db4",
+     "http": "206",
+     "bytes": 2097152,
+     "error": null
+    }
+   ],
+   "silence": {
+    "samples_checked": 3,
+    "samples_zero_filled": 0,
+    "zero_fill": false
+   },
+   "shape": {
+    "samples": 49,
+    "sample_interval_s": 1.0,
+    "cpu_s": 65.68,
+    "cpu_s_per_GiB": 33.79,
+    "disk_read_MB": 0.0,
+    "disk_write_MB": 0.59,
+    "disk_read_MB_per_GiB": 0.0,
+    "disk_write_MB_per_GiB": 0.3,
+    "rss_peak_MB": 764,
+    "rss_median_MB": 541,
+    "rss_final_MB": 764,
+    "cores_p95": 1.66,
+    "cores_max": 1.82,
+    "cores_median": 1.42,
+    "steady_pct": 86
+   },
+   "rss_peak_MB": 764,
+   "served": true,
+   "reason": "2085814272 bytes over HTTP 206",
+   "outcome": "pass",
+   "http": "206",
+   "bytes": 2085814272,
+   "entry_s": 66.956
+  },
+  {
+   "target": "nzbdav-og",
+   "entry": "plain-video",
+   "tier": "core",
+   "expect": "serve",
+   "tag": "r12-noise-b.0",
+   "import_mode": "sabnzbd",
+   "import_style": "sab-nzbfile",
+   "import_accepted": true,
+   "import_detail": "{\"nzo_ids\":[\"c47e9b0a-45c9-435c-bc99-e923d19e38ea\"],\"status\":true,\"error\":null}",
+   "import_s": 5.992,
+   "url": "http://127.0.0.1:8093/content/uncategorized/ToyStory5/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+   "size": 6608994141,
+   "cold_open_s": 0.4258,
+   "cold_ttfb_s": 0.314,
+   "cold_http": "206",
+   "cold_complete": true,
+   "seq_offset": 1982698242,
+   "seq_requested": 2147483648,
+   "seq_budget_bound": false,
+   "MBps": 73.6,
+   "p05_MBps": 59.98,
+   "p05_skipped": null,
+   "p05_windows": 27,
+   "first_window_MBps": 55.64,
+   "seq_bytes": 2147483648,
+   "seq_windows": 28,
+   "seeks": {
+    "points": [
+     {
+      "fraction": 0.01,
+      "offset": 66089941,
+      "ttfb_s": 0.6848,
+      "full_s": 0.8491,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     },
+     {
+      "fraction": 0.25,
+      "offset": 1652248535,
+      "ttfb_s": 0.6016,
+      "full_s": 0.9123,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     },
+     {
+      "fraction": 0.5,
+      "offset": 3304497070,
+      "ttfb_s": 0.6009,
+      "full_s": 0.9739,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     },
+     {
+      "fraction": 0.75,
+      "offset": 4956745605,
+      "ttfb_s": 0.5421,
+      "full_s": 0.8883,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     },
+     {
+      "fraction": 0.95,
+      "offset": 6278544433,
+      "ttfb_s": 0.8954,
+      "full_s": 1.0435,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     }
+    ],
+    "read_bytes": 8388608,
+    "backward": {
+     "offset": 660899414,
+     "ttfb_s": 0.5117,
+     "full_s": 0.9376,
+     "http": "206",
+     "complete": true,
+     "error": null
+    },
+    "n_complete": 5,
+    "n_attempted": 5,
+    "ttfb_median_s": 0.6016,
+    "ttfb_worst_s": 0.8954,
+    "full_median_s": 0.9123,
+    "full_worst_s": 1.0435
+   },
+   "playback": {
+    "bitrate_mbps": 25,
+    "seconds_of_media": 30,
+    "offset": 1982698242,
+    "bytes": 93750000,
+    "http": "206",
+    "total_s": 2.0841,
+    "MBps": 44.98,
+    "p05_MBps": null,
+    "error": null,
+    "media_seconds_delivered": 30.0,
+    "realtime_ratio": 14.39,
+    "to_buffer_s": 0.69,
+    "sustains_bitrate": null
+   },
+   "integrity": [
+    {
+     "offset": 1652248535,
+     "length": 2097152,
+     "md5": "08bfe6cbe5645b85132485cfff677d5b",
+     "http": "206",
+     "bytes": 2097152,
+     "error": null
+    },
+    {
+     "offset": 3304497070,
+     "length": 2097152,
+     "md5": "696b3a1f56f3e9992319ad3c0aca8411",
+     "http": "206",
+     "bytes": 2097152,
+     "error": null
+    },
+    {
+     "offset": 4956745605,
+     "length": 2097152,
+     "md5": "5be132dd93dd516ffd142eadcc1d5db4",
+     "http": "206",
+     "bytes": 2097152,
+     "error": null
+    }
+   ],
+   "silence": {
+    "samples_checked": 3,
+    "samples_zero_filled": 0,
+    "zero_fill": false
+   },
+   "shape": {
+    "samples": 38,
+    "sample_interval_s": 1.0,
+    "cpu_s": 63.29,
+    "cpu_s_per_GiB": 31.63,
+    "disk_read_MB": 0.0,
+    "disk_write_MB": 0.01,
+    "disk_read_MB_per_GiB": 0.0,
+    "disk_write_MB_per_GiB": 0.01,
+    "rss_peak_MB": 413,
+    "rss_median_MB": 395,
+    "rss_final_MB": 400,
+    "cores_p95": 1.83,
+    "cores_max": 2.23,
+    "cores_median": 1.59,
+    "steady_pct": 100
+   },
+   "rss_peak_MB": 413,
+   "served": true,
+   "reason": "2147483648 bytes over HTTP 206",
+   "outcome": "pass",
+   "http": "206",
+   "bytes": 2147483648,
+   "entry_s": 45.799
+  },
+  {
+   "target": "decypharr",
+   "entry": "plain-video",
+   "tier": "core",
+   "expect": "serve",
+   "tag": "r12-noise-b.0",
+   "import_mode": "sabnzbd",
+   "import_style": "sab-name",
+   "import_accepted": true,
+   "import_detail": "{\n  \"status\": true,\n  \"nzo_ids\": [\n    \"b82d79e6-48ed-4698-aaed-5e041c073971\"\n  ]\n}\n",
+   "import_s": 16.305,
+   "url": "http://localhost:8282/webdav/__all__/ToyStory5/ToyStory5.mkv",
+   "size": 6608994141,
+   "cold_open_s": 4.2721,
+   "cold_ttfb_s": 4.2713,
+   "cold_http": "206",
+   "cold_complete": true,
+   "seq_offset": 1982698242,
+   "seq_requested": 2147483648,
+   "seq_budget_bound": true,
+   "MBps": 6.9,
+   "p05_MBps": 0.0,
+   "p05_skipped": null,
+   "p05_windows": 24,
+   "first_window_MBps": 1.05,
+   "seq_bytes": 210829312,
+   "seq_windows": 25,
+   "seeks": {
+    "points": [
+     {
+      "fraction": 0.01,
+      "offset": 66089941,
+      "ttfb_s": 5.1236,
+      "full_s": 7.937,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     },
+     {
+      "fraction": 0.25,
+      "offset": 1652248535,
+      "ttfb_s": 4.2081,
+      "full_s": 9.1058,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     },
+     {
+      "fraction": 0.5,
+      "offset": 3304497070,
+      "ttfb_s": 4.1411,
+      "full_s": 6.7394,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     },
+     {
+      "fraction": 0.75,
+      "offset": 4956745605,
+      "ttfb_s": 3.8565,
+      "full_s": 8.0707,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     },
+     {
+      "fraction": 0.95,
+      "offset": 6278544433,
+      "ttfb_s": 4.1688,
+      "full_s": 8.2509,
+      "http": "206",
+      "bytes": 8388608,
+      "complete": true,
+      "error": null
+     }
+    ],
+    "read_bytes": 8388608,
+    "backward": {
+     "offset": 660899414,
+     "ttfb_s": 4.1942,
+     "full_s": 8.3611,
+     "http": "206",
+     "complete": true,
+     "error": null
+    },
+    "n_complete": 5,
+    "n_attempted": 5,
+    "ttfb_median_s": 4.1688,
+    "ttfb_worst_s": 5.1236,
+    "full_median_s": 8.0707,
+    "full_worst_s": 9.1058
+   },
+   "playback": {
+    "bitrate_mbps": 25,
+    "seconds_of_media": 30,
+    "offset": 1982698242,
+    "bytes": 93750000,
+    "http": "206",
+    "total_s": 18.3061,
+    "MBps": 5.12,
+    "p05_MBps": 0.0,
+    "error": null,
+    "media_seconds_delivered": 30.0,
+    "realtime_ratio": 1.64,
+    "to_buffer_s": 6.1,
+    "sustains_bitrate": false
+   },
+   "integrity": [
+    {
+     "offset": 1652248535,
+     "length": 2097152,
+     "md5": "08bfe6cbe5645b85132485cfff677d5b",
+     "http": "206",
+     "bytes": 2097152,
+     "error": null
+    },
+    {
+     "offset": 3304497070,
+     "length": 2097152,
+     "md5": "696b3a1f56f3e9992319ad3c0aca8411",
+     "http": "206",
+     "bytes": 2097152,
+     "error": null
+    },
+    {
+     "offset": 4956745605,
+     "length": 2097152,
+     "md5": "5be132dd93dd516ffd142eadcc1d5db4",
+     "http": "206",
+     "bytes": 2097152,
+     "error": null
+    }
+   ],
+   "silence": {
+    "samples_checked": 3,
+    "samples_zero_filled": 0,
+    "zero_fill": false
+   },
+   "shape": {
+    "samples": 106,
+    "sample_interval_s": 1.0,
+    "cpu_s": 42.83,
+    "cpu_s_per_GiB": 217.05,
+    "disk_read_MB": 0.0,
+    "disk_write_MB": 1012.57,
+    "disk_read_MB_per_GiB": 0.0,
+    "disk_write_MB_per_GiB": 5131.42,
+    "rss_peak_MB": 56,
+    "rss_median_MB": 55,
+    "rss_final_MB": 56,
+    "cores_p95": 0.47,
+    "cores_max": 0.56,
+    "cores_median": 0.38,
+    "steady_pct": 97
+   },
+   "rss_peak_MB": 56,
+   "served": true,
+   "reason": "210829312 bytes over HTTP 206",
+   "outcome": "pass",
+   "http": "206",
+   "bytes": 210829312,
+   "entry_s": 129.513
+  }
+ ],
+ "memory": {
+  "raw": {
+   "reads": 1,
+   "idle_rss_MB": 383,
+   "rss_per_read_MB": 488,
+   "rss_peak_MB": 488,
+   "peak_over_reads": 1,
+   "drift_skipped": "1 reads, need 3",
+   "after_idle_MB": 386,
+   "phase_resources": [
+    {
+     "samples": 74,
+     "sample_interval_s": 1.0,
+     "cpu_s": 40.49,
+     "cpu_s_per_GiB": 21.58,
+     "disk_read_MB": 0.0,
+     "disk_write_MB": 0.02,
+     "disk_read_MB_per_GiB": 0.0,
+     "disk_write_MB_per_GiB": 0.01,
+     "state_disk_start_MB": 0.0,
+     "state_disk_end_MB": 0.0,
+     "state_disk_delta_MB": 0.0,
+     "rss_peak_MB": 496,
+     "rss_median_MB": 386,
+     "rss_final_MB": 386,
+     "cores_p95": 1.25,
+     "cores_max": 1.3,
+     "cores_median": 0.32,
+     "steady_pct": 43
+    }
+   ]
+  },
+  "zurg": {
+   "reads": 1,
+   "idle_rss_MB": 48,
+   "rss_per_read_MB": 840,
+   "rss_peak_MB": 840,
+   "peak_over_reads": 1,
+   "drift_skipped": "1 reads, need 3",
+   "after_idle_MB": 834,
+   "phase_resources": [
+    {
+     "samples": 70,
+     "sample_interval_s": 1.0,
+     "cpu_s": 30.74,
+     "cpu_s_per_GiB": 15.98,
+     "disk_read_MB": 0.0,
+     "disk_write_MB": 2611.25,
+     "disk_read_MB_per_GiB": 0.0,
+     "disk_write_MB_per_GiB": 1357.45,
+     "state_disk_start_MB": 0.0,
+     "state_disk_end_MB": 508.83,
+     "state_disk_delta_MB": 508.82,
+     "rss_peak_MB": 840,
+     "rss_median_MB": 831,
+     "rss_final_MB": 835,
+     "cores_p95": 1.09,
+     "cores_max": 1.22,
+     "cores_median": 0.5,
+     "steady_pct": 41
+    }
+   ]
+  },
+  "altmount": {
+   "reads": 1,
+   "idle_rss_MB": 112,
+   "rss_per_read_MB": 753,
+   "rss_peak_MB": 753,
+   "peak_over_reads": 1,
+   "drift_skipped": "1 reads, need 3",
+   "after_idle_MB": 753,
+   "phase_resources": [
+    {
+     "samples": 65,
+     "sample_interval_s": 1.0,
+     "cpu_s": 15.39,
+     "cpu_s_per_GiB": 7.7,
+     "disk_read_MB": 0.0,
+     "disk_write_MB": 1.84,
+     "disk_read_MB_per_GiB": 0.0,
+     "disk_write_MB_per_GiB": 0.92,
+     "state_disk_start_MB": 0.41,
+     "state_disk_end_MB": 2.2,
+     "state_disk_delta_MB": 1.79,
+     "rss_peak_MB": 753,
+     "rss_median_MB": 744,
+     "rss_final_MB": 753,
+     "cores_p95": 0.72,
+     "cores_max": 0.78,
+     "cores_median": 0.08,
+     "steady_pct": 32
+    }
+   ]
+  },
+  "infinidysk": {
+   "reads": 1,
+   "idle_rss_MB": 345,
+   "rss_per_read_MB": 764,
+   "rss_peak_MB": 764,
+   "peak_over_reads": 1,
+   "drift_skipped": "1 reads, need 3",
+   "after_idle_MB": 825,
+   "phase_resources": [
+    {
+     "samples": 94,
+     "sample_interval_s": 1.0,
+     "cpu_s": 81.07,
+     "cpu_s_per_GiB": 41.73,
+     "disk_read_MB": 0.0,
+     "disk_write_MB": 17.61,
+     "disk_read_MB_per_GiB": 0.0,
+     "disk_write_MB_per_GiB": 9.07,
+     "state_disk_start_MB": 0.56,
+     "state_disk_end_MB": 1.66,
+     "state_disk_delta_MB": 1.1,
+     "rss_peak_MB": 827,
+     "rss_median_MB": 538,
+     "rss_final_MB": 826,
+     "cores_p95": 1.62,
+     "cores_max": 1.83,
+     "cores_median": 0.8,
+     "steady_pct": 50
+    }
+   ]
+  },
+  "nzbdav-og": {
+   "reads": 1,
+   "idle_rss_MB": 285,
+   "rss_per_read_MB": 413,
+   "rss_peak_MB": 413,
+   "peak_over_reads": 1,
+   "drift_skipped": "1 reads, need 3",
+   "after_idle_MB": 394,
+   "phase_resources": [
+    {
+     "samples": 74,
+     "sample_interval_s": 1.0,
+     "cpu_s": 72.65,
+     "cpu_s_per_GiB": 36.32,
+     "disk_read_MB": 0.0,
+     "disk_write_MB": 21.19,
+     "disk_read_MB_per_GiB": 0.0,
+     "disk_write_MB_per_GiB": 10.59,
+     "state_disk_start_MB": 0.26,
+     "state_disk_end_MB": 0.66,
+     "state_disk_delta_MB": 0.4,
+     "rss_peak_MB": 421,
+     "rss_median_MB": 395,
+     "rss_final_MB": 395,
+     "cores_p95": 1.73,
+     "cores_max": 2.25,
+     "cores_median": 1.36,
+     "steady_pct": 58
+    }
+   ]
+  },
+  "decypharr": {
+   "reads": 1,
+   "idle_rss_MB": 46,
+   "rss_per_read_MB": 56,
+   "rss_peak_MB": 56,
+   "peak_over_reads": 1,
+   "drift_skipped": "1 reads, need 3",
+   "after_idle_MB": 56,
+   "phase_resources": [
+    {
+     "samples": 150,
+     "sample_interval_s": 1.0,
+     "cpu_s": 50.29,
+     "cpu_s_per_GiB": 256.12,
+     "disk_read_MB": 0.0,
+     "disk_write_MB": 1178.13,
+     "disk_read_MB_per_GiB": 0.0,
+     "disk_write_MB_per_GiB": 6000.16,
+     "state_disk_start_MB": 0.02,
+     "state_disk_end_MB": 150.24,
+     "state_disk_delta_MB": 150.22,
+     "rss_peak_MB": 56,
+     "rss_median_MB": 55,
+     "rss_final_MB": 56,
+     "cores_p95": 0.47,
+     "cores_max": 0.56,
+     "cores_median": 0.37,
+     "steady_pct": 80
+    }
+   ]
+  }
+ },
+ "capability": {
+  "raw": {
+   "pass": 1,
+   "FAIL": 0,
+   "refused": 0,
+   "WRONGLY SERVED": 0,
+   "skipped": 0,
+   "graded": 1,
+   "correct": 1,
+   "correct_pct": 100
+  },
+  "zurg": {
+   "pass": 1,
+   "FAIL": 0,
+   "refused": 0,
+   "WRONGLY SERVED": 0,
+   "skipped": 0,
+   "graded": 1,
+   "correct": 1,
+   "correct_pct": 100
+  },
+  "altmount": {
+   "pass": 1,
+   "FAIL": 0,
+   "refused": 0,
+   "WRONGLY SERVED": 0,
+   "skipped": 0,
+   "graded": 1,
+   "correct": 1,
+   "correct_pct": 100
+  },
+  "infinidysk": {
+   "pass": 1,
+   "FAIL": 0,
+   "refused": 0,
+   "WRONGLY SERVED": 0,
+   "skipped": 0,
+   "graded": 1,
+   "correct": 1,
+   "correct_pct": 100
+  },
+  "nzbdav-og": {
+   "pass": 1,
+   "FAIL": 0,
+   "refused": 0,
+   "WRONGLY SERVED": 0,
+   "skipped": 0,
+   "graded": 1,
+   "correct": 1,
+   "correct_pct": 100
+  },
+  "decypharr": {
+   "pass": 1,
+   "FAIL": 0,
+   "refused": 0,
+   "WRONGLY SERVED": 0,
+   "skipped": 0,
+   "graded": 1,
+   "correct": 1,
+   "correct_pct": 100
+  }
+ },
+ "throughput": {
+  "field": "MBps",
+  "population": [
+   "plain-video"
+  ],
+  "population_size": 1,
+  "population_detail": {
+   "plain-video": {
+    "served_by": 6,
+    "of": 6,
+    "required": 5,
+    "share": 1.0,
+    "in_population": true
+   }
+  },
+  "threshold": 0.9,
+  "targets": {
+   "altmount": {
+    "n": 1,
+    "of": 1,
+    "median": 77.68,
+    "own_median": 77.68,
+    "own_n": 1,
+    "gap_pct": 0.0
+   },
+   "decypharr": {
+    "n": 1,
+    "of": 1,
+    "median": 6.9,
+    "own_median": 6.9,
+    "own_n": 1,
+    "gap_pct": 0.0
+   },
+   "infinidysk": {
+    "n": 1,
+    "of": 1,
+    "median": 69.51,
+    "own_median": 69.51,
+    "own_n": 1,
+    "gap_pct": 0.0
+   },
+   "nzbdav-og": {
+    "n": 1,
+    "of": 1,
+    "median": 73.6,
+    "own_median": 73.6,
+    "own_n": 1,
+    "gap_pct": 0.0
+   },
+   "raw": {
+    "n": 1,
+    "of": 1,
+    "median": 67.15,
+    "own_median": 67.15,
+    "own_n": 1,
+    "gap_pct": 0.0
+   },
+   "zurg": {
+    "n": 1,
+    "of": 1,
+    "median": 68.81,
+    "own_median": 68.81,
+    "own_n": 1,
+    "gap_pct": 0.0
+   }
+  }
+ },
+ "cold_open": {
+  "field": "cold_open_s",
+  "population": [
+   "plain-video"
+  ],
+  "population_size": 1,
+  "population_detail": {
+   "plain-video": {
+    "served_by": 6,
+    "of": 6,
+    "required": 5,
+    "share": 1.0,
+    "in_population": true
+   }
+  },
+  "threshold": 0.9,
+  "targets": {
+   "altmount": {
+    "n": 1,
+    "of": 1,
+    "median": 0.0033,
+    "own_median": 0.0033,
+    "own_n": 1,
+    "gap_pct": 0.0
+   },
+   "decypharr": {
+    "n": 1,
+    "of": 1,
+    "median": 4.2721,
+    "own_median": 4.2721,
+    "own_n": 1,
+    "gap_pct": 0.0
+   },
+   "infinidysk": {
+    "n": 1,
+    "of": 1,
+    "median": 2.0716,
+    "own_median": 2.0716,
+    "own_n": 1,
+    "gap_pct": 0.0
+   },
+   "nzbdav-og": {
+    "n": 1,
+    "of": 1,
+    "median": 0.4258,
+    "own_median": 0.4258,
+    "own_n": 1,
+    "gap_pct": 0.0
+   },
+   "raw": {
+    "n": 1,
+    "of": 1,
+    "median": 1.0449,
+    "own_median": 1.0449,
+    "own_n": 1,
+    "gap_pct": 0.0
+   },
+   "zurg": {
+    "n": 1,
+    "of": 1,
+    "median": 0.0032,
+    "own_median": 0.0032,
+    "own_n": 1,
+    "gap_pct": 0.0
+   }
+  }
+ },
+ "consensus": {
+  "ranges": [
+   {
+    "entry": "plain-video",
+    "offset": 1652248535,
+    "consensus": "08bfe6cbe5645b85132485cfff677d5b",
+    "distinct_hashes": 1,
+    "compared": 6,
+    "unresolved": false
+   },
+   {
+    "entry": "plain-video",
+    "offset": 3304497070,
+    "consensus": "696b3a1f56f3e9992319ad3c0aca8411",
+    "distinct_hashes": 1,
+    "compared": 6,
+    "unresolved": false
+   },
+   {
+    "entry": "plain-video",
+    "offset": 4956745605,
+    "consensus": "5be132dd93dd516ffd142eadcc1d5db4",
+    "distinct_hashes": 1,
+    "compared": 6,
+    "unresolved": false
+   }
+  ],
+  "differing": [],
+  "pairs_compared": 18,
+  "pairs_matched": 18,
+  "summary": "18 of 18 target-range pairs matched consensus"
+ },
+ "shakedown": []
+}

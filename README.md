@@ -11,19 +11,18 @@ one, both stay up and the later one says so.
 
 ## Latest
 
-**[Round 11, current builds on the round 10 harness](docs/round11.md)**,
-measured 7 and 8 September 2026. Six targets at 10 NNTP connections on four
-dedicated Hetzner cores, every one built from its own upstream `main` on the
-day. The first round to carry a transport ceiling, a windowed stall floor, a
-negative tier of releases that are supposed to fail, and a byte identity check
-across the whole field. Raw output in [`results/round11/`](results/round11/).
+**[Round 12, current mounts at exact 10-connection parity](docs/round12.md)**,
+measured 18 September 2026. Five mounts plus the raw transport control on four
+dedicated Hetzner cores, built from the upstream heads at provisioning and
+reset to empty state. It adds phase-wide CPU, RSS, physical-I/O and retained
+state sampling plus a strict live socket gate. Raw output is in
+[`results/round12/`](results/round12/).
 
-The short version: zurg leads the mean rate at 99.18 MB/s and the cold open at
-0.1246 s, and the mean is the least useful column in the round. AltMount holds
-51.41 MB/s on top of a **0.20 MB/s stall floor**, where NZBDav-og is fourth on
-the mean and first on the floor at 43.25. AltMount also serves the stored RAR
-entry more than three times faster than anyone else. Three of six targets
-answered every graded entry correctly.
+The short version: provider noise is wider than the observed throughput gaps,
+so NZBDav-og, AltMount, InfiniDysk and zurg are tied on sequential rate at this
+round's resolution. zurg wins cold open and ties the correctness lead, but is
+last on peak RSS and retained state and fourth on CPU and write efficiency.
+Only decypharr's throughput last place is resolved.
 
 ## Every round
 
@@ -31,6 +30,7 @@ Newest first.
 
 | Round | Date | What it measured | Report | Raw output |
 |---|---|---|---|---|
+| **12** | 18 Sep 2026 | Five current mounts plus raw at exact 10-connection parity on dedicated Hetzner cores. Throughput, p05 floor, import, seek/playback probes, byte identity, negative outcomes, CPU, RSS, physical I/O and state growth | [docs/round12.md](docs/round12.md) | [results/round12/](results/round12/) |
 | **11** | 7-8 Sep 2026 | Six targets at 10 connections on four dedicated cores, every one built from upstream main on the day. Throughput, cold open, stall floor, import, byte identity and a negative tier | [docs/round11.md](docs/round11.md) | [results/round11/](results/round11/) |
 | **10** | run, not published | The harness this round 11 uses. Run on 6 September and discarded, because a target was found serving a healthy release with every byte displaced and a field measured against a reader that returns the wrong bytes measures nothing. Fixed in zurg `c25edcbe`, and round 11 re-ran the check that caught it | [docs/round10-harness.md](docs/round10-harness.md) | none |
 | **9** | 3 Sep 2026 | Five targets at 15 connections. Which of them scale with the connection count | [docs/round9.md](docs/round9.md) | [results/round9/](results/round9/) |
@@ -57,6 +57,13 @@ things are true of all of them:
   different provider servers. Where two rounds are compared, the round that does
   it says why that is allowed.
 
+Separate VMs do not isolate a shared provider account. Before overlapping this
+suite with another Usenet benchmark, read the same 512 MiB raw range twice on
+each VM alone and once on both VMs at the same time, with the final connection
+budget active. Overlap measurement windows only if each concurrent median stays
+within the measured noise floor of its isolated median. A connection count can
+be exactly right while an account-level bandwidth cap still halves both runs.
+
 **zurg is the author's own project.** Every number here is reproducible from
 this repository against your own account. Do that rather than taking it at face
 value.
@@ -79,6 +86,21 @@ It extracts the corpus if it is not already, derives the negative tier, measures
 a noise floor as two identical passes, runs every phase over every target, and
 writes a report. Results land in `results/round10/`.
 
+Before publishing, gate the main-pass socket window rather than trusting the
+configuration files. The raw ceiling restarts once per entry, so its processes
+are deliberately aggregated; every application process remains individually
+strict:
+
+```bash
+python3 harness/parity_r10.py results/round10 --budget 10 \
+  --since MAIN_PASS_START_UTC --until MAIN_PASS_END_UTC \
+  --harness-root /root/usenet-streaming-benchmark \
+  --expect-exact --aggregate-cwd /home/ben/bench
+```
+
+`--harness-root` is the path recorded by the remote sampler, even after results
+are copied home; it separates the one-socket truth verifier from competitors.
+
 Targets can also be switched off persistently in
 [`config/targets-r10.json`](config/targets-r10.json); a command line flag beats
 whatever is in there. `./harness/run_r10.py --list` prints what would run, what
@@ -87,8 +109,9 @@ is switched off, and which adapters have not survived a run yet.
 `python3 harness/test_r10.py` runs the harness's own tests offline, with no
 provider, no corpus and no network.
 
-**Nothing in this repository has been measured with it yet.** Two of its
-adapters are unproven. See [docs/round10-harness.md](docs/round10-harness.md).
+Rounds 11 and 12 were measured with this harness. Some registered adapters are
+still unproven and are never included merely because they appear in the
+registry. See [docs/round10-harness.md](docs/round10-harness.md).
 
 ### Rounds 7 and 9
 
@@ -98,7 +121,7 @@ published numbers stay reproducible. The commands are in
 
 ### Prerequisites
 
-- a Usenet account with at least 15 connections, 20 to reproduce round 7
+- a Usenet account with at least 10 connections, 20 to reproduce round 7
 - Python 3.10 or newer, `curl`, `ffprobe`, `7z`
 - Docker for the container targets
 - `rclone` and, for the Plex phase only, `playwright` and a Chrome reachable
@@ -208,10 +231,11 @@ harness/plex/            the Plex phase, which runs where the browser is
 config/                  the server configs used, credentials replaced
 config/targets-r10.json  which targets a round 10 measures
 corpus/                  the NZB corpus and its manifest
-docs/round9.md           round 9, the latest published round
+docs/round12.md          round 12, the latest published round
 docs/round7.md           round 7, with the round 8 summary
 docs/round4.md           round 4
 docs/round10-harness.md  what round 10 adds and what is not ready
+results/round12/         round 12 raw output
 results/round9/          round 9 raw output
 results/round8-hetzner/  round 8 raw output
 results/round7/          round 7 raw output
