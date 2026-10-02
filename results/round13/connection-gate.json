@@ -1,0 +1,16 @@
+{
+  "budget": 10,
+  "sample_interval_s": 1.0,
+  "samples": 5106,
+  "peaks": {
+    "zurg": 10,
+    "altmount": 10,
+    "infinidysk": 10,
+    "nzbdav-og": 10,
+    "decypharr": 10,
+    "aiostreams": 10,
+    "raw": 10
+  },
+  "failure": null,
+  "sampling_limit": "Sub-interval transient sockets are not observed."
+}

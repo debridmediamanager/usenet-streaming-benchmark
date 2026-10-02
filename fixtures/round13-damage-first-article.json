@@ -1,0 +1,20 @@
+{
+  "source": "newswest.frugalusenet.com:563 real damaged-partial first article; decoded yEnc metadata, filename excluded",
+  "captured_at": "2026-10-01T22:22:09Z",
+  "nzb_sha256": "90b9bdccb56a8f91389dae720608d1f0feb0854ede2751d599f6fcf4ef222829",
+  "segment_count": 1576,
+  "holes": [20],
+  "holes_captured_at": "2026-10-01T22:25:03Z",
+  "decoded_bytes": 4194304,
+  "payload_sha256": "17858bb2e385d97f67b21fec8c5139c700b2ddeec83a97e8f7a6d7b8c77f11ac",
+  "metadata": {
+    "file_size": 6608994141,
+    "part": 1,
+    "total": 1576,
+    "line": 128,
+    "size": 4194304,
+    "begin": 1,
+    "end": 4194304,
+    "pcrc32": "92c6716b"
+  }
+}

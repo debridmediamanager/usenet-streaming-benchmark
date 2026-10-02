@@ -193,23 +193,27 @@ TARGETS = {
     },
     "aiostreams": {
         "import_style": SAB_STD,
-        "kind": "native", "role": "target", "serve_mode": HTTP_RANGE,
-        "import_mode": SAB, "port": 3000, "language": "TypeScript",
+        "kind": "docker", "role": "target", "serve_mode": WEBDAV,
+        "import_mode": SAB, "port": 13000, "language": "TypeScript",
         "repo": "Viren070/AIOStreams",
-        "root": "http://127.0.0.1:3000/api/v1/builtins/library/",
-        "sab_api": "http://127.0.0.1:3000/api/sabnzbd/api",
-        "ready": "http://127.0.0.1:3000/api/v1/status",
-        "start": ("cd {bench}/aiostreams && DATABASE_URI=sqlite://./data/db.sqlite "
-                  "nohup node dist/server/src/index.js > aiostreams.log 2>&1 &"),
-        "auth": None, "verified": "shakedown",
-        "note": ("the largest project in the field by a wide margin and the "
-                 "author of the competing benchmark, which is the reason an "
-                 "independent number for it is worth having. It is NOT a WebDAV "
-                 "server: there is no PROPFIND anywhere in the tree, so it is "
-                 "measured on the HTTP-Range path and must not be ranked against "
-                 "the mounts on import. Its data directory comes from DATABASE_URI "
-                 "and nothing else, so leave that unset and it writes into the "
-                 "clone and keeps the library between runs"),
+        "revision": "f815290e8775981cbdde22e0fff7fc1d5d8657cb",
+        "container": "aiostreams-r13-20261001",
+        "url": "http://127.0.0.1:13000/webdav/usenet/content/{release}/{file}",
+        "root": "http://127.0.0.1:13000/webdav/usenet/content/",
+        "sab_api": "http://127.0.0.1:13000/api/v1/sabnzbd/api",
+        "api_key": "usenet:usenet",
+        "ready": "http://127.0.0.1:13000/api/v1/status",
+        "state_paths": ["{bench}/aiostreams/data"],
+        "auth": AUTH, "verified": "upstream",
+        "note": ("native read-only WebDAV over the new shared filesystem, not "
+                 "the former builtins HTTP library. Import multipart nzbfile "
+                 "through SAB with username:password as apikey; list actual "
+                 "media bytes under /webdav/usenet/content, not completed "
+                 "symlinks or .strm files. Provision with prep_aiostreams_r13.py. "
+                 "One shared ten-socket provider pool covers imports, census "
+                 "and streaming; four BODY commands per socket. Native PAR2 "
+                 "supports filename recovery only, not Reed-Solomon repair; "
+                 "CRC verification and Matroska hole padding remain enabled"),
     },
     "streamnzb": {
         "kind": "native", "role": "target", "serve_mode": HTTP_RANGE,

@@ -1,0 +1,34 @@
+{
+  "source_revision_policy": "Upstream main heads pinned at provisioning on 2026-10-01; no rebuilds during publishable passes.",
+  "zurg": {
+    "revision": "998e661b92c840f6b9c8e152c5c9b17d1ba338c6",
+    "binary_sha256": "e81fbe324791fbdcf4e23e47bc569514185ae32800b52518ce87c88047839511",
+    "embedded_go_version": "go1.26.7"
+  },
+  "altmount": {
+    "revision": "b82b22c85ce6f8f8f6ccba1985fe0835cade8d07",
+    "binary_sha256": "f9f481676774e84053f45df3d266b84678a339ea56ef1569c685b2fca21455f8",
+    "embedded_go_version": "go1.27.1"
+  },
+  "decypharr": {
+    "revision": "0dd1cbbd6e4680000097db0141f7106e02d21b8d",
+    "binary_sha256": "7bc1c2d49718874814e13ec79b8fa07e19ae1e992656835035faecaa59fc2bc1",
+    "embedded_go_version": "go1.26.7"
+  },
+  "infinidysk": {
+    "revision": "31c837fa08c04495de2a2201813199b5dce0326e",
+    "image_id": "sha256:a6be5b19fa34ebeb4e69c089cae29cd909082e4f501493c7d547c640027478f0",
+    "rapidyenc_revision": "81b6ed33c6eac449738adfecfeb55d3680c9b845"
+  },
+  "nzbdav-og": {
+    "revision": "0c7d8e215e0602fa4bfb3fa358ee46cecc6ba76d",
+    "image_id": "sha256:bff463e63a2a981575d8c4cf961d1578e02eab975986e526407790f2a930b8e1"
+  },
+  "aiostreams": {
+    "revision": "f815290e8775981cbdde22e0fff7fc1d5d8657cb",
+    "image_id": "sha256:86c3c67979fcf803934061f9ccd9332c65a193a163e6f9c6445a038b86f3060f",
+    "node_version": "v24.14.0",
+    "crypto_binding_check": "aesCbcDecrypt exported function loads. This does not establish encrypted-release support."
+  },
+  "reproducibility_limit": "Source revisions and observed build identities are exact. Compiler/base image tags and apt package repositories are not immutable digest locks."
+}

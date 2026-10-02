@@ -11,18 +11,19 @@ one, both stay up and the later one says so.
 
 ## Latest
 
-**[Round 12, current mounts at exact 10-connection parity](docs/round12.md)**,
-measured 18 September 2026. Five mounts plus the raw transport control on four
-dedicated Hetzner cores, built from the upstream heads at provisioning and
-reset to empty state. It adds phase-wide CPU, RSS, physical-I/O and retained
-state sampling plus a strict live socket gate. Raw output is in
-[`results/round12/`](results/round12/).
+**[Round 13, current zurg main and AIOStreams' native filesystem](docs/round13.md)**,
+measured 2 October 2026. Six streaming applications plus raw on the isolated
+two-core zen targets, with source-reviewed configurations frozen before the
+noise and main passes. Every target reached the common ten-connection allowance;
+no sampled overlap or oversubscription. Raw output:
+[`results/round13/`](results/round13/).
 
-The short version: provider noise is wider than the observed throughput gaps,
-so NZBDav-og, AltMount, InfiniDysk and zurg are tied on sequential rate at this
-round's resolution. zurg wins cold open and ties the correctness lead, but is
-last on peak RSS and retained state and fourth on CPU and write efficiency.
-Only decypharr's throughput last place is resolved.
+zurg had the highest observed sequential median (37.99 MB/s), but the measured
+67.8% clean-start rate swing does not support an overall speed ranking. Native
+AIOStreams served all five positive shapes and met six of eight registered
+availability/refusal expectations. zurg, InfiniDysk and NZBDav-og met eight of
+eight; none demonstrated repair of the known missing article, which remained
+zero-filled or truncated. Read those qualifications before quoting the scores.
 
 ## Every round
 
@@ -30,6 +31,7 @@ Newest first.
 
 | Round | Date | What it measured | Report | Raw output |
 |---|---|---|---|---|
+| **13** | 2 Oct 2026 | Latest-at-provisioning sources, including AIOStreams native filesystem, with reviewed configurations and a ten-connection allowance on shared two-core zen. Rates, latency, damage/negative outcomes, sampled byte identity, CPU, RSS, I/O and state | [docs/round13.md](docs/round13.md) | [results/round13/](results/round13/) |
 | **12** | 18 Sep 2026 | Five current mounts plus raw at exact 10-connection parity on dedicated Hetzner cores. Throughput, p05 floor, import, seek/playback probes, byte identity, negative outcomes, CPU, RSS, physical I/O and state growth | [docs/round12.md](docs/round12.md) | [results/round12/](results/round12/) |
 | **11** | 7-8 Sep 2026 | Six targets at 10 connections on four dedicated cores, every one built from upstream main on the day. Throughput, cold open, stall floor, import, byte identity and a negative tier | [docs/round11.md](docs/round11.md) | [results/round11/](results/round11/) |
 | **10** | run, not published | The harness this round 11 uses. Run on 6 September and discarded, because a target was found serving a healthy release with every byte displaced and a field measured against a reader that returns the wrong bytes measures nothing. Fixed in zurg `c25edcbe`, and round 11 re-ran the check that caught it | [docs/round10-harness.md](docs/round10-harness.md) | none |
@@ -70,7 +72,24 @@ value.
 
 ## Running a benchmark
 
-### Round 10, the current harness
+### Round 13
+
+[`zen-r13.sh`](harness/zen-r13.sh) builds the pinned sources, bootstraps private
+empty state and runs the reviewed seven-target field. It is deliberately guarded
+to this round's isolated zen paths and ports; see
+[the configuration review and reproduction instructions](docs/round13.md).
+
+```bash
+bash harness/zen-r13.sh verify
+bash harness/zen-r13.sh smoke --out results/new-round13-smoke
+bash harness/zen-r13.sh run --out results/new-round13
+```
+
+Use a fresh output directory. The live gate enforces a ceiling, not an artificial
+minimum: naturally unused sockets are not padded. Source pool limits complement
+the census; sampled evidence cannot prove unseen sub-interval transients.
+
+### Round 10, the shared harness
 
 One command runs the whole suite. Every target is measured unless you switch one
 off.
@@ -143,10 +162,11 @@ Every credential in this repository is a placeholder and nothing here is live.
 | `harness/bench5.py` | `YOUR_STREAMNZB_STREAM_TOKEN`, needed only if you re-enable that target |
 | `harness/plex/plex_ttp3.py` | `YOUR_PLEX_HOST`, `YOUR_PLEX_TOKEN`, `YOUR_PLEX_MACHINE_IDENTIFIER` |
 
-The provider hostname is `news.news-provider.example` everywhere. Replace it
-with your own. The round 10 scripts read `NNTP_HOST`, `NNTP_PORT`, `NNTP_USER`
-and `NNTP_PASS` from the environment when they are set, so a run of those needs
-no file edited at all.
+Older configurations use `news.news-provider.example`; replace it with your own.
+The round 10 scripts read `NNTP_HOST`, `NNTP_PORT`, `NNTP_USER` and `NNTP_PASS`
+from the environment. Round 13 explicitly uses `newswest.frugalusenet.com:563`
+and loads the designated private account file on zen; its rendered credentials
+are never checked in.
 
 Paths in the older scripts are absolute and assume the layout the runs used.
 `BENCH` in `bench5.py` and the paths in `plexmnt.sh` and `chain7.sh` need to

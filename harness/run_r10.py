@@ -193,6 +193,7 @@ def deliver(target, nzb_path):
     if style in (registry.SAB_NZBFILE, registry.SAB_NAME, registry.SAB_STD):
         api = spec.get("sab_api") or f"http://127.0.0.1:{spec['port']}/api"
         return sab_addfile(api, nzb_path, field=registry.FIELD[style],
+                           api_key=spec.get("api_key", registry.API_KEY),
                            category=spec.get("category"))
     return False, f"no import style registered for {target}"
 

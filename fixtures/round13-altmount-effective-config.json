@@ -1,0 +1,63 @@
+{
+  "source": "altmount actual GET /api/config; projection excludes credentials",
+  "captured_at": "2026-10-01T23:48:48Z",
+  "revision": "b82b22c85ce6f8f8f6ccba1985fe0835cade8d07",
+  "actual": {
+    "api": {
+      "allowed_origins": [
+        "http://127.0.0.1:18081",
+        "http://localhost:18081"
+      ]
+    },
+    "providers": [
+      {
+        "max_connections": 10
+      }
+    ],
+    "import": {
+      "max_processor_workers": 2,
+      "queue_processing_interval_seconds": 5,
+      "allowed_file_extensions": [
+        ".mkv",
+        ".mp4",
+        ".avi",
+        ".ts",
+        ".m2ts",
+        ".vob",
+        ".m4v",
+        ".mov",
+        ".wmv",
+        ".mpg",
+        ".mpeg",
+        ".xvid",
+        ".rm",
+        ".rmvb",
+        ".asf",
+        ".asx",
+        ".wtv",
+        ".mk3d",
+        ".dvr-ms",
+        ".mp3",
+        ".flac",
+        ".m4a",
+        ".epub",
+        ".pdf",
+        ".cbz"
+      ],
+      "max_download_prefetch": 10,
+      "read_timeout_seconds": 300,
+      "segment_sample_percentage": 1,
+      "import_strategy": "NONE",
+      "import_dir": null,
+      "watch_dir": null,
+      "watch_interval_seconds": 10
+    }
+  },
+  "configured_import": {
+    "max_processor_workers": 2,
+    "queue_processing_interval_seconds": 5,
+    "segment_sample_percentage": 1,
+    "import_strategy": "NONE",
+    "max_concurrent_imports": 2
+  }
+}

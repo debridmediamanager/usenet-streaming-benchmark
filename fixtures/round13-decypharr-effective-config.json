@@ -1,0 +1,14 @@
+{
+  "source": "decypharr actual GET /api/config; projection excludes credentials",
+  "captured_at": "2026-10-01T22:22:01Z",
+  "revision": "0dd1cbbd6e4680000097db0141f7106e02d21b8d",
+  "actual": {
+    "usenet": {
+      "providers": [
+        {
+          "max_connections": 10
+        }
+      ]
+    }
+  }
+}

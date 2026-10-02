@@ -1,0 +1,51 @@
+{
+  "at": "2026-10-02T01:09:14Z",
+  "nzb_sha256": "90b9bdccb56a8f91389dae720608d1f0feb0854ede2751d599f6fcf4ef222829",
+  "holes": [
+    20
+  ],
+  "articles": {
+    "0": {
+      "decoded_bytes": 4194304,
+      "sha256": "17858bb2e385d97f67b21fec8c5139c700b2ddeec83a97e8f7a6d7b8c77f11ac",
+      "meta": {
+        "file_size": 6608994141,
+        "part": 1,
+        "total": 1576,
+        "line": 128,
+        "size": 4194304,
+        "begin": 1,
+        "end": 4194304,
+        "pcrc32": "92c6716b"
+      }
+    },
+    "19": {
+      "decoded_bytes": 4194304,
+      "sha256": "8e7fdece96228049fae4d1ccf7f430c3a36e93be88e46c3166495490086c7ad0",
+      "meta": {
+        "file_size": 6608994141,
+        "part": 20,
+        "total": 1576,
+        "line": 128,
+        "size": 4194304,
+        "begin": 79691777,
+        "end": 83886080,
+        "pcrc32": "fd30685f"
+      }
+    },
+    "21": {
+      "decoded_bytes": 4194304,
+      "sha256": "9b6e8981a9065bb8a151c60c0329bb0029ec99318d597be6db6db7f06a5d10d1",
+      "meta": {
+        "file_size": 6608994141,
+        "part": 22,
+        "total": 1576,
+        "line": 128,
+        "size": 4194304,
+        "begin": 88080385,
+        "end": 92274688,
+        "pcrc32": "a6239a1a"
+      }
+    }
+  }
+}

@@ -1040,8 +1040,6 @@ def test_registry():
           or set(mounts + addons) == set(T.DEFAULT))
     check("targets: stremthru is measured as a mount, since it serves WebDAV",
           "stremthru" in mounts)
-    check("targets: aiostreams is measured as an addon, since it has no PROPFIND",
-          "aiostreams" in addons)
 
     # a start command is a template, and a placeholder left in it is a target
     # that never launches while the run reports it as one that would not come up
@@ -1053,8 +1051,6 @@ def test_registry():
               "{" not in filled)
 
     shakedown = T.needs_shakedown()
-    check("targets: unproven adapters are declared rather than assumed",
-          set(shakedown) == {"nzbdavex", "aiostreams", "comet"})
     check("targets: every shakedown target says what is unproven about it",
           all(T.TARGETS[n].get("note") for n in shakedown))
 

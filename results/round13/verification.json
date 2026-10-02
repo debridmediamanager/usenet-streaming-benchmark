@@ -1,0 +1,46 @@
+{
+  "verification_host": "zen",
+  "offline_harness": "harness/test_r10.py: all checks passed after final changes",
+  "round13_regressions": "harness/test_r13.py: 6 tests passed after final changes",
+  "unfixed_regression_result": {
+    "tests": 6,
+    "failures": 1,
+    "errors": 1,
+    "damage_control": "AssertionError: 0 not greater than 88080384; actual recorded damaged NZB and captured first-article metadata",
+    "effective_config": "AttributeError: 'str' object has no attribute 'items'; actual AltMount allowed_origins API string list"
+  },
+  "final_smoke": {
+    "positive_targets": 7,
+    "served": 7,
+    "differing_sampled_hashes": 0,
+    "socket_samples": 344,
+    "peak_aiostreams": 8,
+    "other_target_peaks": 10
+  },
+  "publishable_passes": {
+    "main_rows": 70,
+    "graded_per_target": 8,
+    "unavailable_real_posts_per_target": 2,
+    "positive_hash_pairs_matched": 95,
+    "positive_hash_pairs_compared": 95,
+    "connection_samples": 5106,
+    "main_window_connection_samples": 4342,
+    "all_main_target_peaks": 10,
+    "sampled_overlaps": 0,
+    "sampled_budget_violations": 0,
+    "sampled_unknown_local_newswest_consumers": 0,
+    "actual_sample_gap_median_seconds": 3,
+    "actual_sample_gap_max_seconds": 15,
+    "worst_clean_start_rate_swing_percent": 67.8
+  },
+  "protected_regular_service_final_state": {
+    "unit": "zurg.service",
+    "active_state": "active",
+    "sub_state": "running",
+    "main_pid": 2487464,
+    "same_pid_as_initial": true
+  },
+  "task_containers_final_state": "All three exited, Running=false",
+  "publication_check": "Account username/password, URL-encoded values and encoded credential pair absent from inspected publication files; local README/report links resolve. No matching contents or credentials printed.",
+  "limits": "Sampled, not continuous, socket coverage. Byte identity is sampled, not full-file validation. Known damaged hole was zero-filled or truncated. Two corpus entries lacked real posts. Source-reviewed configuration is not an experimentally proven global optimum."
+}

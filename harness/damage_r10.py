@@ -239,7 +239,7 @@ def run(url, auth, nzb, hole_index=None, timeout=600):
     if first is None:
         raise SystemExit(f"cannot bootstrap: first article unavailable ({meta})")
     part_size = len(first)
-    size = meta.get("size") or part_size * len(segments)
+    size = meta.get("file_size") or part_size * len(segments)
 
     if hole_index is None:
         holes = find_holes(segments)

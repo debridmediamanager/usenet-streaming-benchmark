@@ -301,11 +301,11 @@ def ranked_names(rows, key):
 
 def render_headline(result, label, unit="", lower_is_better=True):
     lines = [f"### {label}", ""]
-    lines.append(f"Median over the {result['population_size']} entries at least "
-                 f"{int(result['threshold'] * 100)}% of the field served. `n` is how "
-                 f"many of those the target itself served; `own` is its median over "
-                 f"everything it served, which is the flattering number when the two "
-                 f"differ.")
+    lines.append(
+        f"Median over {result['population_size']} shared-population entries. "
+        "`n` counts the entries this target served in that population. "
+        "`own` covers every entry the target served and can hide failures."
+    )
     lines.append("")
     rows = []
     ordered = sorted(result["targets"].items(),
@@ -365,7 +365,7 @@ def render_resources(memory):
     lines = [
         "### Resources",
         "",
-        "One-second samples cover startup, import and every read. CPU and physical "
+        "Periodic samples cover startup, import and every read. CPU and physical "
         "block I/O are normalized by delivered sequential GiB; state disk is "
         "allocated growth in each target's explicit state directories. `raw` is "
         "the transport ceiling and is shown as context, not ranked as software.",
@@ -379,8 +379,8 @@ def render_resources(memory):
             row["disk_write_MB_per_GiB"], row["state_disk_delta_MB"],
         ])
     lines.append(table([
-        "target", "CPU s/GiB", "CPU p95 cores", "peak RSS MB",
-        "disk read MB/GiB", "disk write MB/GiB", "state delta MB",
+        "target", "CPU s/GiB", "CPU p95 cores", "peak RSS MiB",
+        "disk read MiB/GiB", "disk write MiB/GiB", "state delta MiB",
     ], body))
 
     competitors = [row for row in rows if row["target"] != "raw"]
