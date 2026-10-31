@@ -262,3 +262,9 @@ results/round7/          round 7 raw output
 results/round4/          round 4 raw output
 results/round3/          round 3 raw output
 ```
+
+---
+
+This benchmark is published by the people who build zurg. zurg is one of the servers it measures, so run it against your own account before you trust it.
+
+**More from DMM:** [Debrid Media Manager](https://debridmediamanager.com/) · [zurg](https://zurg.debridmediamanager.com/) · [rex](https://rex.debridmediamanager.com/) · [Docs](https://notes.debridmediamanager.com/) · [Sponsor](https://gatekeeper.debridmediamanager.com/) · [Discord](https://discord.com/invite/7u4YjMThXP) · [Reddit](https://www.reddit.com/r/debridmediamanager/)
