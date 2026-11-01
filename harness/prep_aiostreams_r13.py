@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Pinned AIO filesystem provisioning; never starts a service.
 
-On zen, export the designated ~/.config/zurg/bench-account.env, then invoke:
+On the round's host, export its designated account (NNTP_*), then invoke:
   python3 harness/prep_aiostreams_r13.py build
   python3 harness/prep_aiostreams_r13.py prepare
   python3 harness/prep_aiostreams_r13.py validate
@@ -10,11 +10,11 @@ build fetches pinned source and runs its official Dockerfile. prepare renders a
 private Docker env file and creates a STOPPED container. reset retires the whole
 data directory (SQLite, NZBs, segment caches), refusing a running container.
 The runner owns docker start/stop and readiness; no action starts NNTP work.
-Only BENCH=/home/ben/bench-round13-20261001 is accepted. NNTP_HOST/PORT/USER/PASS
-are required for prepare, HOST/PORT are fixed to newswest.frugalusenet.com:563.
-CONNS must equal 10. Runtime port is 13000, container aiostreams-r13-20261001.
+ROUND (round_profile.py) fixes BENCH, the provider HOST/PORT, the revision,
+image and container name; NNTP_HOST/PORT/USER/PASS are required for prepare.
+CONNS must equal 10. Runtime port is 13000.
 Outputs: $BENCH/src/aiostreams-<revision>, $BENCH/aiostreams/runtime.env,
-$BENCH/aiostreams/data, and image aiostreams:r13-f815290e8775.
+$BENCH/aiostreams/data, and image aiostreams:<round>-<revision[:12]>.
 Source-backed tuning: prefetch20 matches upstream's ~2x-connection useful ceiling;
 retain the high profile's 8GB disk cache and 40 command slots (10 sockets x4).
 Census12 shares the same pool; streaming priority0.8 avoids starving background
@@ -29,12 +29,14 @@ from pathlib import Path
 import secrets
 import subprocess
 
-REVISION = 'f815290e8775981cbdde22e0fff7fc1d5d8657cb'
-BENCH = Path(os.environ.get('BENCH', '/home/ben/bench-round13-20261001'))
-CONTAINER = 'aiostreams-r13-20261001'
-IMAGE = 'aiostreams:r13-f815290e8775'
+import round_profile as profile
+
+REVISION = profile.revision('aiostreams')
+BENCH = Path(os.environ.get('BENCH', profile.BENCH))
+CONTAINER = profile.container('aiostreams')
+IMAGE = profile.image('aiostreams')
 LABEL = 'usenet-benchmark.round'
-ROUND = 'r13-20261001'
+ROUND = profile.TAG
 HOME = BENCH / 'aiostreams'
 SOURCE = BENCH / 'src' / ('aiostreams-' + REVISION)
 ENV = HOME / 'runtime.env'
@@ -72,7 +74,7 @@ def validate():
     providers = json.loads(cfg['USENET_PROVIDERS'])
     assert len(providers) == 1
     p = providers[0]
-    assert p['host'] == 'newswest.frugalusenet.com' and p['port'] == 563
+    assert p['host'] == profile.HOST and p['port'] == profile.PORT
     assert p['tls'] and not p['tlsSkipVerify']
     assert p['maxConnections'] == 10 and p['pipelineDepth'] == 4
     assert p['enabled'] and not p['isBackup']
@@ -121,10 +123,7 @@ def build():
 def prepare():
     if os.environ.get('CONNS', '10') != '10':
         raise RuntimeError('This round requires exactly 10 connections')
-    if os.environ.get('NNTP_HOST') != 'newswest.frugalusenet.com':
-        raise RuntimeError('NNTP_HOST must be newswest.frugalusenet.com')
-    if os.environ.get('NNTP_PORT', '563') != '563':
-        raise RuntimeError('NNTP_PORT must be 563')
+    profile.check_provider(os.environ.get('NNTP_HOST'), os.environ.get('NNTP_PORT', '563'))
     user, password = os.environ['NNTP_USER'], os.environ['NNTP_PASS']
     if not user or not password:
         raise RuntimeError('Designated benchmark credentials are empty')
@@ -135,8 +134,8 @@ def prepare():
         raise RuntimeError('Build the pinned benchmark image first')
     HOME.mkdir(parents=True, exist_ok=True, mode=0o700)
     old_key = read_env().get('SECRET_KEY') if ENV.exists() else None
-    provider = dict(id='bench-newswest', name='Benchmark newswest',
-                    host='newswest.frugalusenet.com', port=563, tls=True,
+    provider = dict(id='bench-' + profile.ROUND, name='Benchmark ' + profile.ROUND,
+                    host=profile.HOST, port=profile.PORT, tls=True,
                     tlsSkipVerify=False, username=user, password=password,
                     maxConnections=10, priority=0, isBackup=False, enabled=True,
                     pipelineDepth=4)
@@ -157,6 +156,10 @@ def prepare():
                USENET_VERIFY_ARTICLE_CRC='true', USENET_MATROSKA_HOLE_FILL='true',
                USENET_DAMAGE_POLICY='strict', USENET_RECHECK_SCOPE='off',
                USENET_SABNZBD_API_ENABLED='true', SETTINGS_REFRESH_INTERVAL='0')
+    if profile.ROUND != 'r13':
+        # new upstream after r13: an ffprobe pass over the same engine. Its
+        # defaults never fire on SAB+WebDAV, but a moved default would add reads.
+        cfg['MEDIA_INFO_PROBE'] = 'false'
     with os.fdopen(os.open(ENV, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600), 'w') as f:
         os.chmod(ENV, 0o600)
         for key, value in cfg.items():
@@ -178,8 +181,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action', choices=('build', 'prepare', 'reset', 'validate'))
     args = parser.parse_args()
-    if BENCH != Path('/home/ben/bench-round13-20261001'):
-        parser.error('BENCH must be the isolated /home/ben/bench-round13-20261001')
+    profile.check_bench(BENCH)
     globals()[args.action]()
 
 

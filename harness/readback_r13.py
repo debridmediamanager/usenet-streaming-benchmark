@@ -5,6 +5,8 @@ import sys
 from urllib.request import Request, urlopen
 from urllib.parse import urlencode
 
+import round_profile as profile
+
 
 def fetch(port, path, fields=None):
     from config_r13 import KEY
@@ -55,11 +57,11 @@ def main():
         providers = json.loads(values["usenet.providers"])["Providers"]
         assert len(providers) == 1
         p = providers[0]
-        assert p["Host"] == "newswest.frugalusenet.com" and p["Port"] == 563
+        assert p["Host"] == profile.HOST and p["Port"] == profile.PORT
         assert p["UseSsl"] is True and p["MaxConnections"] == 10
     elif target in ("altmount", "decypharr"):
         path = "altmount/config.yaml" if target == "altmount" else "decyrun/config.json"
-        expected = json.loads((ROOT / path).read_text())
+        expected = json.loads((ROOT / (path + ".rendered")).read_text())
         got = fetch(18081 if target == "altmount" else 18282, "/api/config")
         got = got.get("data", got)
         if target == "altmount":
@@ -69,7 +71,7 @@ def main():
         match(got, expected, skip=("password", "username", "key_override", "id", "log", "categories"))
     elif target == "zurg":
         got = fetch(19998, "/config")["config"]
-        expected = json.loads((ROOT / "zurgrun/config.yml").read_text())
+        expected = json.loads((ROOT / "zurgrun/config.yml.rendered").read_text())
         for k in ("enable_repair", "rclone_enabled", "nzb_segments", "par2_patch_cache_mb", "check_for_changes_every_secs"):
             assert got[k] == expected[k], f"Effective setting differs: {k}"
         # Dashboard API does not expose NNTP pool options; startup logs and live socket gate cover those.

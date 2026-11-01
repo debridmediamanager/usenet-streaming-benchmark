@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Round 13: reviewed filesystem targets, ten connections, isolated on zen."""
+"""Rounds 13+: reviewed filesystem targets, ten connections, on the round's own host (ROUND)."""
 import argparse
 import collections
 import datetime
@@ -21,14 +21,13 @@ FIELD = ["raw", "zurg", "altmount", "infinidysk", "nzbdav-og", "decypharr", "aio
 PORTS = {"raw": 18099, "zurg": 19998, "altmount": 18081,
          "infinidysk": 18092, "nzbdav-og": 18093, "decypharr": 18282,
          "aiostreams": 13000}
-CONTAINERS = {"infinidysk": "infinidysk-r13-20261001",
-              "nzbdav-og": "nzbdav-r13-20261001",
-              "aiostreams": "aiostreams-r13-20261001"}
-os.environ.setdefault("BENCH", "/home/ben/bench-round13-20261001")
+sys.path.insert(0, str(HERE))
+import round_profile as profile
+CONTAINERS = {name: profile.container(name) for name in ("infinidysk", "nzbdav-og", "aiostreams")}
+os.environ.setdefault("BENCH", profile.BENCH)
 os.environ.setdefault("R10_PORTS", ",".join(f"{name}={port}" for name, port in PORTS.items()))
 os.environ["CONNS"] = "10"
-os.environ["GOMAXPROCS"] = "2"
-sys.path.insert(0, str(HERE))
+os.environ["GOMAXPROCS"] = str(profile.CPUS)
 import run_r10 as runner
 import targets_r10 as registry
 
@@ -109,7 +108,7 @@ class SocketGate:
                     if name:
                         counts[name] += 1
                     elif fields[4].rsplit(":", 1)[0].strip("[]") in self.provider_ips:
-                        counts["unowned-newswest-consumer"] += 1
+                        counts["unowned-provider-consumer"] += 1
         with (self.out / "connection-samples.jsonl").open("a") as handle:
             handle.write(json.dumps({"at": stamp, "counts": dict(counts)}) + "\n")
         self.samples += 1
@@ -250,16 +249,14 @@ def reset():
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--smoke", action="store_true", help="Plain-video path on every target, not a published round")
-    parser.add_argument("--out", default=str(REPO / "results" / "round13"))
+    parser.add_argument("--out", default=str(REPO / "results" / f"round{profile.ROUND[1:]}"))
     args = parser.parse_args()
     if os.geteuid() != 0:
-        raise SystemExit("Run on zen as root: Docker /proc accounting and socket ownership must be visible")
-    if os.environ.get("NNTP_HOST") != "newswest.frugalusenet.com" or os.environ.get("NNTP_PORT", "563") != "563":
-        raise SystemExit("This round requires designated newswest.frugalusenet.com:563 TLS")
+        raise SystemExit("Run as root: Docker /proc accounting and socket ownership must be visible")
+    profile.check_provider(os.environ.get("NNTP_HOST"), os.environ.get("NNTP_PORT", "563"))
+    profile.check_bench(registry.BENCH)
     if not os.environ.get("NNTP_USER") or not os.environ.get("NNTP_PASS"):
         raise SystemExit("Load the designated bench-account.env before running")
-    if registry.BENCH in ("/home/ben/bench", "/home/ben/zurg"):
-        raise SystemExit("Round 13 requires its own scratch BENCH working directory")
     out = Path(args.out).resolve()
     out.mkdir(parents=True, exist_ok=True)
     if (out / "connection-samples.jsonl").exists():
@@ -285,7 +282,7 @@ def main():
                 reset()
                 windows[phase] = {"start": utc()}
                 print(f"=== {phase.upper()} start {utc()} ===", flush=True)
-                main_data = pass_run(names, entries, life, f"r13-{phase}", out / f"{phase}.json")
+                main_data = pass_run(names, entries, life, f"{profile.ROUND}-{phase}", out / f"{phase}.json")
                 windows[phase]["end"] = utc()
                 dump(out / "windows.json", windows)
                 print(f"=== {phase.upper()} done {utc()} ===", flush=True)
@@ -302,7 +299,7 @@ def main():
     if not args.smoke:
         report = runner.report
         a, b = (json.loads((out / f"{phase}.json").read_text()) for phase in ("noise_a", "noise_b"))
-        text = ["# Round 13: reviewed filesystem targets on zen", "", "Connection allowance: at most 10 per application; actual peaks are in connection-gate.json.", "",
+        text = [f"# Round {profile.ROUND[1:]}: reviewed filesystem targets on {profile.P['where']}", "", "Connection allowance: at most 10 per application; actual peaks are in connection-gate.json.", "",
                 report.render_headline(main_data["throughput"], "Sequential throughput", unit=" MB/s", lower_is_better=False),
                 report.render_headline(main_data["cold_open"], "Cold open", unit=" s", lower_is_better=True),
                 report.render_resources(main_data["memory"]),
