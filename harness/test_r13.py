@@ -104,6 +104,8 @@ def render_decypharr(round_name):
     import os, sys
     env = dict(os.environ, ROUND=round_name, NNTP_USER="u", NNTP_PASS="p",
                BENCH={"r13": "/home/ben/bench-round13-20261001", "r14": "/root/bench-round14"}[round_name])
+    for inherited in ("NNTP_HOST", "NNTP_PORT"):  # each profile supplies its own
+        env.pop(inherited, None)
     code = ("import json, config_r13 as c; print(json.dumps(c.since_r14_decypharr("
             "{'usenet': {'disk_buffer_path': '/b/decyrun/streams', 'max_connections': 10}})))")
     out = subprocess.run([sys.executable, "-c", code], env=env, cwd=Path(__file__).parent,
