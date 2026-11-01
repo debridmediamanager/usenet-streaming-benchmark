@@ -11,13 +11,10 @@
 # dropped connection still destroys the server. Doing this by hand works right
 # up until the run crashes at 04:00 and the box bills until somebody notices.
 #
-# It also verifies afterwards rather than assuming: a deleted server can leave a
-# primary IP behind, and an IP with no server attached is invisible in the place
-# you would look for a server and still costs money. The ids assigned to this
-# server are recorded before deletion and checked for afterwards -- only those,
-# never "every unassigned IP in the project", which would reach other people's
-# resources.
-#
+# The box borrows the benchmark account's reserved Primary IPv4 and gets no
+# IPv6 (harness/hetzner-box.sh): a Usenet account is only ever used from one
+# public IP, so teardown deletes the server, never that IP, and verifies both.
+
 # Credentials come from the environment and nothing here is written to disk:
 #   NNTP_HOST NNTP_PORT NNTP_USER NNTP_PASS   the news account
 #   BENCH_SOURCE                              host holding built targets, e.g. me@buildbox
@@ -54,8 +51,9 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-say () { echo "== $1 $(date -u +%FT%TZ)"; }
-die () { echo "!! $1" >&2; exit 1; }
+. "$HERE/hetzner-box.sh"
+say () { box_say "$@"; }
+die () { box_die "$@"; }
 
 command -v hcloud >/dev/null || die "hcloud is not installed"
 hcloud context list >/dev/null 2>&1 || die "hcloud has no configured context"
@@ -65,90 +63,8 @@ if [ -z "$SSH_KEY" ]; then
   [ -n "$SSH_KEY" ] || die "no ssh key registered with hcloud, and none given"
 fi
 
-SERVER_ID=""
-PRIMARY_IPS=""
-IP=""
-
-# --------------------------------------------------------------------- teardown
-# Runs on every exit path. A round that dies is a round that still has to give
-# the machine back.
-teardown () {
-  local status=$?
-  set +e
-  if [ -n "$KEEP" ]; then
-    echo
-    say "KEEPING $NAME (${IP:-no ip}) because --keep was given. Delete it with:"
-    echo "   hcloud server delete $NAME"
-    return
-  fi
-  [ -z "$SERVER_ID" ] && return
-
-  echo
-  say "TEARDOWN $NAME"
-  hcloud server delete "$NAME" >/dev/null 2>&1 \
-    && echo "   server deleted" \
-    || echo "   server delete reported an error; verifying anyway"
-
-  # a primary IP outlives its server unless it was created with auto-delete,
-  # and an IP with no server is easy to miss and still billed
-  for ip_id in $PRIMARY_IPS; do
-    if hcloud primary-ip describe "$ip_id" >/dev/null 2>&1; then
-      hcloud primary-ip delete "$ip_id" >/dev/null 2>&1 \
-        && echo "   primary IP $ip_id deleted (it had outlived the server)" \
-        || echo "   !! primary IP $ip_id could NOT be deleted, delete it by hand"
-    fi
-  done
-
-  # verify rather than assume
-  local leftover=0
-  if hcloud server describe "$NAME" >/dev/null 2>&1; then
-    echo "   !! server $NAME still exists"; leftover=1
-  fi
-  for ip_id in $PRIMARY_IPS; do
-    if hcloud primary-ip describe "$ip_id" >/dev/null 2>&1; then
-      echo "   !! primary IP $ip_id still exists"; leftover=1
-    fi
-  done
-  if [ "$leftover" = 0 ]; then
-    say "VERIFIED: nothing of this run is left in the project"
-  else
-    echo "!! RESOURCES REMAIN AND ARE BILLING. Check: hcloud server list; hcloud primary-ip list" >&2
-    [ "$status" = 0 ] && status=1
-  fi
-
-  # the host key belongs to an address that no longer exists, and the next
-  # server to get that address will fail verification against it
-  [ -n "$IP" ] && ssh-keygen -R "$IP" >/dev/null 2>&1
-  exit $status
-}
-trap teardown EXIT INT TERM
-
-# ------------------------------------------------------------------ provision
-say "PROVISION $NAME ($TYPE, $IMAGE, $LOCATION)"
-hcloud server create --name "$NAME" --type "$TYPE" --image "$IMAGE" \
-  --location "$LOCATION" --ssh-key "$SSH_KEY" >/dev/null
-SERVER_ID=$(hcloud server describe "$NAME" -o format='{{.ID}}')
-IP=$(hcloud server ip "$NAME")
-PRIMARY_IPS=$(hcloud primary-ip list -o noheader -o columns=id,assignee \
-              | awk -v n="$NAME" '$0 ~ n {print $1}')
-echo "   id $SERVER_ID at $IP; primary IPs: $(echo ${PRIMARY_IPS:-none} | tr '\n' ' ')"
-
-# A provider recycles addresses, so this IP may carry a host key from a machine
-# that no longer exists. StrictHostKeyChecking=accept-new accepts an UNKNOWN
-# host and refuses a CHANGED one, so a stale entry locks the run out for the
-# whole wait and reports it as a server that never booted -- which is what the
-# first self-test of this script did.
-ssh-keygen -R "$IP" >/dev/null 2>&1 || true
-
-ssh_to () { ssh -o StrictHostKeyChecking=accept-new -o ConnectTimeout=10 "root@$IP" "$@"; }
-
-say "WAIT for ssh"
-for _ in $(seq 1 40); do
-  ssh_to true >/dev/null 2>&1 && break
-  sleep 5
-done
-ssh_to true >/dev/null 2>&1 || die "never became reachable over ssh"
-echo "   reachable"
+trap box_teardown EXIT INT TERM
+box_provision
 
 if [ -n "$SELFTEST" ]; then
   say "SELFTEST: provisioned, reachable, and about to be destroyed"
