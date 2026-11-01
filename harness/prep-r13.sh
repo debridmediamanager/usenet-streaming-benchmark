@@ -13,6 +13,10 @@ mkdir -p "$BENCH/src/out"
 MANIFEST="$ROUND_MANIFEST"
 case "${1:-}" in
 build)
+  # Sources are not secret, and the .NET images run their frontend as a
+  # non-root user: built under the script's umask 077 they ship files only root
+  # can read, and the target dies at start with EACCES on package.json.
+  umask 022
   # Each source checkout belongs exclusively to this task. Fail rather than replace dirty sources.
   python3 - "$MANIFEST" "$BENCH" <<'PY'
 import json, pathlib, subprocess, sys
@@ -32,6 +36,8 @@ for name, spec in manifest.items():
     got = subprocess.check_output(['git', '-C', str(dest), 'rev-parse', 'HEAD'], text=True).strip()
     assert got == spec['revision']
 PY
+  # a checkout made earlier under umask 077 keeps its modes
+  chmod -R go+rX "$BENCH/src"
   # The Go image is the one each module's own go.mod asks for (round 13: zurg
   # and decypharr 1.26, AltMount 1.27). Debian bookworm yields glibc 2.36
   # binaries; never copy Alpine CGO binaries.
@@ -54,6 +60,11 @@ PY
   docker build --build-arg NZBDAV_VERSION="main-${REV_INFINIDYSK:0:8}" --build-arg NZBDAV_COMMIT_SHA="$REV_INFINIDYSK" \
     -t "$IMG_INFINIDYSK" "$BENCH/src/infinidysk"
   docker build --build-arg NZBDAV_VERSION="main-${REV_NZBDAV_OG:0:8}" -t "$IMG_NZBDAV_OG" "$BENCH/src/nzbdav-og"
+  # the image's own user must be able to read what it starts
+  for img in "$IMG_INFINIDYSK" "$IMG_NZBDAV_OG"; do
+    docker run --rm --network none --user 1000:1000 --entrypoint sh "$img" -c 'test -r /app/frontend/package.json' \
+      || { echo "$img: its user cannot read /app/frontend/package.json" >&2; exit 1; }
+  done
   ;;
 bootstrap)
   # Official migrate-only mode exits BEFORE creating NNTP clients or listening.
