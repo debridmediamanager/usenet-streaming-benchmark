@@ -42,7 +42,14 @@ attach () {
 # run one step on the box as a unit that survives this ssh session
 remote_step () {
   local step="$1" cmd="$2"
-  ssh_to "systemctl list-units 'r14-*' --state=active --no-legend | grep -q . && { echo 'a step is still running:'; systemctl list-units 'r14-*' --no-legend; exit 1; }
+  # two steps that dial the account at once would share its connections and
+  # measure each other; a build or a test run dials nothing and may overlap
+  local dialing='r14-census.service|r14-smoke.service|r14-run.service'
+  ssh_to "systemctl is-active --quiet 'r14-$step' && { echo 'r14-$step is still running'; exit 1; }
+          case '$step' in census|smoke|run)
+            systemctl list-units 'r14-*' --state=active --no-legend | grep -Eq '$dialing' \
+              && { echo 'a step that dials the account is still running:'; systemctl list-units 'r14-*' --no-legend; exit 1; };;
+          esac
           systemd-run --unit 'r14-$step' --collect -p WorkingDirectory=$REMOTE \
             -p StandardOutput=append:/root/r14-$step.log -p StandardError=append:/root/r14-$step.log \
             bash -euc 'set -a; . /root/.bench-account.env; set +a
@@ -77,7 +84,24 @@ up)
 census)  attach; remote_step census "7z x -pdmmbench -y -ocorpus corpus/corpus.7z >/dev/null
                                      mkdir -p results/round14
                                      python3 harness/census_r14.py corpus results/round14/corpus-census.json" ;;
-build)   attach; remote_step build "bash harness/prep-r13.sh build
+build)
+  attach
+  # zurg's repository is private, so the box cannot clone it. Its pinned
+  # revision goes over as a bundle and becomes the checkout prep-r13.sh
+  # verifies (exact revision, clean tree) like any other source.
+  rev=$(python3 -c "import json;print(json.load(open('$REPO/config/round14-existing.json'))['zurg']['revision'])")
+  src="${ZURG_SRC:-$REPO/../zurg}"
+  git -C "$src" cat-file -e "$rev^{commit}" || box_die "$src does not have zurg $rev; git fetch there"
+  # bundled from a throwaway repo, so the local checkout's refs are never touched
+  tmp=$(mktemp -d); git init -q --bare "$tmp/pin.git"
+  git -C "$tmp/pin.git" fetch -q "$src" "+refs/remotes/origin/*:refs/remotes/origin/*"
+  git -C "$tmp/pin.git" branch bench-r14-pin "$rev"
+  git -C "$tmp/pin.git" bundle create "$tmp/zurg.bundle" bench-r14-pin 2>/dev/null
+  rsync -a "$tmp/zurg.bundle" "root@$IP:/root/zurg.bundle"; rm -rf "$tmp"
+  ssh_to "[ -d /root/bench-round14/src/zurg ] || { mkdir -p /root/bench-round14/src
+          git clone -q -b bench-r14-pin /root/zurg.bundle /root/bench-round14/src/zurg; }
+          git -C /root/bench-round14/src/zurg rev-parse HEAD"
+  remote_step build "bash harness/prep-r13.sh build
                                     python3 harness/prep_aiostreams_r13.py build
                                     bash harness/prep-r13.sh bootstrap" ;;
 verify)  attach; remote_step verify "python3 harness/test_r10.py; python3 harness/test_r13.py; python3 harness/test_hetzner.py" ;;
