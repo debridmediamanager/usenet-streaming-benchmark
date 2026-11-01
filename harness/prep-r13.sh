@@ -42,6 +42,7 @@ PY
       CGO_ENABLED=1 go build -p $ROUND_CPUS -trimpath -buildvcs=false -ldflags='-X github.com/debridmediamanager/zurg/internal/version.GitCommit=$REV_ZURG -X github.com/debridmediamanager/zurg/internal/version.Version=main-${REV_ZURG:0:8}' -o /src/out/zurg-$ROUND ./cmd/zurg"
   docker run --rm --name "build-decypharr-$ROUND_TAG" -e GOMAXPROCS="$ROUND_CPUS" \
     -v "$BENCH/src:/src" -w /src/decypharr "$(goimg decypharr)" bash -euc "
+      apt-get update && apt-get install -y --no-install-recommends libfuse-dev libfuse3-dev pkg-config
       CGO_ENABLED=1 go build -p $ROUND_CPUS -trimpath -buildvcs=false -ldflags='-s -w -X github.com/sirrobot01/decypharr/pkg/version.Version=main-${REV_DECYPHARR:0:8} -X github.com/sirrobot01/decypharr/pkg/version.Channel=main' -o /src/out/decypharr-$ROUND ."
   # CLI embeds the real frontend (upstream cli build convention).
   docker run --rm --name "build-alt-frontend-$ROUND_TAG" \
