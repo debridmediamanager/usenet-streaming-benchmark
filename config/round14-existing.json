@@ -1,0 +1,8 @@
+{
+  "zurg": {"url": "https://github.com/debridmediamanager/zurg.git", "revision": "e4fac5cbdf3b9b8983f939029849c20960810d71"},
+  "altmount": {"url": "https://github.com/javi11/altmount.git", "revision": "76d7468f9458a0f7f5860e6e9db657b0e72d25be"},
+  "decypharr": {"url": "https://github.com/sirrobot01/decypharr.git", "revision": "917cfa24d51fa98d98aa01864d8c7371401d56d0"},
+  "infinidysk": {"url": "https://github.com/infinidysk/infinidysk.git", "revision": "afa599d255bc9c0751a4b3ceccaf2d91d75382e1"},
+  "nzbdav-og": {"url": "https://github.com/nzbdav-dev/nzbdav.git", "revision": "0c7d8e215e0602fa4bfb3fa358ee46cecc6ba76d"},
+  "aiostreams": {"url": "https://github.com/Viren070/AIOStreams.git", "revision": "0b56aa18782fd1aab47f23609839de681bcc1122"}
+}

@@ -1,30 +1,49 @@
 #!/usr/bin/env python3
-"""Render secret-bearing files on zen only; JSON is also valid YAML 1.2."""
+"""Render secret-bearing files on the round's own host; JSON is also valid YAML 1.2."""
 import json
 import os
 from pathlib import Path
 import sqlite3
 import sys
 
+import round_profile as profile
+
 KEY = "benchbenchbenchbenchbenchbench12"
-ROOT = Path(os.environ.get("BENCH", "/home/ben/bench-round13-20261001"))
-if ROOT != Path("/home/ben/bench-round13-20261001") or ROOT.is_symlink():
-    raise SystemExit("Refusing non-round13 BENCH or symlink")
+ROOT = profile.check_bench(os.environ.get("BENCH", profile.BENCH))
 if int(os.environ.get("CONNS", "10")) != 10:
-    raise SystemExit("Round13 requires CONNS=10")
-HOST = os.environ.get("NNTP_HOST", "newswest.frugalusenet.com")
-if HOST != "newswest.frugalusenet.com" or int(os.environ.get("NNTP_PORT", "563")) != 563:
-    raise SystemExit("Only newswest.frugalusenet.com:563 TLS is permitted")
+    raise SystemExit("This round requires CONNS=10")
+HOST = os.environ.get("NNTP_HOST", profile.HOST)
+profile.check_provider(HOST, os.environ.get("NNTP_PORT", profile.PORT))
+CPUS = str(profile.CPUS)
 USER, PASS = os.environ["NNTP_USER"], os.environ["NNTP_PASS"]
 if any("\n" in v or "\r" in v for v in (USER, PASS)):
     raise SystemExit("Credentials cannot contain env-file line breaks")
 
 
 def save(relative, value):
-    path = ROOT / relative
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value, indent=2) + "\n")
-    path.chmod(0o600)
+    # .rendered is what readback compares with: decypharr rewrites its own
+    # config file on first start (adds secrets, drops keys it does not know),
+    # so the live file would compare the target against itself
+    for path in (ROOT / relative, ROOT / (relative + ".rendered")):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(value, indent=2) + "\n")
+        path.chmod(0o600)
+
+
+def since_r14_decypharr(cfg):
+    """decypharr settings that changed upstream after round 13."""
+    if profile.ROUND == "r13":
+        return cfg
+    usenet = cfg["usenet"]
+    # renamed; the old key is ignored, and empty disk_path means memory-only
+    usenet["disk_path"] = usenet.pop("disk_buffer_path")
+    # new: speculative BODY per connection, default 2, max 4. Four is the depth
+    # every other pipelining target in this field runs
+    usenet["body_pipeline_depth"] = 4
+    # new and on by default: a public gossip network that publishes the hashes
+    # and completeness of every NZB imported. Not a benchmark's to broadcast
+    cfg["hearsay"] = {"disabled": True}
+    return cfg
 
 
 def provider():
@@ -35,7 +54,11 @@ def provider():
 
 
 def infini_settings():
-    return {
+    since_r14 = {} if profile.ROUND == "r13" else {
+        # new upstream after r13: a broken file waits 15 min after any read
+        # before repair may replace it (HealthCheckService); round 13 had no wait
+        "repair.read-hold-minutes": "0"}
+    return since_r14 | {
         "usenet.providers": json.dumps({"Providers": [provider()]}),
         "usenet.max-download-connections": "10", "usenet.max-queue-connections": "10",
         "usenet.queue-pipelining.enabled": "true", "usenet.queue-pipelining.depth": "4",
@@ -109,11 +132,11 @@ def render():
                         "max_concurrent_jobs": 1, "max_repair_ratio": 1.0, "repair_on_import": True},
         "sabnzbd": {"enabled": False}, "arrs": {"enabled": False},
         "log": {"file": str(ROOT / "altmount/cfg/altmount.log"), "level": "info"},
-        "providers": [{"id": "bench-round13", "host": HOST, "port": 563, "username": USER,
+        "providers": [{"id": f"bench-{profile.ROUND}", "host": HOST, "port": 563, "username": USER,
                        "password": PASS, "max_connections": 10, "min_connections_alive": 2,
                        "inflight_requests": 10, "stat_inflight_requests": 100,
                        "tls": True, "insecure_tls": False, "enabled": True, "is_backup_provider": False}]})
-    save("decyrun/config.json", {
+    save("decyrun/config.json", since_r14_decypharr({
         "bind_address": "127.0.0.1", "port": "18282", "log_level": "info", "use_auth": False,
         "disable_webdav": False, "download_folder": str(ROOT / "decyrun/downloads"), "max_active_downloads": 2,
         "usenet": {"providers": [{"host": HOST, "port": 563, "username": USER, "password": PASS,
@@ -123,13 +146,13 @@ def render():
                    "conn_idle_timeout": "2m", "disk_buffer_path": str(ROOT / "decyrun/streams")},
         "categories": ["movies", "tv"],
         "repair": {"enabled": True, "source": "managed", "schedule": "5m", "workers": 2,
-                   "nntp_connection_percent": 20, "strategy": "per_entry", "recheck_interval": "1m", "auto_repair": True}})
+                   "nntp_connection_percent": 20, "strategy": "per_entry", "recheck_interval": "1m", "auto_repair": True}}))
     env = ROOT / "infinidysk/r13.env"
     env.parent.mkdir(parents=True, exist_ok=True)
     rows = {"PORT": "18094", "ASPNETCORE_URLS": "http://127.0.0.1:18092",
             "BACKEND_URL": "http://127.0.0.1:18092", "CONFIG_PATH": "/config", "LOG_LEVEL": "warning",
             "FRONTEND_BACKEND_API_KEY": KEY, "WEBDAV_USER": "usenet", "WEBDAV_PASSWORD": "usenet",
-            "DOTNET_PROCESSOR_COUNT": "2", "DOTNET_GCHeapHardLimit": "60000000"}
+            "DOTNET_PROCESSOR_COUNT": CPUS, "DOTNET_GCHeapHardLimit": "60000000"}
     for k, v in infini_settings().items():
         rows["NZBDAV_CONFIG__" + k.replace("-", "_").replace(".", "__").upper()] = v
     env.write_text("".join(f"{k}={v}\n" for k, v in rows.items()))

@@ -12,6 +12,7 @@ import corpus_r10 as corpus
 import damage_r10 as damage
 from readback_r13 import match
 from run_r13 import check_counts
+from census_r14 import verdict
 
 REPO = Path(__file__).resolve().parent.parent
 
@@ -31,7 +32,7 @@ class ConnectionGateTests(unittest.TestCase):
 
     def test_rejects_unknown_account_consumer_during_target_run(self):
         with self.assertRaisesRegex(RuntimeError, "Concurrent"):
-            check_counts({"nzbdav-og": 10, "unowned-newswest-consumer": 1})
+            check_counts({"nzbdav-og": 10, "unowned-provider-consumer": 1})
 
 
 class EffectiveConfigTests(unittest.TestCase):
@@ -85,6 +86,43 @@ class DamageCorpusTests(unittest.TestCase):
             self.assertLessEqual(start + length, record["metadata"]["file_size"])
             self.assertGreaterEqual(result["hole_position_pct"], 0)
             self.assertLessEqual(result["hole_position_pct"], 100)
+
+
+class CorpusCensusTests(unittest.TestCase):
+    def test_the_deliberate_hole_is_as_built(self):
+        self.assertTrue(verdict("ToyStory5Damaged.nzb", ["<hole@x>"], [])["ok"])
+
+    def test_a_provider_gap_in_a_complete_post_fails_the_census(self):
+        self.assertFalse(verdict("ToyStory5.nzb", ["<gone@x>"], [])["ok"])
+
+    def test_a_body_refused_after_stat_said_present_fails_the_census(self):
+        self.assertFalse(verdict("Bosch.S01.nzb", [], ["<lied@x>"])["ok"])
+
+
+def render_decypharr(round_name):
+    """since_r14_decypharr on round 13's real decypharr block, under ROUND."""
+    import os, sys
+    env = dict(os.environ, ROUND=round_name, NNTP_USER="u", NNTP_PASS="p",
+               BENCH={"r13": "/home/ben/bench-round13-20261001", "r14": "/root/bench-round14"}[round_name])
+    code = ("import json, config_r13 as c; print(json.dumps(c.since_r14_decypharr("
+            "{'usenet': {'disk_buffer_path': '/b/decyrun/streams', 'max_connections': 10}})))")
+    out = subprocess.run([sys.executable, "-c", code], env=env, cwd=Path(__file__).parent,
+                         capture_output=True, text=True, check=True).stdout
+    return json.loads(out)
+
+
+class DecypharrSinceRound13Tests(unittest.TestCase):
+    def test_round14_keeps_the_disk_cache_under_its_new_name(self):
+        usenet = render_decypharr("r14")["usenet"]
+        self.assertEqual(usenet.get("disk_path"), "/b/decyrun/streams")
+        self.assertNotIn("disk_buffer_path", usenet)
+
+    def test_round14_never_joins_the_public_gossip_network(self):
+        self.assertEqual(render_decypharr("r14").get("hearsay"), {"disabled": True})
+
+    def test_round13_renders_exactly_what_it_ran(self):
+        self.assertEqual(render_decypharr("r13"),
+                         {"usenet": {"disk_buffer_path": "/b/decyrun/streams", "max_connections": 10}})
 
 
 if __name__ == "__main__":
