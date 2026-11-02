@@ -507,6 +507,7 @@ def run_target(target, entries, life, reps_tag, memory, conns):
         if not per_entry_restart:
             start_for_entry(life, target, None, conns)
             started = True
+            phase_sampler.count_reads_from_now()
             memory.idle_rss_MB = procmon.sample_idle(
                 pids_fn, seconds=5).get("idle_rss_MB")
 
@@ -540,6 +541,7 @@ def run_target(target, entries, life, reps_tag, memory, conns):
                         life.stop(target)
                     start_for_entry(life, target, nzb, conns)
                     started = True
+                    phase_sampler.count_reads_from_now()
                     if memory.idle_rss_MB is None:
                         memory.idle_rss_MB = procmon.sample_idle(
                             pids_fn, seconds=5).get("idle_rss_MB")

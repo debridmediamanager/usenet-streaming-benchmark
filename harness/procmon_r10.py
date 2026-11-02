@@ -194,18 +194,18 @@ class Sampler:
         self.cpu_total_s = 0.0
         self.io_read_bytes = 0
         self.io_write_bytes = 0
+        self._io_lock = threading.Lock()
+        self._last_io = {}
 
     def _run(self):
         t0 = time.perf_counter()
         pids = self.pids_fn()
         last_ticks = self.cpu_fn(pids)
-        last_io = self.io_fn(pids)
         last_t = t0
         while not self._stop.wait(self.interval):
             now = time.perf_counter()
             pids = self.pids_fn()
             ticks = self.cpu_fn(pids)
-            current_io = self.io_fn(pids)
             span = now - last_t
             # a process set that shrank (a restart mid-window) can read as
             # negative; clamp rather than report a negative core count
@@ -215,11 +215,13 @@ class Sampler:
             # from a process that exits or is restarted during the phase.
             self.cpu_total_s += tick_delta / HZ
             self.samples.append((round(now - t0, 3), round(cores, 4), self.rss_fn(pids)))
-            for pid, (read_now, write_now) in current_io.items():
-                read_before, write_before = last_io.get(pid, (0, 0))
-                self.io_read_bytes += max(0, read_now - read_before)
-                self.io_write_bytes += max(0, write_now - write_before)
-            last_io = current_io
+            with self._io_lock:
+                current_io = self.io_fn(pids)
+                for pid, (read_now, write_now) in current_io.items():
+                    read_before, write_before = self._last_io.get(pid, (0, 0))
+                    self.io_read_bytes += max(0, read_now - read_before)
+                    self.io_write_bytes += max(0, write_now - write_before)
+                self._last_io = current_io
             last_ticks, last_t = ticks, now
 
     def start(self):
@@ -228,9 +230,22 @@ class Sampler:
         self.cpu_total_s = 0.0
         self.io_read_bytes = 0
         self.io_write_bytes = 0
+        self._last_io = self.io_fn(self.pids_fn())
         self._thread = threading.Thread(target=self._run, daemon=True)
         self._thread.start()
         return self
+
+    def count_reads_from_now(self):
+        """Count disk reads only from here on; call it once the target is ready.
+
+        What a process reads while starting is mostly its own executable paging
+        in, which is physical only when what ran before it pushed that out of the
+        page cache: round 14's zurg, last after decypharr and AIOStreams had
+        written ~13 GB, was charged 55.76 MiB for it. Writes keep counting.
+        """
+        with self._io_lock:
+            for pid, (read_now, _) in self.io_fn(self.pids_fn()).items():
+                self._last_io[pid] = (read_now, self._last_io.get(pid, (0, 0))[1])
 
     def stop(self):
         self._stop.set()

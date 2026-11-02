@@ -1216,6 +1216,72 @@ def test_release_is_matched_exactly():
         RUN.children, RUN.largest_video = real_children, real_video
 
 
+def test_startup_reads_are_not_disk_reads():
+    """Disk reads count from the moment the target is ready.
+
+    Round 14 charged zurg 55.76 MiB of disk reads (10.16 MiB per GiB, last
+    place) when every read window of its own measured 0.0. The pass counts each
+    process's /proc I/O from zero, so it included zurg's 82 MB binary paging in
+    at start: on zen the round 14 build read 61 MiB before "Serving on" with its
+    binary evicted from the page cache and 0 MiB with it cached. Whether it was
+    cached depends on what ran before it, not on how the target streams.
+    """
+    MiB = 1 << 20
+    counters = {}
+
+    class FakeLife:
+        SPEC = {"zurg": {"start": ""}}
+
+        def start(self, target):
+            counters[1] = (61 * MiB, 8 << 10)   # zen, round 14 build, cold binary
+            return True
+        def stop(self, target): pass
+        def pids_for(self, target): return list(counters)
+
+    def import_entry(target, entry, path, auth):
+        time.sleep(0.2)
+        counters[1] = (counters[1][0] + MiB, counters[1][1] + MiB)   # what the import itself read
+        time.sleep(0.2)
+        return None, None, {"import_mode": "sabnzbd", "import_accepted": False,
+                            "import_detail": '{"status": false}', "import_s": None}
+
+    class FastSampler(P.Sampler):
+        def __init__(self, pids_fn):
+            super().__init__(pids_fn, interval=0.05, cpu_fn=lambda p: {},
+                             rss_fn=lambda p: 0, io_fn=lambda p: {k: counters[k] for k in p})
+
+    tmp = tempfile.mkdtemp()
+    nzb = os.path.join(tmp, "damaged-severe.nzb")
+    with open(nzb, "wb") as handle:
+        handle.write(b"<nzb/>")
+    saved = {k: getattr(RUN, k) for k in ("import_entry", "IDLE_SETTLE_S")}
+    saved_resolve, saved_sampler = RUN.corpus.resolve, RUN.procmon.Sampler
+    saved_idle, saved_rss = RUN.procmon.sample_idle, RUN.procmon.rss_kb
+    memory = P.RunMemory()
+    try:
+        RUN.import_entry = import_entry
+        RUN.IDLE_SETTLE_S = 0
+        RUN.corpus.resolve = lambda entry: nzb
+        RUN.procmon.Sampler = FastSampler
+        RUN.procmon.sample_idle = lambda *a, **k: {"idle_rss_MB": 1}
+        RUN.procmon.rss_kb = lambda pids: 0
+        with contextlib.redirect_stdout(io.StringIO()):
+            RUN.run_target("zurg", [{"id": "damaged-severe", "tier": "negative",
+                                     "expect": "reject"}], FakeLife(), "t.0", memory, 10)
+    finally:
+        for k, v in saved.items():
+            setattr(RUN, k, v)
+        RUN.corpus.resolve, RUN.procmon.Sampler = saved_resolve, saved_sampler
+        RUN.procmon.sample_idle, RUN.procmon.rss_kb = saved_idle, saved_rss
+        shutil.rmtree(tmp, ignore_errors=True)
+
+    phase = memory.phases[0]
+    check("startup: the binary paging in at start is not a disk read",
+          phase["disk_read_MB"] == 1.0)
+    check("startup: what it writes while starting still counts",
+          phase["disk_write_MB"] == 1.01)
+
+
 def test_every_row_reaches_the_log():
     """A refused entry is a verdict, and it cost the whole import budget.
 
@@ -1620,6 +1686,7 @@ if __name__ == "__main__":
     test_registry()
     test_import_delivery()
     test_release_is_matched_exactly()
+    test_startup_reads_are_not_disk_reads()
     test_every_row_reaches_the_log()
     test_drain_ownership()
     test_enable_disable()
