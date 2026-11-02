@@ -1,0 +1,47 @@
+{
+  "provider_round": "r14",
+  "at": "2026-11-01T22:35:13Z",
+  "entries": {
+    "ToyStory5.nzb": {
+      "ok": true,
+      "expected_missing": 0,
+      "stat_missing": 0,
+      "body_failed": 0,
+      "articles": 1662,
+      "seconds": 102.7
+    },
+    "ToyStory5Damaged.nzb": {
+      "ok": true,
+      "expected_missing": 1,
+      "stat_missing": 1,
+      "body_failed": 0,
+      "articles": 1662,
+      "seconds": 8.7
+    },
+    "Obfuscated.nzb": {
+      "ok": true,
+      "expected_missing": 0,
+      "stat_missing": 0,
+      "body_failed": 0,
+      "articles": 1662,
+      "seconds": 7.2
+    },
+    "FatherBrown.nzb": {
+      "ok": true,
+      "expected_missing": 0,
+      "stat_missing": 0,
+      "body_failed": 0,
+      "articles": 1010,
+      "seconds": 716.7
+    },
+    "Bosch.S01.nzb": {
+      "ok": true,
+      "expected_missing": 0,
+      "stat_missing": 0,
+      "body_failed": 0,
+      "articles": 32850,
+      "seconds": 1557.4
+    }
+  },
+  "ok": true
+}

@@ -11,19 +11,20 @@ one, both stay up and the later one says so.
 
 ## Latest
 
-**[Round 13, current zurg main and AIOStreams' native filesystem](docs/round13.md)**,
-measured 2 October 2026. Six streaming applications plus raw on the isolated
-two-core zen targets, with source-reviewed configurations frozen before the
-noise and main passes. Every target reached the common ten-connection allowance;
-no sampled overlap or oversubscription. Raw output:
-[`results/round13/`](results/round13/).
+**[Round 14, the round 13 field on dedicated cores and a new account](docs/round14.md)**,
+measured 1–2 November 2026. Six streaming applications plus raw on a fresh
+four-core Hetzner ccx23, sources pinned to upstream main that day, round 13's
+reviewed configurations plus the settings upstream has added since. Every
+target reached the ten-connection allowance with no sampled overlap or
+oversubscription, and the corpus was checked article by article on the new
+provider before any target ran. Raw output: [`results/round14/`](results/round14/).
 
-zurg had the highest observed sequential median (37.99 MB/s), but the measured
-67.8% clean-start rate swing does not support an overall speed ranking. Native
-AIOStreams served all five positive shapes and met six of eight registered
-availability/refusal expectations. zurg, InfiniDysk and NZBDav-og met eight of
-eight; none demonstrated repair of the known missing article, which remained
-zero-filled or truncated. Read those qualifications before quoting the scores.
+zurg is last on sustained reads (47.78 MB/s against 54.87–60.58, a 6.3 MB/s
+stall floor against 40–44 for four of the others) and first on cold open
+(2.5 ms). It also served an incomplete archive set as zeros, an entry round 13's
+zurg refused. InfiniDysk and NZBDav-og met eight of eight registered
+expectations. A new host and a new provider mean no cross-round rate
+comparison; read the round's limits before quoting it.
 
 ## Every round
 
@@ -31,6 +32,7 @@ Newest first.
 
 | Round | Date | What it measured | Report | Raw output |
 |---|---|---|---|---|
+| **14** | 1–2 Nov 2026 | The round 13 field and harness on a dedicated four-core Hetzner ccx23 and a benchmark-only account, with a per-article corpus census first. Rates, stall floor, latency, damage/negative outcomes, sampled byte identity, CPU, RSS, I/O and state | [docs/round14.md](docs/round14.md) | [results/round14/](results/round14/) |
 | **13** | 2 Oct 2026 | Latest-at-provisioning sources, including AIOStreams native filesystem, with reviewed configurations and a ten-connection allowance on shared two-core zen. Rates, latency, damage/negative outcomes, sampled byte identity, CPU, RSS, I/O and state | [docs/round13.md](docs/round13.md) | [results/round13/](results/round13/) |
 | **12** | 18 Sep 2026 | Five current mounts plus raw at exact 10-connection parity on dedicated Hetzner cores. Throughput, p05 floor, import, seek/playback probes, byte identity, negative outcomes, CPU, RSS, physical I/O and state growth | [docs/round12.md](docs/round12.md) | [results/round12/](results/round12/) |
 | **11** | 7-8 Sep 2026 | Six targets at 10 connections on four dedicated cores, every one built from upstream main on the day. Throughput, cold open, stall floor, import, byte identity and a negative tier | [docs/round11.md](docs/round11.md) | [results/round11/](results/round11/) |
@@ -71,6 +73,28 @@ this repository against your own account. Do that rather than taking it at face
 value.
 
 ## Running a benchmark
+
+### Round 14
+
+[`hetzner-r14.sh`](harness/hetzner-r14.sh) runs the round 13 harness in phases
+on a fresh Hetzner box that borrows a reserved Primary IPv4, so the account is
+only ever seen from one IP; the box gets no IPv6. A corpus census gates the
+round on the provider holding every article as built. See
+[the round's reproduction steps](docs/round14.md#reproducing-the-round).
+
+Each remote step starts a systemd unit on the box and returns; wait for
+`harness/hetzner-r14.sh status` to show it finished before the next one.
+
+```bash
+harness/hetzner-r14.sh up         # NNTP_USER and NNTP_PASS in the environment
+harness/hetzner-r14.sh census
+harness/hetzner-r14.sh build
+harness/hetzner-r14.sh verify
+harness/hetzner-r14.sh smoke
+harness/hetzner-r14.sh run
+harness/hetzner-r14.sh collect
+harness/hetzner-r14.sh down       # deletes the server, never the IP
+```
 
 ### Round 13
 
@@ -164,9 +188,9 @@ Every credential in this repository is a placeholder and nothing here is live.
 
 Older configurations use `news.news-provider.example`; replace it with your own.
 The round 10 scripts read `NNTP_HOST`, `NNTP_PORT`, `NNTP_USER` and `NNTP_PASS`
-from the environment. Round 13 explicitly uses `newswest.frugalusenet.com:563`
-and loads the designated private account file on zen; its rendered credentials
-are never checked in.
+from the environment. Rounds 13 and 14 accept only their round's provider
+(`round_profile.py`: round 13 `newswest.frugalusenet.com:563`, round 14
+`news.bulknews.eu:563`); rendered credentials are never checked in.
 
 Paths in the older scripts are absolute and assume the layout the runs used.
 `BENCH` in `bench5.py` and the paths in `plexmnt.sh` and `chain7.sh` need to

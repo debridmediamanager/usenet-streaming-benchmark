@@ -1,0 +1,105 @@
+== smoke start 2026-11-01T23:15:27Z
+=== RESET smoke 2026-11-01T23:16:01Z ===
+Rendered isolated configs (secret contents suppressed)
+NZBDav migration-created SQLite: five roots, empty library, provider/download=10
+{
+ "dead-post": {
+  "segments_rewritten": 1010,
+  "sha256": "1509eddf4091c592",
+  "source": "FatherBrown.nzb",
+  "op": "dead_post",
+  "path": "corpus/derived/dead-post.nzb"
+ },
+ "incomplete-archive-set": {
+  "files_removed": [
+   "[ TOWN ]-[ www.town.ag ]-[ partner of www.ssl-news.info ]-[ TV ] [04/17] - \"pxAk"
+  ],
+  "sha256": "fab77b9744d443cd",
+  "source": "FatherBrown.nzb",
+  "op": "drop_volume",
+  "path": "corpus/derived/incomplete-archive-set.nzb"
+ },
+ "damaged-severe": {
+  "segments_dropped": 1050,
+  "segments_kept": 527,
+  "sha256": "c2deb10dd0691013",
+  "source": "ToyStory5.nzb",
+  "op": "decimate",
+  "path": "corpus/derived/damaged-severe.nzb"
+ }
+}
+56712c37229968642b262ac35d04c4dd34de57b47500a099e81a828458d2fae8
+AIO static config: one TLS provider, 10 sockets, depth4, native WebDAV13000
+Created STOPPED aiostreams-r14-20261102; source revision 0b56aa18782fd1aab47f23609839de681bcc1122
+Reset complete: empty target libraries/cache, three stopped task-owned containers; nothing started
+=== SMOKE start 2026-11-01T23:16:02Z ===
+{"target": "raw", "entry": "plain-video", "outcome": "pass", "MBps": 57.2, "p05_MBps": 0.0, "cold_open_s": 0.6481, "import_s": 0.016, "entry_s": 60.336}
+zurg: effective config readback passed (secret contents suppressed)
+{"target": "zurg", "entry": "plain-video", "outcome": "pass", "MBps": 50.53, "p05_MBps": 6.29, "cold_open_s": 0.0013, "import_s": 5.026, "entry_s": 47.393}
+altmount: effective config readback passed (secret contents suppressed)
+{"target": "altmount", "entry": "plain-video", "outcome": "pass", "MBps": 59.45, "p05_MBps": 46.42, "cold_open_s": 0.0017, "import_s": 5.024, "entry_s": 38.632}
+!! infinidysk abandoned: RuntimeError: infinidysk never became ready at http://127.0.0.1:18092/health, last code 000
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/urllib/request.py", line 1344, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "/usr/lib/python3.12/http/client.py", line 1365, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/usr/lib/python3.12/http/client.py", line 1411, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.12/http/client.py", line 1360, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.12/http/client.py", line 1120, in _send_output
+    self.send(msg)
+  File "/usr/lib/python3.12/http/client.py", line 1064, in send
+    self.connect()
+  File "/usr/lib/python3.12/http/client.py", line 1030, in connect
+    self.sock = self._create_connection(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 852, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.12/socket.py", line 837, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/usenet-streaming-benchmark/harness/readback_r13.py", line 84, in <module>
+    main()
+  File "/root/usenet-streaming-benchmark/harness/readback_r13.py", line 49, in main
+    got = fetch(18092 if target == "infinidysk" else 18093, "/api/get-config",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/usenet-streaming-benchmark/harness/readback_r13.py", line 17, in fetch
+    with urlopen(req, timeout=20) as response:
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 515, in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 532, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 1373, in http_open
+    return self.do_open(http.client.HTTPConnection, req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 1347, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [Errno 111] Connection refused>
+!! nzbdav-og abandoned: CalledProcessError: Command '['/usr/bin/python3', '/root/usenet-streaming-benchmark/harness/readback_r13.py', 'nzbdav-og']' returned non-zero exit status 1.
+decypharr: effective config readback passed (secret contents suppressed)
+{"target": "decypharr", "entry": "plain-video", "outcome": "pass", "MBps": 56.21, "p05_MBps": 13.21, "cold_open_s": 0.3169, "import_s": 5.024, "entry_s": 41.142}
+AIO static config: one TLS provider, 10 sockets, depth4, native WebDAV13000
+{"target": "aiostreams", "entry": "plain-video", "outcome": "pass", "MBps": 50.43, "p05_MBps": 8.39, "cold_open_s": 0.0055, "import_s": 5.051, "entry_s": 46.33}
+=== SMOKE done 2026-11-01T23:24:41Z ===
+Ten-connection allowance; targets using fewer sockets: {'altmount': 4, 'infinidysk': 0, 'nzbdav-og': 0, 'aiostreams': 8}
+Traceback (most recent call last):
+  File "/root/usenet-streaming-benchmark/harness/run_r13.py", line 313, in <module>
+    main()
+  File "/root/usenet-streaming-benchmark/harness/run_r13.py", line 297, in main
+    raise RuntimeError(f"Filesystem smoke failed: targets={failed}, byte disagreements={main_data['consensus']['differing']}")
+RuntimeError: Filesystem smoke failed: targets=['infinidysk', 'nzbdav-og'], byte disagreements=[]

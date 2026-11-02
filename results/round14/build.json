@@ -1,0 +1,39 @@
+{
+  "source_revision_policy": "Upstream main heads pinned at provisioning on 2026-11-01; no rebuilds during publishable passes.",
+  "host": {
+    "type": "Hetzner ccx23, 4 dedicated vCPU, 16 GB, nbg1",
+    "nproc": 4,
+    "kernel": "6.8.0-139-generic",
+    "docker": "29.9.2"
+  },
+  "zurg": {
+    "revision": "e4fac5cbdf3b9b8983f939029849c20960810d71",
+    "binary_sha256": "7931a6dd713fa5a247783d71371ca71afb456e7b8de19d8fe9aab0fee5f068a9",
+    "embedded_go_version": "go1.27.3"
+  },
+  "altmount": {
+    "revision": "76d7468f9458a0f7f5860e6e9db657b0e72d25be",
+    "binary_sha256": "ed9fc1a85327a2980b225800891c0952a481570738da341f191a7f6a0adbdac8",
+    "embedded_go_version": "go1.27.3"
+  },
+  "decypharr": {
+    "revision": "917cfa24d51fa98d98aa01864d8c7371401d56d0",
+    "binary_sha256": "19a45d111c0e7141f1f892096a1f996f2bc6d2a9251abade1f0a9d672366b8e6",
+    "embedded_go_version": "go1.26.10"
+  },
+  "infinidysk": {
+    "revision": "afa599d255bc9c0751a4b3ceccaf2d91d75382e1",
+    "image_id": "sha256:eaf7f1ac45e109e44c213fa58db2adbe88396f575a0adbed879c33d42a326939",
+    "rapidyenc_revision": "81b6ed33c6eac449738adfecfeb55d3680c9b845"
+  },
+  "nzbdav-og": {
+    "revision": "0c7d8e215e0602fa4bfb3fa358ee46cecc6ba76d",
+    "image_id": "sha256:6c3db79ba633b2e11282dbb1559ec9b4959b8e20dd5490ea5ee2cfb2e718a07b"
+  },
+  "aiostreams": {
+    "revision": "0b56aa18782fd1aab47f23609839de681bcc1122",
+    "image_id": "sha256:7de9462eace27f627ce3da0405e47f3c94fc59b9765bba4a1464d5276a52d59a",
+    "node_version": "v24.22.2"
+  },
+  "reproducibility_limit": "Source revisions and observed build identities are exact. Compiler/base image tags and apt package repositories are not immutable digest locks."
+}

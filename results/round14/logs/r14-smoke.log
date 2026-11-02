@@ -1,0 +1,53 @@
+== smoke start 2026-11-01T23:30:56Z
+=== RESET smoke 2026-11-01T23:31:31Z ===
+Rendered isolated configs (secret contents suppressed)
+NZBDav migration-created SQLite: five roots, empty library, provider/download=10
+{
+ "dead-post": {
+  "segments_rewritten": 1010,
+  "sha256": "1509eddf4091c592",
+  "source": "FatherBrown.nzb",
+  "op": "dead_post",
+  "path": "corpus/derived/dead-post.nzb"
+ },
+ "incomplete-archive-set": {
+  "files_removed": [
+   "[ TOWN ]-[ www.town.ag ]-[ partner of www.ssl-news.info ]-[ TV ] [04/17] - \"pxAk"
+  ],
+  "sha256": "fab77b9744d443cd",
+  "source": "FatherBrown.nzb",
+  "op": "drop_volume",
+  "path": "corpus/derived/incomplete-archive-set.nzb"
+ },
+ "damaged-severe": {
+  "segments_dropped": 1050,
+  "segments_kept": 527,
+  "sha256": "c2deb10dd0691013",
+  "source": "ToyStory5.nzb",
+  "op": "decimate",
+  "path": "corpus/derived/damaged-severe.nzb"
+ }
+}
+aiostreams-r14-20261102
+938e58cdd9b9e6c48f87cca30fb07820efebe4cf8207344e06ffce70e8cae770
+AIO static config: one TLS provider, 10 sockets, depth4, native WebDAV13000
+Created STOPPED aiostreams-r14-20261102; source revision 0b56aa18782fd1aab47f23609839de681bcc1122
+Reset complete: empty target libraries/cache, three stopped task-owned containers; nothing started
+=== SMOKE start 2026-11-01T23:31:32Z ===
+{"target": "raw", "entry": "plain-video", "outcome": "pass", "MBps": 59.66, "p05_MBps": 0.0, "cold_open_s": 0.448, "import_s": 0.015, "entry_s": 61.018}
+zurg: effective config readback passed (secret contents suppressed)
+{"target": "zurg", "entry": "plain-video", "outcome": "pass", "MBps": 49.38, "p05_MBps": 6.29, "cold_open_s": 0.0021, "import_s": 5.027, "entry_s": 46.929}
+altmount: effective config readback passed (secret contents suppressed)
+{"target": "altmount", "entry": "plain-video", "outcome": "pass", "MBps": 59.64, "p05_MBps": 48.92, "cold_open_s": 0.0014, "import_s": 5.023, "entry_s": 39.386}
+infinidysk: effective config readback passed (secret contents suppressed)
+{"target": "infinidysk", "entry": "plain-video", "outcome": "pass", "MBps": 62.35, "p05_MBps": 47.74, "cold_open_s": 0.2045, "import_s": 5.214, "entry_s": 44.631}
+nzbdav-og: effective config readback passed (secret contents suppressed)
+{"target": "nzbdav-og", "entry": "plain-video", "outcome": "pass", "MBps": 61.17, "p05_MBps": 44.11, "cold_open_s": 0.2018, "import_s": 5.734, "entry_s": 46.649}
+decypharr: effective config readback passed (secret contents suppressed)
+{"target": "decypharr", "entry": "plain-video", "outcome": "pass", "MBps": 59.72, "p05_MBps": 37.75, "cold_open_s": 0.1618, "import_s": 5.024, "entry_s": 41.044}
+AIO static config: one TLS provider, 10 sockets, depth4, native WebDAV13000
+{"target": "aiostreams", "entry": "plain-video", "outcome": "pass", "MBps": 52.38, "p05_MBps": 11.32, "cold_open_s": 0.0077, "import_s": 5.05, "entry_s": 46.506}
+=== SMOKE done 2026-11-01T23:41:18Z ===
+Ten-connection allowance; targets using fewer sockets: {'altmount': 6, 'aiostreams': 8}
+Filesystem smoke passed: all seven targets served matching sampled bytes; live socket peaks={'raw': 10, 'zurg': 10, 'altmount': 6, 'infinidysk': 10, 'nzbdav-og': 10, 'decypharr': 10, 'aiostreams': 8}; cap=10
+== smoke done 2026-11-01T23:41:35Z
