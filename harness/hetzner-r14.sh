@@ -125,7 +125,9 @@ collect)
   attach
   mkdir -p "$REPO/results/round14"
   rsync -a "root@$IP:$REMOTE/results/round14/" "$REPO/results/round14/"
-  rsync -a "root@$IP:/root/r14-*.log" "$REPO/results/round14/logs/" 2>/dev/null || true
+  # per box: a later box's logs carry the same names and must not replace these
+  mkdir -p "$REPO/results/round14/logs/server-$SERVER_ID"
+  rsync -a "root@$IP:/root/r14-*.log" "$REPO/results/round14/logs/server-$SERVER_ID/" 2>/dev/null || true
   echo "   $(find "$REPO/results/round14" -type f | wc -l) files in results/round14"
   ;;
 down)
