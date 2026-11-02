@@ -105,13 +105,23 @@ def build(main, rerun):
          "The 95th percentile of sampled CPU use.", ""),
         ("rss", "Peak memory", "Memory", "MiB RSS", False, lambda t: res(t, 2), "{:.0f}", "", ""),
         ("dr", "Disk reads", "Disk reads", "MiB per GiB", False, lambda t: res(t, 3), "{:.2f}",
-         "Physical block reads per GiB delivered.", ""),
+         "Physical block reads per GiB delivered, counted from before each target started.",
+         "zurg's 55.76 MiB fell outside its read windows, every one of which measured 0.0 MiB, and matches "
+         "its own 82 MB binary paging in at start: on zen a build of the same commit read 61 MiB before it "
+         "was serving with its binary out of the page cache and 0 MiB with it in. zurg started last but one in the main "
+         "pass, after decypharr and AIOStreams had written about 13 GB on this 16 GB host, and read 8.5 and "
+         "3.5 MiB in the noise passes. Rounds after 14 count reads from the moment a target is ready."),
         ("dw", "Disk writes", "Disk writes", "MiB per GiB", False, lambda t: res(t, 4), "{:.2f}",
          "Physical block writes per GiB delivered.",
          "decypharr's writes are consistent with its new sparse per-stream disk cache, which upstream no "
          "longer caps at 256 MiB (source reading, not measured per file)."),
         ("st", "State growth", "State", "MiB", False, lambda t: res(t, 5), "{:.2f}",
-         "Allocated growth of the target's own state directories over the pass.", ""),
+         "Allocated growth of the target's own state directories over the pass.",
+         "zurg keeps an on-disk article cache by default (`data/bytecache/articles`, capped at 512 MiB): "
+         "the first and last 8 MiB of every file it serves, the first and last article of every file it reads, and "
+         "archive structure, so a probe or library scan after a restart does not fetch them again. Its "
+         "state directories also hold the article index (`data/nzb-index`) and the NZBs dropped into "
+         "`nzbs/`. The pass records only the total, not how it splits between them."),
     ]
 
     out = ["## Results by metric", "",
