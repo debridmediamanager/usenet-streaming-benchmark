@@ -1,0 +1,14 @@
+{
+  "zurg": {
+    "revision": "60dcd69dfed3e34153ac0d2ddc9beb8832d7aa54",
+    "pin": "config/round14-zurg-rerun.json",
+    "binary_sha256": "eae696307f81a53cc5f717917b921daafeb130f66927a04164911684d261ae57",
+    "embedded_go_version": "go1.27.3"
+  },
+  "host": {
+    "type": "Hetzner ccx23, 4 dedicated vCPU (AMD EPYC-Milan), 16 GB, nbg1",
+    "kernel": "6.8.0-138-generic",
+    "docker": "29.9.2"
+  },
+  "note": "Fresh box on the round's reserved IP. Every other target was built from config/round14-existing.json's pins so prep-r13.sh reset could run; only raw and zurg were started. zurg 60dcd69d is round 14's e4fac5cb plus six commits: the fix and five that touch the dashboard, 7z sets with an encrypted header and the qBittorrent API, none on the read path of this corpus."
+}

@@ -23,8 +23,8 @@ zurg and AIOStreams trail on sustained reads (47.78 and 48.66 MB/s against
 57.07–60.58; zurg's stall floor is 6.3 MB/s against 40–44 for four of the
 others), and zurg is first on cold open (2.5 ms). AIOStreams' figures come from
 a rerun without the 8 GB disk cache that rounds 13 and 14 had given it alone,
-which let it serve the corpus's repeated articles from disk. It also served an incomplete archive set as zeros, an entry round 13's
-zurg refused. InfiniDysk and NZBDav-og met eight of eight registered
+which let it serve the corpus's repeated articles from disk. zurg served an incomplete archive set as zeros, an entry round 13's
+zurg refused; zurg `60dcd69d` refuses it again (rerun in the round's report). InfiniDysk and NZBDav-og met eight of eight registered
 expectations. A new host and a new provider mean no cross-round rate
 comparison; read the round's limits before quoting it.
 

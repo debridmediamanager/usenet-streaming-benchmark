@@ -34,7 +34,8 @@ any earlier round.
   inner file at its declared 321,905,886 bytes anyway. Every sampled range past
   the gap is the MD5 of 2 MiB of zeros. Round 13's zurg refused the same entry.
   decypharr and AIOStreams served it too, at 291,906,039 bytes and with
-  non-zero bytes in the sampled ranges.
+  non-zero bytes in the sampled ranges. zurg `60dcd69d` refuses it again
+  ([rerun below](#zurg-refusing-the-incomplete-set-again)).
 - **InfiniDysk and NZBDav-og met all eight registered expectations.** zurg,
   AltMount and decypharr met seven, AIOStreams six.
 - **104/104 compared target-range hashes matched consensus.** Sampled ranges,
@@ -153,6 +154,9 @@ SERVED` means a negative entry returned a qualifying payload.
 | incomplete-archive-set | **WRONGLY SERVED** (zeros) | refused | refused | refused | WRONGLY SERVED | WRONGLY SERVED | WRONGLY SERVED |
 | damaged-severe | refused | WRONGLY SERVED | refused | refused | refused | WRONGLY SERVED | refused |
 | expectations met | 7/8 | 7/8 | 8/8 | 8/8 | 7/8 | 6/8 | 7/8 |
+
+zurg's `incomplete-archive-set` row is fixed in zurg `60dcd69d` (on main as `4d0879d7`), which refuses it and meets 8/8 in a
+[rerun of its main pass](#zurg-refusing-the-incomplete-set-again).
 
 `compressed-archive` and `encrypted-no-password` still need real posts and were
 skipped for every target, as in round 13.
@@ -397,6 +401,66 @@ cache. The next round should give those entries distinct posts, so every
 target can keep the cache it would ship with and every entry still reads from
 the network.
 
+## zurg refusing the incomplete set again
+
+The matrix row above shows zurg `e4fac5cb` serving `incomplete-archive-set`:
+the release lists at its declared 321,905,886 bytes, 268,435,456 bytes came
+back over HTTP 206, and every sampled range past the missing volume is zeros.
+Round 13's zurg refused the same entry. The cause was zurg's change `24fadb35`
+of 13 October, which listed a RAR set missing a middle volume up to the gap
+and padded the file to its declared length with zeros, the way a set missing
+its tail is padded. A player or importer cannot tell that from a good file.
+zurg `60dcd69d` reverts it: such a set is refused again, with
+`rar: no volume between ….part02.rar and ….part04.rar`, and the listing
+version moves to 25, so listings that zurg already cached that way are parsed
+again.
+
+zurg's main pass was rerun at `60dcd69d` on 2 November, 10:11–10:52 UTC,
+beside `raw` as the same-window network ceiling, on a fresh ccx23 on the
+same reserved IP after its own corpus census passed
+([`corpus-census.json`](../results/round14/zurg-60dcd69/corpus-census.json)).
+Every other target was built from the round's pins and not started.
+`60dcd69d` is the round's `e4fac5cb` plus six commits. One is the fix; the
+other five touch the dashboard, 7z sets with an encrypted header and the
+qBittorrent API, none of them on this corpus's read path
+([`build.json`](../results/round14/zurg-60dcd69/build.json),
+[`round14-zurg-rerun.json`](../config/round14-zurg-rerun.json)). Raw output is
+in [`zurg-60dcd69/`](../results/round14/zurg-60dcd69/). The fix landed on
+zurg's main as `4d0879d7`: the same change rebased over two later Usenet
+reader commits (`e14bd457`, `0139127d`) that the rerun's build did not have,
+so the numbers below are `60dcd69d`'s. Sequential MB/s for the positive
+entries, outcomes for the rest:
+
+| Entry | zurg `e4fac5cb`, main pass | zurg `60dcd69d`, rerun | raw, main pass | raw, rerun window |
+|---|---|---|---|---|
+| plain-video | pass, 50.47 | pass, 46.86 | 59.55 | 59.96 |
+| damaged-partial | pass, 45.40 | pass, 44.98 | 60.78 | 56.90 |
+| obfuscated | pass, 34.27 | pass, 41.61 | 57.26 | 56.93 |
+| rar-stored | pass, 47.78 | pass, 42.22 | 56.90 | 40.30 |
+| season-pack | pass, 48.08 | pass, 47.29 | 60.27 | 53.31 |
+| dead-post | refused, never listed in 900 s | refused, never listed in 900 s | refused | refused |
+| incomplete-archive-set | **WRONGLY SERVED**, 268,435,456 bytes of zeros past the gap over HTTP 206 | refused, never listed in 900 s | WRONGLY SERVED | WRONGLY SERVED |
+| damaged-severe | refused, HTTP 503 | refused, HTTP 503 | refused | refused |
+| **median of the five positives** | **47.78** | **44.98** | **59.55** | **56.90** |
+| expectations met | 7/8 | 8/8 | 7/8 | 7/8 |
+
+The incomplete set is now refused, and nothing else changed outcome. The five
+positive entries still pass, and the 18 ranges zurg served from them hash the
+same as in the main pass, offset for offset. The 12 range pairs compared
+against raw all matched consensus, and the socket gate saw 10 for each target
+and nothing else. zurg's median fell 5.9% while raw's fell 4.5% in the same
+window; both are inside the round's 9.1% noise floor, and rar-stored shows
+the network moving (raw fell from 56.90 to 40.30 MB/s). zurg's stall floor on
+the three long reads is again 6.29–6.38 MB/s. CPU is not compared across
+boxes: raw itself took 2.2 times the CPU per GiB on this box that it took in
+the round. These numbers stay out of the ranked tables, which keep the
+round's own pass.
+
+To repeat it: put the zurg revision in
+[`config/round14-zurg-rerun.json`](../config/round14-zurg-rerun.json), then
+run `up`, `census`, `build`, `verify`, `harness/hetzner-r14.sh zurg-rerun` and
+`harness/hetzner-r14.sh collect zurg-<7 hex>`.
+
 ## Reproducing the round
 
 From a checkout with `hcloud` configured, a reserved Primary IPv4 named
@@ -429,6 +493,9 @@ private and travels to the box as a git bundle of the pinned revision.
 - One full pass, one plain-video noise shape, a 9.1% worst measured swing.
 - Registered serving/refusal heuristics, not full-file validation or real-client
   playback. Consensus uses three deterministic 2-MiB slices where available.
+- zurg's numbers and its `incomplete-archive-set` verdict in the ranked tables
+  are `e4fac5cb`'s from the round's pass; the `60dcd69d` rerun is reported only
+  in its own section.
 - AIOStreams' numbers are from a rerun of its main pass without its disk cache
   (above), not from the same window as the rest of the field; raw in the same
   window bounds the difference in network conditions at 0.9%.

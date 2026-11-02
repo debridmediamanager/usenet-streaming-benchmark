@@ -1,0 +1,337 @@
+== verify start 2026-11-02T10:00:52Z
+PASS  yenc: all 256 byte values round-trip
+PASS  yenc: size header parsed
+PASS  yenc: begin header parsed
+PASS  yenc: crc verifies
+PASS  yenc: 25 random 300 KB payloads round-trip
+PASS  yenc: begin offset parsed
+PASS  yenc: multipart round-trips
+PASS  yenc: the trailer's size is this part's
+PASS  yenc: and the file's own size survives it
+PASS  yenc: wrong crc detected
+PASS  yenc: absent crc is None, not a failure
+PASS  yenc: trailing bare '=' tolerated
+PASS  yenc: unstuff collapses a doubled dot
+PASS  yenc: unstuff handles a leading doubled dot
+PASS  reader: body reassembled from 1-byte pieces
+PASS  reader: and the stream continues past it at 1
+PASS  reader: body reassembled from 2-byte pieces
+PASS  reader: and the stream continues past it at 2
+PASS  reader: body reassembled from 3-byte pieces
+PASS  reader: and the stream continues past it at 3
+PASS  reader: body reassembled from 4-byte pieces
+PASS  reader: and the stream continues past it at 4
+PASS  reader: body reassembled from 5-byte pieces
+PASS  reader: and the stream continues past it at 5
+PASS  reader: body reassembled from 7-byte pieces
+PASS  reader: and the stream continues past it at 7
+PASS  reader: body reassembled from 1024-byte pieces
+PASS  reader: and the stream continues past it at 1024
+PASS  reader: body reassembled from 65536-byte pieces
+PASS  reader: and the stream continues past it at 65536
+PASS  reader: a stuffed dot line is not mistaken for the terminator
+PASS  reader: a truncated body raises rather than hanging
+PASS  nzb: one file parsed
+PASS  nzb: segments sorted by part number
+PASS  nzb: encoded byte total summed
+PASS  nzb: quoted filename extracted
+PASS  pick: largest non-sample video wins over Sample/
+PASS  pick: first archive volume is the entry point
+PASS  raw: whole file served
+PASS  raw: 200 without a Range header
+PASS  raw: advertises the assembled length
+PASS  raw: advertises byte ranges
+PASS  raw: a small read does not fetch the whole file
+PASS  raw: and asks for no more than one pipelined batch
+PASS  raw: a mid-file read fetches nothing past its own last article
+PASS  raw: and nothing before its first
+PASS  raw: aligned whole article returns 206
+PASS  raw: aligned whole article returns the right bytes
+PASS  raw: aligned whole article Content-Range is exact
+PASS  raw: inside one article returns 206
+PASS  raw: inside one article returns the right bytes
+PASS  raw: inside one article Content-Range is exact
+PASS  raw: spanning two articles returns 206
+PASS  raw: spanning two articles returns the right bytes
+PASS  raw: spanning two articles Content-Range is exact
+PASS  raw: spanning three articles returns 206
+PASS  raw: spanning three articles returns the right bytes
+PASS  raw: spanning three articles Content-Range is exact
+PASS  raw: from zero returns 206
+PASS  raw: from zero returns the right bytes
+PASS  raw: from zero Content-Range is exact
+PASS  raw: into the short last article returns 206
+PASS  raw: into the short last article returns the right bytes
+PASS  raw: into the short last article Content-Range is exact
+PASS  raw: crossing into the short last article returns 206
+PASS  raw: crossing into the short last article returns the right bytes
+PASS  raw: crossing into the short last article Content-Range is exact
+PASS  raw: open-ended range runs to EOF
+PASS  stream: a timed read carries the floor's verdict
+PASS  raw: suffix range returns the tail
+PASS  raw: a range past EOF is 416, not an empty 206
+PASS  map: index_for lands in the right article
+PASS  map: index_for clamps past the end
+PASS  map: an agreeing article records no correction
+PASS  map: a disagreeing article is counted
+PASS  map: and its own header wins over the assumption
+PASS  map: an article with no begin header falls back to the assumption
+PASS  windows: five complete one-second windows
+PASS  windows: a steady stream reports its steady rate
+PASS  windows: the trailing partial window is dropped
+PASS  windows: a stalled second reads as zero
+PASS  windows: and the other nine do not
+PASS  windows: too few samples yields no windows
+PASS  windows: an empty series yields no windows
+PASS  p05: a stream with no stall has no near-zero window
+PASS  p05: and its windows report the delivered rate
+PASS  p05: a real stall does show up as a near-zero window
+PASS  p05: and the other windows are unaffected
+PASS  percentile: p05 of 1..10 is 1.45, as numpy's linear method has it
+PASS  percentile: the median of an even count is the mean of the middle two
+PASS  percentile: p0 is the minimum and p100 the maximum
+PASS  percentile: order does not matter
+PASS  percentile: a single value is its own percentile
+PASS  percentile: nothing has no percentile
+PASS  floor: a sub-window transfer produces no complete window
+PASS  floor: fewer than ten windows after the first reports no floor
+PASS  floor: and says why in the row
+PASS  floor: the ramp is still reported on its own
+PASS  floor: and the window count is the whole read's
+PASS  floor: nothing read is no floor and no ramp
+PASS  floor: ten windows after the first is enough for a floor
+PASS  floor: the ramp is never the floor
+PASS  floor: and the floor says how many windows it stands on
+PASS  floor: one slow window in ten interpolates toward the next
+PASS  floor: while the minimum window is reported as itself
+PASS  floor: a stall through a tenth of a long read is the floor
+PASS  floor: one stalled second in forty is under the fifth percentile
+PASS  floor: and shows in the minimum window instead
+PASS  floor: the statistic moves smoothly with the window count
+PASS  floor: rather than sitting on the slow window and then leaving it
+PASS  plan: a small file is read whole, from the start
+PASS  plan: a large file is read from 30% in
+PASS  plan: and never past its end
+PASS  plan: the request is capped rather than unbounded
+PASS  plan: a file of unknown size still yields a bounded plan
+PASS  plan: the retry that re-read a warm range is gone
+PASS  one-read: the cold open and the sequential read, and nothing more
+PASS  one-read: no offset is read twice
+PASS  one-read: the sequential read is the planned one
+PASS  one-read: bounded by the time budget
+PASS  one-read: a read too short for a percentile says so rather than being replaced by a warm one
+PASS  complete: a full 206 counts
+PASS  complete: a short 206 does not
+PASS  complete: a 200 does not, however many bytes
+PASS  complete: an errored read does not
+PASS  shape: a steady engine reports its level as p95
+PASS  shape: and sits at its peak the whole time
+PASS  shape: a bursty engine's worst second is visible
+PASS  shape: and its steady share is low
+PASS  shape: two engines with the same total have different shapes
+PASS  shape: a read too short for a shape is skipped, not computed
+PASS  shape: cpu per GiB divides by delivered bytes
+PASS  shape: a restart mid-window never reports negative cores
+PASS  shape: nor negative total cpu
+PASS  shape: replacement process CPU is retained
+PASS  resources: target state has measurable allocated disk
+PASS  resources: process read I/O is reported in MiB
+PASS  resources: process write I/O is reported in MiB
+PASS  resources: state growth is reported separately from I/O
+PASS  resources: competitors are ranked without the raw ceiling
+PASS  resources: equal measurements are ranked as a tie
+PASS  memory: per-read figure is the median of the peaks
+PASS  memory: run peak is the high-water mark
+PASS  memory: the peak states how many reads it was taken over
+PASS  memory: drift is the last third minus the first
+PASS  memory: idle footprint is carried
+PASS  memory: what it gives back on idle is carried
+PASS  memory: too few reads for a drift is skipped, not computed
+PASS  memory: an engine that holds steady drifts by zero
+PASS  sampler: re-reads the process set every tick
+PASS  sampler: counts a process that appeared mid-read
+PASS  negative: dead-post rewrites every message id
+PASS  negative: no original id survives
+PASS  negative: every rewritten id is unique
+PASS  negative: derivation is deterministic
+PASS  negative: incomplete-set removes exactly one volume
+PASS  negative: and it is the named one
+PASS  negative: the other volumes stay
+PASS  negative: the par2 file stays
+PASS  negative: decimate keeps every third article
+PASS  negative: and reports what it dropped
+PASS  negative: par2 volumes are left intact
+PASS  negative: an absent volume raises rather than no-ops
+PASS  negative: entries needing a real post are registered, not omitted
+PASS  negative: and are marked unavailable rather than missing
+PASS  judge: a full 206 of real size counts as served
+PASS  judge: a status clip is not served
+PASS  judge: and says why it was rejected
+PASS  judge: a sliver below the absolute floor is not served
+PASS  judge: and names the floor
+PASS  judge: half the requested range is not served
+PASS  judge: a 404 is not served
+PASS  judge: and is distinguishable from a clip
+PASS  judge: a truncated stream is not served
+PASS  silence: a zero-filled block is identified by hash
+PASS  silence: and counted against the blocks actually checked
+PASS  silence: a short file of real bytes is not called zero-fill
+PASS  silence: nothing sampled is not evidence of silence
+PASS  silence: a sample with no hash is not counted as checked
+PASS  silence: a zero block of another length does not match
+PASS  expect: should serve and did -> pass
+PASS  expect: should serve and did not -> FAIL
+PASS  expect: should refuse and did -> refused
+PASS  expect: should refuse and served anyway -> WRONGLY SERVED
+PASS  expect: an entry with no post is skipped, not scored as a refusal
+PASS  tally: correct counts pass and refused together
+PASS  tally: a wrongly served entry is counted on its own
+PASS  tally: and is never folded into the correct count
+PASS  tally: a skipped entry does not grade
+PASS  tally: refusing correctly beats serving wrongly
+PASS  matrix: one row per entry, one column per target
+PASS  damage: a clean buffer has no zero run
+PASS  damage: an all-zero buffer runs its whole length
+PASS  damage: the longest run wins, not the first
+PASS  damage: zeros inside real video do not read as a fill
+PASS  damage: a read that stops before the gap is a truncation
+PASS  damage: no bytes at all is an error at the hole
+PASS  damage: a complete read spans the gap and defers to the body
+PASS  damage: a read that got past the gap but fell short is truncated
+PASS  damage: an error after the gap is not an error at it
+PASS  targets: every entry carries the keys a run needs
+PASS  targets: serve modes are one of the two families
+PASS  targets: no two targets share a port
+PASS  targets: the default field is all registered
+PASS  targets: every registered target is in the default field
+PASS  targets: everything is enabled by default, comet included
+PASS  targets: the one expected to misbehave gets a shorter budget
+PASS  targets: raw is a ceiling, not a competitor
+PASS  targets: and it is the only one
+PASS  targets: the two families do not overlap
+PASS  targets: and together they are the whole field
+PASS  targets: stremthru is measured as a mount, since it serves WebDAV
+PASS  targets: raw's start command has no placeholder left
+PASS  targets: zurg's start command has no placeholder left
+PASS  targets: altmount's start command has no placeholder left
+PASS  targets: decypharr's start command has no placeholder left
+PASS  targets: stremthru's start command has no placeholder left
+PASS  targets: streamnzb's start command has no placeholder left
+PASS  targets: every shakedown target says what is unproven about it
+PASS  import: every SAB-family target says how the file arrives
+PASS  import: and every style it names has a handler
+PASS  import: a target outside the family claims no style
+PASS  import: the .NET family gets nzbFile
+PASS  import: decypharr's mock gets name
+PASS  import: and only sab-std is SABnzbd's own spelling
+PASS  import: the field name reaches the wire
+PASS  import: under the file's own name
+PASS  import: with the file's bytes after the headers
+PASS  import: and a boundary the header agrees with
+PASS  import: a 200 that says status false is a refusal
+PASS  import: however it spaces it
+PASS  import: a real acceptance is not read as one
+PASS  import: no category is sent unless the target asks for one
+PASS  import: and the one it asks for is the one sent
+PASS  import: a watched directory is created and the NZB lands in it
+PASS  import: under its original name
+PASS  import: a re-import does not overwrite, which would restart the load being timed
+PASS  import: altmount is handed a path rather than a body
+PASS  import: the path is a throwaway copy, not the corpus file
+PASS  import: the copy keeps the original filename, because altmount names the release after the file it was handed
+PASS  import: the directory is what gets uniquified instead
+PASS  release: the exact stem picks its own directory and nothing else
+PASS  release: a stem that is a prefix of another release is not fooled
+PASS  release: nor is one that a longer name contains
+PASS  release: a stem nobody listed matches nothing
+PASS  release: case does not decide it
+PASS  release: a dotted name is matched literally, not as a pattern
+PASS  release: a re-import's ' (N)' duplicate is accepted after the original
+PASS  release: and on its own when the original is gone
+PASS  release: waiting for the damaged release while only the healthy one is listed times out rather than reading the wrong bytes
+PASS  release: and resolves to its own directory once that is listed
+PASS  release: the healthy release still resolves to itself
+PASS  log: every row the run records reaches the log
+PASS  log: a refused entry is printed as the verdict it is
+PASS  log: with the reason
+PASS  log: and the time it spent
+PASS  log: every line says what the entry cost the target's budget
+PASS  log: an import the target refused at the door carries its body
+PASS  log: an entry with no post says so, rather than going missing
+PASS  log: a pass would print no error and no skip
+PASS  log: and the target was still stopped afterwards
+PASS  drain: a socket the target under test owns is waited for
+PASS  drain: another process's socket on the same account is not
+PASS  drain: a closing socket with no owner is not, since nothing can refill it
+PASS  drain: an ephemeral local port that merely ends in 563 is not
+PASS  drain: exactly one socket qualified
+PASS  switch: no argument runs everything
+PASS  switch: --disable removes exactly those
+PASS  switch: --only runs exactly those
+PASS  switch: --only keeps the registry's order, not the argument's
+PASS  switch: a config file can disable a target
+PASS  switch: an explicit --only overrides the config file
+PASS  switch: an explicit --disable overrides the config file
+PASS  switch: only wins over disabled when a config sets both
+PASS  switch: only typo is an error, not a silent skip
+PASS  switch: disabled typo is an error, not a silent skip
+PASS  switch: disabling everything leaves nothing, rather than everything
+PASS  switch: the ceiling can be disabled like anything else
+PASS  population: entries the whole field served are in
+PASS  population: an entry two of three served clears a 0.6 bar
+PASS  population: an entry only one target served is out
+PASS  population: and the report can say why
+PASS  population: even the strictest bar never demands unanimity
+PASS  population: and an entry only one target served is still out
+PASS  population: above that floor the threshold governs as written
+PASS  population: a one-target field is its own population
+PASS  one-failure-each: every core entry is in the population
+PASS  one-failure-each: judged against five of six, not six of six
+PASS  one-failure-each: the headline is populated at all
+PASS  one-failure-each: a target that served everything shows a full n
+PASS  one-failure-each: and one that missed two entries shows it
+PASS  headline: a target that served everything shows a full n
+PASS  headline: a target that failed the large entries shows a short n
+PASS  headline: and its median is flatteringly low as a result
+PASS  headline: which the report marks rather than leaving to be noticed
+PASS  headline: own-set median differs when a target served extra entries
+PASS  headline: and the gap is reported
+PASS  headline: a target whose own set is the population has no gap
+PASS  consensus: the hash two targets agree on wins
+PASS  consensus: the odd target out is named
+PASS  consensus: agreeing targets are not listed as differing
+PASS  consensus: two targets disagreeing produces no consensus
+PASS  consensus: and neither is blamed for it
+PASS  consensus: a target with no hash is not counted
+PASS  consensus: the ceiling is excluded where it cannot be a reference
+PASS  noise: both pairs compared
+PASS  noise: the worst per-entry swing is reported
+PASS  noise: which is what a difference has to beat
+PASS  noise: per-entry detail is kept
+PASS  noise: two passes sharing nothing say so, rather than reporting zero
+PASS  noise: a failed row is not provider-rate variance
+PASS  noise: the real successful pair still qualifies
+PASS  parity: every target at ten passes the strict gate
+PASS  parity: under-filling the requested budget fails the strict gate
+PASS  parity: exceeding the requested budget fails the strict gate
+PASS  parity: no sampled target cannot prove exact parity
+PASS  parity: raw per-entry helpers aggregate into one ceiling target
+PASS  parity: rendered budget verdict also aggregates raw helpers
+PASS  parity: applications remain strict when the raw ceiling is aggregated
+PASS  render: report heading follows the measured tag
+PASS  render: the headline table names every target
+PASS  render: and shows the n column
+PASS  render: a clean consensus says so plainly
+
+all tests pass
+.................
+----------------------------------------------------------------------
+Ran 17 tests in 0.254s
+
+OK
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.244s
+
+OK
+== verify done 2026-11-02T10:00:55Z

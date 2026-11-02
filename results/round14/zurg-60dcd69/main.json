@@ -1,0 +1,2744 @@
+{
+  "tag": "r14-main",
+  "field": [
+    "raw",
+    "zurg"
+  ],
+  "connections": 10,
+  "rows": [
+    {
+      "target": "raw",
+      "entry": "plain-video",
+      "tier": "core",
+      "expect": "serve",
+      "tag": "r14-main",
+      "import_mode": "none",
+      "import_s": 0.036,
+      "url": "http://127.0.0.1:18099/stream",
+      "size": 6608994141,
+      "cold_open_s": 0.5818,
+      "cold_ttfb_s": 0.5801,
+      "cold_http": "206",
+      "cold_complete": true,
+      "seq_offset": 1982698242,
+      "seq_requested": 2147483648,
+      "seq_budget_bound": true,
+      "MBps": 59.96,
+      "p05_MBps": 0.0,
+      "p05_skipped": null,
+      "p05_windows": 26,
+      "first_window_MBps": 164.76,
+      "seq_bytes": 1808990208,
+      "seq_windows": 27,
+      "seeks": {
+        "points": [
+          {
+            "fraction": 0.01,
+            "offset": 66089941,
+            "ttfb_s": 4.2204,
+            "full_s": 4.2308,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.25,
+            "offset": 1652248535,
+            "ttfb_s": 1.9894,
+            "full_s": 1.9977,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.5,
+            "offset": 3304497070,
+            "ttfb_s": 1.9877,
+            "full_s": 1.9951,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.75,
+            "offset": 4956745605,
+            "ttfb_s": 1.7116,
+            "full_s": 1.7154,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.95,
+            "offset": 6278544433,
+            "ttfb_s": 1.4022,
+            "full_s": 1.4095,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          }
+        ],
+        "read_bytes": 8388608,
+        "backward": {
+          "offset": 660899414,
+          "ttfb_s": 1.4054,
+          "full_s": 1.4093,
+          "http": "206",
+          "complete": true,
+          "error": null
+        },
+        "n_complete": 5,
+        "n_attempted": 5,
+        "ttfb_median_s": 1.9877,
+        "ttfb_worst_s": 4.2204,
+        "full_median_s": 1.9951,
+        "full_worst_s": 4.2308
+      },
+      "playback": {
+        "bitrate_mbps": 25,
+        "seconds_of_media": 30,
+        "offset": 1982698242,
+        "bytes": 93750000,
+        "http": "206",
+        "total_s": 2.157,
+        "MBps": 43.46,
+        "p05_MBps": null,
+        "error": null,
+        "media_seconds_delivered": 30.0,
+        "realtime_ratio": 13.91,
+        "to_buffer_s": 0.72,
+        "sustains_bitrate": null
+      },
+      "integrity": [
+        {
+          "offset": 1652248535,
+          "length": 2097152,
+          "md5": "08bfe6cbe5645b85132485cfff677d5b",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        },
+        {
+          "offset": 3304497070,
+          "length": 2097152,
+          "md5": "696b3a1f56f3e9992319ad3c0aca8411",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        },
+        {
+          "offset": 4956745605,
+          "length": 2097152,
+          "md5": "5be132dd93dd516ffd142eadcc1d5db4",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        }
+      ],
+      "silence": {
+        "samples_checked": 3,
+        "samples_zero_filled": 0,
+        "zero_fill": false
+      },
+      "shape": {
+        "samples": 46,
+        "sample_interval_s": 1.0,
+        "cpu_s": 46.98,
+        "cpu_s_per_GiB": 27.87,
+        "disk_read_MB": 0.0,
+        "disk_write_MB": 0.0,
+        "disk_read_MB_per_GiB": 0.0,
+        "disk_write_MB_per_GiB": 0.0,
+        "rss_peak_MB": 447,
+        "rss_median_MB": 392,
+        "rss_final_MB": 343,
+        "cores_p95": 1.35,
+        "cores_max": 1.42,
+        "cores_median": 1.23,
+        "steady_pct": 74
+      },
+      "rss_peak_MB": 447,
+      "served": true,
+      "reason": "1808990208 bytes over HTTP 206",
+      "outcome": "pass",
+      "http": "206",
+      "bytes": 1808990208,
+      "entry_s": 61.363
+    },
+    {
+      "target": "raw",
+      "entry": "damaged-partial",
+      "tier": "failure",
+      "expect": "serve",
+      "tag": "r14-main",
+      "import_mode": "none",
+      "import_s": 0.002,
+      "url": "http://127.0.0.1:18099/stream",
+      "size": 6608994141,
+      "cold_open_s": 0.6815,
+      "cold_ttfb_s": 0.6808,
+      "cold_http": "206",
+      "cold_complete": true,
+      "seq_offset": 1982698242,
+      "seq_requested": 2147483648,
+      "seq_budget_bound": true,
+      "MBps": 56.9,
+      "p05_MBps": 0.0,
+      "p05_skipped": null,
+      "p05_windows": 25,
+      "first_window_MBps": 164.76,
+      "seq_bytes": 1708326912,
+      "seq_windows": 26,
+      "seeks": {
+        "points": [
+          {
+            "fraction": 0.01,
+            "offset": 66089941,
+            "ttfb_s": 2.4046,
+            "full_s": 2.412,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.25,
+            "offset": 1652248535,
+            "ttfb_s": 1.9878,
+            "full_s": 1.9976,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.5,
+            "offset": 3304497070,
+            "ttfb_s": 1.9766,
+            "full_s": 1.9807,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.75,
+            "offset": 4956745605,
+            "ttfb_s": 1.993,
+            "full_s": 1.9976,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.95,
+            "offset": 6278544433,
+            "ttfb_s": 2.0459,
+            "full_s": 2.0556,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          }
+        ],
+        "read_bytes": 8388608,
+        "backward": {
+          "offset": 660899414,
+          "ttfb_s": 1.255,
+          "full_s": 1.262,
+          "http": "206",
+          "complete": true,
+          "error": null
+        },
+        "n_complete": 5,
+        "n_attempted": 5,
+        "ttfb_median_s": 1.993,
+        "ttfb_worst_s": 2.4046,
+        "full_median_s": 1.9976,
+        "full_worst_s": 2.412
+      },
+      "playback": {
+        "bitrate_mbps": 25,
+        "seconds_of_media": 30,
+        "offset": 1982698242,
+        "bytes": 93750000,
+        "http": "206",
+        "total_s": 1.7761,
+        "MBps": 52.78,
+        "p05_MBps": null,
+        "error": null,
+        "media_seconds_delivered": 30.0,
+        "realtime_ratio": 16.89,
+        "to_buffer_s": 0.59,
+        "sustains_bitrate": null
+      },
+      "integrity": [
+        {
+          "offset": 1652248535,
+          "length": 2097152,
+          "md5": "08bfe6cbe5645b85132485cfff677d5b",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        },
+        {
+          "offset": 3304497070,
+          "length": 2097152,
+          "md5": "696b3a1f56f3e9992319ad3c0aca8411",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        },
+        {
+          "offset": 4956745605,
+          "length": 2097152,
+          "md5": "5be132dd93dd516ffd142eadcc1d5db4",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        }
+      ],
+      "silence": {
+        "samples_checked": 3,
+        "samples_zero_filled": 0,
+        "zero_fill": false
+      },
+      "shape": {
+        "samples": 44,
+        "sample_interval_s": 1.0,
+        "cpu_s": 43.61,
+        "cpu_s_per_GiB": 27.39,
+        "disk_read_MB": 0.0,
+        "disk_write_MB": 0.0,
+        "disk_read_MB_per_GiB": 0.0,
+        "disk_write_MB_per_GiB": 0.0,
+        "rss_peak_MB": 464,
+        "rss_median_MB": 414,
+        "rss_final_MB": 366,
+        "cores_p95": 1.3,
+        "cores_max": 1.37,
+        "cores_median": 1.19,
+        "steady_pct": 75
+      },
+      "rss_peak_MB": 464,
+      "damage": {
+        "file": "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+        "nzb": "ToyStory5Damaged.nzb",
+        "url": "http://127.0.0.1:18099/stream",
+        "articles": 1576,
+        "part_size": 4194304,
+        "size": 6608994141,
+        "holes_found": [
+          20
+        ],
+        "holes_total": 1,
+        "hole_index": 20,
+        "hole_start": 83886080,
+        "hole_end": 88080384,
+        "hole_bytes": 4194304,
+        "hole_position_pct": 1.27,
+        "alignment": {
+          "anchor_bytes": 262144,
+          "checks": [
+            {
+              "side": "pre",
+              "offset": 83623936,
+              "length": 262144,
+              "expected_md5": "93e5a8822946fa43ece65d7199f4ea4c",
+              "served_md5": "93e5a8822946fa43ece65d7199f4ea4c",
+              "match": true,
+              "http": "206",
+              "error": null
+            },
+            {
+              "side": "post",
+              "offset": 88080384,
+              "length": 262144,
+              "expected_md5": "4b33f6d003c0f3617d623e18c660f054",
+              "served_md5": "4b33f6d003c0f3617d623e18c660f054",
+              "match": true,
+              "http": "206",
+              "error": null
+            }
+          ],
+          "aligned": true
+        },
+        "streaming": {
+          "http": "206",
+          "bytes": 6291456,
+          "total_s": 3.3178,
+          "ttfb_s": 3.2933,
+          "error": null,
+          "md5": "8d664f418b71c085c29df2abf0a8657d",
+          "requested": 6291456,
+          "content_range": "bytes 82837504-89128959/6608994141",
+          "verdict": "spans-hole",
+          "detail": "the read covered the gap; the body says what is in it"
+        },
+        "direct": {
+          "http": "206",
+          "bytes": 4194304,
+          "total_s": 2.3647,
+          "error": null,
+          "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+          "requested": 4194304
+        },
+        "control": {
+          "http": "206",
+          "bytes": 6291456,
+          "total_s": 0.4986,
+          "MBps": 12.62,
+          "error": null
+        },
+        "slowdown_x": 6.65,
+        "gap": {
+          "http": "206",
+          "bytes": 4194304,
+          "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+          "error": null,
+          "zero_run": 1048576,
+          "sampled": 1048576,
+          "content": "all zeros"
+        },
+        "verdict": "zero-filled"
+      },
+      "served": true,
+      "reason": "1708326912 bytes over HTTP 206",
+      "outcome": "pass",
+      "http": "206",
+      "bytes": 1708326912,
+      "entry_s": 68.852
+    },
+    {
+      "target": "raw",
+      "entry": "obfuscated",
+      "tier": "core",
+      "expect": "serve",
+      "tag": "r14-main",
+      "import_mode": "none",
+      "import_s": 0.003,
+      "url": "http://127.0.0.1:18099/stream",
+      "size": 6608994141,
+      "cold_open_s": 0.6799,
+      "cold_ttfb_s": 0.6794,
+      "cold_http": "206",
+      "cold_complete": true,
+      "seq_offset": 1982698242,
+      "seq_requested": 2147483648,
+      "seq_budget_bound": true,
+      "MBps": 56.93,
+      "p05_MBps": 0.0,
+      "p05_skipped": null,
+      "p05_windows": 26,
+      "first_window_MBps": 164.76,
+      "seq_bytes": 1708326912,
+      "seq_windows": 27,
+      "seeks": {
+        "points": [
+          {
+            "fraction": 0.01,
+            "offset": 66089941,
+            "ttfb_s": 2.5198,
+            "full_s": 2.5288,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.25,
+            "offset": 1652248535,
+            "ttfb_s": 1.9812,
+            "full_s": 1.9923,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.5,
+            "offset": 3304497070,
+            "ttfb_s": 1.9858,
+            "full_s": 1.9968,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.75,
+            "offset": 4956745605,
+            "ttfb_s": 1.9754,
+            "full_s": 1.9781,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.95,
+            "offset": 6278544433,
+            "ttfb_s": 2.0007,
+            "full_s": 2.0053,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          }
+        ],
+        "read_bytes": 8388608,
+        "backward": {
+          "offset": 660899414,
+          "ttfb_s": 1.5864,
+          "full_s": 1.592,
+          "http": "206",
+          "complete": true,
+          "error": null
+        },
+        "n_complete": 5,
+        "n_attempted": 5,
+        "ttfb_median_s": 1.9858,
+        "ttfb_worst_s": 2.5198,
+        "full_median_s": 1.9968,
+        "full_worst_s": 2.5288
+      },
+      "playback": {
+        "bitrate_mbps": 25,
+        "seconds_of_media": 30,
+        "offset": 1982698242,
+        "bytes": 93750000,
+        "http": "206",
+        "total_s": 2.241,
+        "MBps": 41.83,
+        "p05_MBps": null,
+        "error": null,
+        "media_seconds_delivered": 30.0,
+        "realtime_ratio": 13.39,
+        "to_buffer_s": 0.75,
+        "sustains_bitrate": null
+      },
+      "integrity": [
+        {
+          "offset": 1652248535,
+          "length": 2097152,
+          "md5": "08bfe6cbe5645b85132485cfff677d5b",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        },
+        {
+          "offset": 3304497070,
+          "length": 2097152,
+          "md5": "696b3a1f56f3e9992319ad3c0aca8411",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        },
+        {
+          "offset": 4956745605,
+          "length": 2097152,
+          "md5": "5be132dd93dd516ffd142eadcc1d5db4",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        }
+      ],
+      "silence": {
+        "samples_checked": 3,
+        "samples_zero_filled": 0,
+        "zero_fill": false
+      },
+      "shape": {
+        "samples": 45,
+        "sample_interval_s": 1.0,
+        "cpu_s": 44.8,
+        "cpu_s_per_GiB": 28.14,
+        "disk_read_MB": 0.0,
+        "disk_write_MB": 0.0,
+        "disk_read_MB_per_GiB": 0.0,
+        "disk_write_MB_per_GiB": 0.0,
+        "rss_peak_MB": 467,
+        "rss_median_MB": 397,
+        "rss_final_MB": 314,
+        "cores_p95": 1.33,
+        "cores_max": 1.34,
+        "cores_median": 1.21,
+        "steady_pct": 73
+      },
+      "rss_peak_MB": 467,
+      "served": true,
+      "reason": "1708326912 bytes over HTTP 206",
+      "outcome": "pass",
+      "http": "206",
+      "bytes": 1708326912,
+      "entry_s": 57.492
+    },
+    {
+      "target": "raw",
+      "entry": "rar-stored",
+      "tier": "core",
+      "expect": "serve",
+      "tag": "r14-main",
+      "import_mode": "none",
+      "import_s": 0.002,
+      "url": "http://127.0.0.1:18099/stream",
+      "size": 30000000,
+      "cold_open_s": 0.1433,
+      "cold_ttfb_s": 0.1422,
+      "cold_http": "206",
+      "cold_complete": true,
+      "seq_offset": 0,
+      "seq_requested": 30000000,
+      "seq_budget_bound": false,
+      "MBps": 40.3,
+      "p05_MBps": null,
+      "p05_skipped": "only 0 complete 1000ms windows; the floor needs 10 after the first",
+      "p05_windows": null,
+      "first_window_MBps": null,
+      "seq_bytes": 30000000,
+      "seq_windows": 0,
+      "seeks": {
+        "points": [
+          {
+            "fraction": 0.01,
+            "offset": 300000,
+            "ttfb_s": 0.2613,
+            "full_s": 0.2836,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.25,
+            "offset": 7500000,
+            "ttfb_s": 0.1879,
+            "full_s": 0.1976,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.5,
+            "offset": 15000000,
+            "ttfb_s": 0.1803,
+            "full_s": 0.349,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.75,
+            "offset": 21611392,
+            "ttfb_s": 0.2864,
+            "full_s": 0.2954,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.95,
+            "offset": 21611392,
+            "ttfb_s": 0.2401,
+            "full_s": 0.2718,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          }
+        ],
+        "read_bytes": 8388608,
+        "backward": {
+          "offset": 3000000,
+          "ttfb_s": 0.2873,
+          "full_s": 0.3171,
+          "http": "206",
+          "complete": true,
+          "error": null
+        },
+        "n_complete": 5,
+        "n_attempted": 5,
+        "ttfb_median_s": 0.2401,
+        "ttfb_worst_s": 0.2864,
+        "full_median_s": 0.2836,
+        "full_worst_s": 0.349
+      },
+      "playback": {
+        "bitrate_mbps": 25,
+        "seconds_of_media": 30,
+        "offset": 0,
+        "bytes": 30000000,
+        "http": "206",
+        "total_s": 0.7117,
+        "MBps": 42.15,
+        "p05_MBps": null,
+        "error": null,
+        "media_seconds_delivered": 9.6,
+        "realtime_ratio": 13.49,
+        "to_buffer_s": null,
+        "sustains_bitrate": null
+      },
+      "integrity": [
+        {
+          "offset": 7500000,
+          "length": 2097152,
+          "md5": "a8719aa9e6c92404d14c81aea6a75e81",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        },
+        {
+          "offset": 15000000,
+          "length": 2097152,
+          "md5": "8ea23bf3028adb104676cbcd9155266f",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        },
+        {
+          "offset": 22500000,
+          "length": 2097152,
+          "md5": "f754c5e5321564d7fd9f14d572d74a7e",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        }
+      ],
+      "silence": {
+        "samples_checked": 3,
+        "samples_zero_filled": 0,
+        "zero_fill": false
+      },
+      "shape": {
+        "samples": 3,
+        "sample_interval_s": 1.0,
+        "cpu_s": 3.29,
+        "cpu_s_per_GiB": 113.78,
+        "disk_read_MB": 0.0,
+        "disk_write_MB": 0.0,
+        "disk_read_MB_per_GiB": 0.0,
+        "disk_write_MB_per_GiB": 0.0,
+        "rss_peak_MB": 87,
+        "rss_median_MB": 86,
+        "rss_final_MB": 87,
+        "shape_skipped": "3 samples, need 4"
+      },
+      "rss_peak_MB": 87,
+      "served": true,
+      "reason": "30000000 bytes over HTTP 206",
+      "outcome": "pass",
+      "http": "206",
+      "bytes": 30000000,
+      "entry_s": 12.364
+    },
+    {
+      "target": "raw",
+      "entry": "season-pack",
+      "tier": "stress",
+      "expect": "serve",
+      "tag": "r14-main",
+      "import_mode": "none",
+      "import_s": 0.002,
+      "url": "http://127.0.0.1:18099/stream",
+      "size": 2210528776,
+      "cold_open_s": 0.2329,
+      "cold_ttfb_s": 0.2315,
+      "cold_http": "206",
+      "cold_complete": true,
+      "seq_offset": 663158632,
+      "seq_requested": 1547370144,
+      "seq_budget_bound": false,
+      "MBps": 53.31,
+      "p05_MBps": 37.49,
+      "p05_skipped": null,
+      "p05_windows": 27,
+      "first_window_MBps": 69.53,
+      "seq_bytes": 1547370144,
+      "seq_windows": 28,
+      "seeks": {
+        "points": [
+          {
+            "fraction": 0.01,
+            "offset": 22105287,
+            "ttfb_s": 0.4455,
+            "full_s": 0.4907,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.25,
+            "offset": 552632194,
+            "ttfb_s": 0.3904,
+            "full_s": 0.4613,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.5,
+            "offset": 1105264388,
+            "ttfb_s": 0.4399,
+            "full_s": 0.4694,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.75,
+            "offset": 1657896582,
+            "ttfb_s": 0.4536,
+            "full_s": 0.4725,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.95,
+            "offset": 2100002337,
+            "ttfb_s": 0.4481,
+            "full_s": 0.4914,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          }
+        ],
+        "read_bytes": 8388608,
+        "backward": {
+          "offset": 221052877,
+          "ttfb_s": 0.3849,
+          "full_s": 0.4682,
+          "http": "206",
+          "complete": true,
+          "error": null
+        },
+        "n_complete": 5,
+        "n_attempted": 5,
+        "ttfb_median_s": 0.4455,
+        "ttfb_worst_s": 0.4536,
+        "full_median_s": 0.4725,
+        "full_worst_s": 0.4914
+      },
+      "playback": {
+        "bitrate_mbps": 25,
+        "seconds_of_media": 30,
+        "offset": 663158632,
+        "bytes": 93750000,
+        "http": "206",
+        "total_s": 2.1796,
+        "MBps": 43.01,
+        "p05_MBps": null,
+        "error": null,
+        "media_seconds_delivered": 30.0,
+        "realtime_ratio": 13.76,
+        "to_buffer_s": 0.73,
+        "sustains_bitrate": null
+      },
+      "integrity": [
+        {
+          "offset": 552632194,
+          "length": 2097152,
+          "md5": "79e078782b0f8393e994cf88592fab59",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        },
+        {
+          "offset": 1105264388,
+          "length": 2097152,
+          "md5": "085f5609430f33d9d380659aecefaa9e",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        },
+        {
+          "offset": 1657896582,
+          "length": 2097152,
+          "md5": "4dad2578b77fc65f9e2ab14ff91505bb",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        }
+      ],
+      "silence": {
+        "samples_checked": 3,
+        "samples_zero_filled": 0,
+        "zero_fill": false
+      },
+      "shape": {
+        "samples": 34,
+        "sample_interval_s": 1.0,
+        "cpu_s": 41.06,
+        "cpu_s_per_GiB": 28.47,
+        "disk_read_MB": 0.0,
+        "disk_write_MB": 0.0,
+        "disk_read_MB_per_GiB": 0.0,
+        "disk_write_MB_per_GiB": 0.0,
+        "rss_peak_MB": 150,
+        "rss_median_MB": 131,
+        "rss_final_MB": 127,
+        "cores_p95": 1.33,
+        "cores_max": 1.38,
+        "cores_median": 1.26,
+        "steady_pct": 88
+      },
+      "rss_peak_MB": 150,
+      "served": true,
+      "reason": "1547370144 bytes over HTTP 206",
+      "outcome": "pass",
+      "http": "206",
+      "bytes": 1547370144,
+      "entry_s": 46.122
+    },
+    {
+      "target": "raw",
+      "entry": "dead-post",
+      "tier": "negative",
+      "expect": "reject",
+      "tag": "r14-main",
+      "error": "RuntimeError: raw never became ready at http://127.0.0.1:18099/stream, last code 000",
+      "served": false,
+      "reason": "error: RuntimeError: raw never became ready at http://127.0.0.1:18099/stream, last code 000",
+      "outcome": "refused",
+      "http": null,
+      "bytes": null,
+      "entry_s": 93.54
+    },
+    {
+      "target": "raw",
+      "entry": "incomplete-archive-set",
+      "tier": "negative",
+      "expect": "reject",
+      "tag": "r14-main",
+      "import_mode": "none",
+      "import_s": 0.002,
+      "url": "http://127.0.0.1:18099/stream",
+      "size": 30000000,
+      "cold_open_s": 0.1449,
+      "cold_ttfb_s": 0.1435,
+      "cold_http": "206",
+      "cold_complete": true,
+      "seq_offset": 0,
+      "seq_requested": 30000000,
+      "seq_budget_bound": false,
+      "MBps": 45.79,
+      "p05_MBps": null,
+      "p05_skipped": "only 0 complete 1000ms windows; the floor needs 10 after the first",
+      "p05_windows": null,
+      "first_window_MBps": null,
+      "seq_bytes": 30000000,
+      "seq_windows": 0,
+      "seeks": {
+        "points": [
+          {
+            "fraction": 0.01,
+            "offset": 300000,
+            "ttfb_s": 0.263,
+            "full_s": 0.305,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.25,
+            "offset": 7500000,
+            "ttfb_s": 0.2384,
+            "full_s": 0.2836,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.5,
+            "offset": 15000000,
+            "ttfb_s": 0.2582,
+            "full_s": 0.2967,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.75,
+            "offset": 21611392,
+            "ttfb_s": 0.2745,
+            "full_s": 0.2962,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.95,
+            "offset": 21611392,
+            "ttfb_s": 0.2641,
+            "full_s": 0.2775,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          }
+        ],
+        "read_bytes": 8388608,
+        "backward": {
+          "offset": 3000000,
+          "ttfb_s": 0.184,
+          "full_s": 0.2485,
+          "http": "206",
+          "complete": true,
+          "error": null
+        },
+        "n_complete": 5,
+        "n_attempted": 5,
+        "ttfb_median_s": 0.263,
+        "ttfb_worst_s": 0.2745,
+        "full_median_s": 0.2962,
+        "full_worst_s": 0.305
+      },
+      "playback": {
+        "bitrate_mbps": 25,
+        "seconds_of_media": 30,
+        "offset": 0,
+        "bytes": 30000000,
+        "http": "206",
+        "total_s": 0.8142,
+        "MBps": 36.85,
+        "p05_MBps": null,
+        "error": null,
+        "media_seconds_delivered": 9.6,
+        "realtime_ratio": 11.79,
+        "to_buffer_s": null,
+        "sustains_bitrate": null
+      },
+      "integrity": [
+        {
+          "offset": 7500000,
+          "length": 2097152,
+          "md5": "a8719aa9e6c92404d14c81aea6a75e81",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        },
+        {
+          "offset": 15000000,
+          "length": 2097152,
+          "md5": "8ea23bf3028adb104676cbcd9155266f",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        },
+        {
+          "offset": 22500000,
+          "length": 2097152,
+          "md5": "f754c5e5321564d7fd9f14d572d74a7e",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        }
+      ],
+      "silence": {
+        "samples_checked": 3,
+        "samples_zero_filled": 0,
+        "zero_fill": false
+      },
+      "shape": {
+        "samples": 3,
+        "sample_interval_s": 1.0,
+        "cpu_s": 3.37,
+        "cpu_s_per_GiB": 116.54,
+        "disk_read_MB": 0.0,
+        "disk_write_MB": 0.0,
+        "disk_read_MB_per_GiB": 0.0,
+        "disk_write_MB_per_GiB": 0.0,
+        "rss_peak_MB": 86,
+        "rss_median_MB": 84,
+        "rss_final_MB": 86,
+        "shape_skipped": "3 samples, need 4"
+      },
+      "rss_peak_MB": 86,
+      "served": true,
+      "reason": "30000000 bytes over HTTP 206",
+      "outcome": "WRONGLY SERVED",
+      "http": "206",
+      "bytes": 30000000,
+      "entry_s": 12.201
+    },
+    {
+      "target": "raw",
+      "entry": "damaged-severe",
+      "tier": "negative",
+      "expect": "reject",
+      "tag": "r14-main",
+      "import_mode": "none",
+      "import_s": 0.003,
+      "url": "http://127.0.0.1:18099/stream",
+      "size": 6608994141,
+      "cold_open_s": 0.6858,
+      "cold_ttfb_s": 0.6852,
+      "cold_http": "206",
+      "cold_complete": true,
+      "seq_offset": 1982698242,
+      "seq_requested": 2147483648,
+      "seq_budget_bound": false,
+      "MBps": 0.0,
+      "p05_MBps": null,
+      "p05_skipped": "only 0 complete 1000ms windows; the floor needs 10 after the first",
+      "p05_windows": null,
+      "first_window_MBps": null,
+      "seq_bytes": 0,
+      "seq_windows": 0,
+      "seeks": {
+        "points": [
+          {
+            "fraction": 0.01,
+            "offset": 66089941,
+            "ttfb_s": null,
+            "full_s": 1.9894,
+            "http": "206",
+            "bytes": 0,
+            "complete": false,
+            "error": null
+          },
+          {
+            "fraction": 0.25,
+            "offset": 1652248535,
+            "ttfb_s": null,
+            "full_s": 1.9839,
+            "http": "206",
+            "bytes": 0,
+            "complete": false,
+            "error": null
+          },
+          {
+            "fraction": 0.5,
+            "offset": 3304497070,
+            "ttfb_s": null,
+            "full_s": 0.4637,
+            "http": "206",
+            "bytes": 0,
+            "complete": false,
+            "error": null
+          },
+          {
+            "fraction": 0.75,
+            "offset": 4956745605,
+            "ttfb_s": null,
+            "full_s": 0.4936,
+            "http": "206",
+            "bytes": 0,
+            "complete": false,
+            "error": null
+          },
+          {
+            "fraction": 0.95,
+            "offset": 6278544433,
+            "ttfb_s": null,
+            "full_s": 0.4568,
+            "http": "206",
+            "bytes": 0,
+            "complete": false,
+            "error": null
+          }
+        ],
+        "read_bytes": 8388608,
+        "backward": {
+          "offset": 660899414,
+          "ttfb_s": null,
+          "full_s": 1.629,
+          "http": "206",
+          "complete": false,
+          "error": null
+        },
+        "n_complete": 0,
+        "n_attempted": 5
+      },
+      "playback": {
+        "bitrate_mbps": 25,
+        "seconds_of_media": 30,
+        "offset": 1982698242,
+        "bytes": 0,
+        "http": "206",
+        "total_s": 2.0574,
+        "MBps": 0.0,
+        "p05_MBps": null,
+        "error": null,
+        "media_seconds_delivered": 0.0,
+        "realtime_ratio": 0.0,
+        "to_buffer_s": null,
+        "sustains_bitrate": null
+      },
+      "integrity": [
+        {
+          "offset": 1652248535,
+          "length": 2097152,
+          "md5": null,
+          "http": "206",
+          "bytes": 0,
+          "error": null
+        },
+        {
+          "offset": 3304497070,
+          "length": 2097152,
+          "md5": null,
+          "http": "206",
+          "bytes": 0,
+          "error": null
+        },
+        {
+          "offset": 4956745605,
+          "length": 2097152,
+          "md5": null,
+          "http": "206",
+          "bytes": 0,
+          "error": null
+        }
+      ],
+      "silence": {
+        "samples_checked": 0,
+        "samples_zero_filled": 0,
+        "zero_fill": false
+      },
+      "shape": {
+        "samples": 16,
+        "sample_interval_s": 1.0,
+        "cpu_s": 8.43,
+        "cpu_s_per_GiB": 8632.32,
+        "disk_read_MB": 0.0,
+        "disk_write_MB": 0.0,
+        "disk_read_MB_per_GiB": 0.0,
+        "disk_write_MB_per_GiB": 0.0,
+        "rss_peak_MB": 434,
+        "rss_median_MB": 322,
+        "rss_final_MB": 292,
+        "cores_p95": 1.23,
+        "cores_max": 1.28,
+        "cores_median": 0.4,
+        "steady_pct": 31
+      },
+      "rss_peak_MB": 434,
+      "served": false,
+      "reason": "0 bytes is below the 4194304 floor, which is a message rather than media",
+      "outcome": "refused",
+      "http": "206",
+      "bytes": 0,
+      "entry_s": 27.93
+    },
+    {
+      "target": "raw",
+      "entry": "compressed-archive",
+      "tier": "negative",
+      "expect": "reject",
+      "tag": "r14-main",
+      "outcome": null,
+      "skipped": "no post available for this entry",
+      "entry_s": 0.0
+    },
+    {
+      "target": "raw",
+      "entry": "encrypted-no-password",
+      "tier": "negative",
+      "expect": "reject",
+      "tag": "r14-main",
+      "outcome": null,
+      "skipped": "no post available for this entry",
+      "entry_s": 0.0
+    },
+    {
+      "target": "zurg",
+      "entry": "plain-video",
+      "tier": "core",
+      "expect": "serve",
+      "tag": "r14-main",
+      "import_mode": "sabnzbd",
+      "import_style": "drop-dir",
+      "import_accepted": true,
+      "import_detail": "present at /root/bench-round14/zurgrun/nzbs/ToyStory5.nzb",
+      "import_s": 5.06,
+      "url": "http://localhost:19998/dav/all/ToyStory5/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+      "size": 6608994141,
+      "cold_open_s": 0.0038,
+      "cold_ttfb_s": 0.0027,
+      "cold_http": "206",
+      "cold_complete": true,
+      "seq_offset": 1982698242,
+      "seq_requested": 2147483648,
+      "seq_budget_bound": true,
+      "MBps": 46.86,
+      "p05_MBps": 6.29,
+      "p05_skipped": null,
+      "p05_windows": 28,
+      "first_window_MBps": 73.92,
+      "seq_bytes": 1406205952,
+      "seq_windows": 29,
+      "seeks": {
+        "points": [
+          {
+            "fraction": 0.01,
+            "offset": 66089941,
+            "ttfb_s": 0.5192,
+            "full_s": 1.1275,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.25,
+            "offset": 1652248535,
+            "ttfb_s": 0.836,
+            "full_s": 0.8442,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.5,
+            "offset": 3304497070,
+            "ttfb_s": 0.002,
+            "full_s": 0.0114,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.75,
+            "offset": 4956745605,
+            "ttfb_s": 0.5199,
+            "full_s": 1.3192,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.95,
+            "offset": 6278544433,
+            "ttfb_s": 0.6196,
+            "full_s": 1.3324,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          }
+        ],
+        "read_bytes": 8388608,
+        "backward": {
+          "offset": 660899414,
+          "ttfb_s": 0.4166,
+          "full_s": 1.2219,
+          "http": "206",
+          "complete": true,
+          "error": null
+        },
+        "n_complete": 5,
+        "n_attempted": 5,
+        "ttfb_median_s": 0.5199,
+        "ttfb_worst_s": 0.836,
+        "full_median_s": 1.1275,
+        "full_worst_s": 1.3324
+      },
+      "playback": {
+        "bitrate_mbps": 25,
+        "seconds_of_media": 30,
+        "offset": 1982698242,
+        "bytes": 93750000,
+        "http": "206",
+        "total_s": 4.0552,
+        "MBps": 23.12,
+        "p05_MBps": null,
+        "error": null,
+        "media_seconds_delivered": 30.0,
+        "realtime_ratio": 7.4,
+        "to_buffer_s": 1.35,
+        "sustains_bitrate": null
+      },
+      "integrity": [
+        {
+          "offset": 1652248535,
+          "length": 2097152,
+          "md5": "08bfe6cbe5645b85132485cfff677d5b",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        },
+        {
+          "offset": 3304497070,
+          "length": 2097152,
+          "md5": "696b3a1f56f3e9992319ad3c0aca8411",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        },
+        {
+          "offset": 4956745605,
+          "length": 2097152,
+          "md5": "5be132dd93dd516ffd142eadcc1d5db4",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        }
+      ],
+      "silence": {
+        "samples_checked": 3,
+        "samples_zero_filled": 0,
+        "zero_fill": false
+      },
+      "shape": {
+        "samples": 39,
+        "sample_interval_s": 1.0,
+        "cpu_s": 15.78,
+        "cpu_s_per_GiB": 12.04,
+        "disk_read_MB": 0.0,
+        "disk_write_MB": 0.01,
+        "disk_read_MB_per_GiB": 0.0,
+        "disk_write_MB_per_GiB": 0.01,
+        "rss_peak_MB": 649,
+        "rss_median_MB": 604,
+        "rss_final_MB": 649,
+        "cores_p95": 0.53,
+        "cores_max": 0.75,
+        "cores_median": 0.37,
+        "steady_pct": 87
+      },
+      "rss_peak_MB": 649,
+      "served": true,
+      "reason": "1406205952 bytes over HTTP 206",
+      "outcome": "pass",
+      "http": "206",
+      "bytes": 1406205952,
+      "entry_s": 47.069
+    },
+    {
+      "target": "zurg",
+      "entry": "damaged-partial",
+      "tier": "failure",
+      "expect": "serve",
+      "tag": "r14-main",
+      "import_mode": "sabnzbd",
+      "import_style": "drop-dir",
+      "import_accepted": true,
+      "import_detail": "present at /root/bench-round14/zurgrun/nzbs/ToyStory5Damaged.nzb",
+      "import_s": 5.063,
+      "url": "http://localhost:19998/dav/all/ToyStory5Damaged/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+      "size": 6608994141,
+      "cold_open_s": 0.0037,
+      "cold_ttfb_s": 0.0017,
+      "cold_http": "206",
+      "cold_complete": true,
+      "seq_offset": 1982698242,
+      "seq_requested": 2147483648,
+      "seq_budget_bound": true,
+      "MBps": 44.98,
+      "p05_MBps": 6.29,
+      "p05_skipped": null,
+      "p05_windows": 28,
+      "first_window_MBps": 73.4,
+      "seq_bytes": 1352990720,
+      "seq_windows": 29,
+      "seeks": {
+        "points": [
+          {
+            "fraction": 0.01,
+            "offset": 66089941,
+            "ttfb_s": 0.5216,
+            "full_s": 1.6289,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.25,
+            "offset": 1652248535,
+            "ttfb_s": 0.8181,
+            "full_s": 1.5383,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.5,
+            "offset": 3304497070,
+            "ttfb_s": 0.002,
+            "full_s": 0.0146,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.75,
+            "offset": 4956745605,
+            "ttfb_s": 0.518,
+            "full_s": 0.7914,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.95,
+            "offset": 6278544433,
+            "ttfb_s": 0.794,
+            "full_s": 1.4139,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          }
+        ],
+        "read_bytes": 8388608,
+        "backward": {
+          "offset": 660899414,
+          "ttfb_s": 0.7435,
+          "full_s": 1.9529,
+          "http": "206",
+          "complete": true,
+          "error": null
+        },
+        "n_complete": 5,
+        "n_attempted": 5,
+        "ttfb_median_s": 0.5216,
+        "ttfb_worst_s": 0.8181,
+        "full_median_s": 1.4139,
+        "full_worst_s": 1.6289
+      },
+      "playback": {
+        "bitrate_mbps": 25,
+        "seconds_of_media": 30,
+        "offset": 1982698242,
+        "bytes": 93750000,
+        "http": "206",
+        "total_s": 3.9675,
+        "MBps": 23.63,
+        "p05_MBps": null,
+        "error": null,
+        "media_seconds_delivered": 30.0,
+        "realtime_ratio": 7.56,
+        "to_buffer_s": 1.32,
+        "sustains_bitrate": null
+      },
+      "integrity": [
+        {
+          "offset": 1652248535,
+          "length": 2097152,
+          "md5": "08bfe6cbe5645b85132485cfff677d5b",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        },
+        {
+          "offset": 3304497070,
+          "length": 2097152,
+          "md5": "696b3a1f56f3e9992319ad3c0aca8411",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        },
+        {
+          "offset": 4956745605,
+          "length": 2097152,
+          "md5": "5be132dd93dd516ffd142eadcc1d5db4",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        }
+      ],
+      "silence": {
+        "samples_checked": 3,
+        "samples_zero_filled": 0,
+        "zero_fill": false
+      },
+      "shape": {
+        "samples": 40,
+        "sample_interval_s": 1.0,
+        "cpu_s": 15.13,
+        "cpu_s_per_GiB": 12.0,
+        "disk_read_MB": 0.0,
+        "disk_write_MB": 0.01,
+        "disk_read_MB_per_GiB": 0.0,
+        "disk_write_MB_per_GiB": 0.01,
+        "rss_peak_MB": 650,
+        "rss_median_MB": 647,
+        "rss_final_MB": 648,
+        "cores_p95": 0.44,
+        "cores_max": 0.47,
+        "cores_median": 0.37,
+        "steady_pct": 98
+      },
+      "rss_peak_MB": 650,
+      "damage": {
+        "file": "Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+        "nzb": "ToyStory5Damaged.nzb",
+        "url": "http://localhost:19998/dav/all/ToyStory5Damaged/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+        "articles": 1576,
+        "part_size": 4194304,
+        "size": 6608994141,
+        "holes_found": [
+          20
+        ],
+        "holes_total": 1,
+        "hole_index": 20,
+        "hole_start": 83886080,
+        "hole_end": 88080384,
+        "hole_bytes": 4194304,
+        "hole_position_pct": 1.27,
+        "alignment": {
+          "anchor_bytes": 262144,
+          "checks": [
+            {
+              "side": "pre",
+              "offset": 83623936,
+              "length": 262144,
+              "expected_md5": "93e5a8822946fa43ece65d7199f4ea4c",
+              "served_md5": "93e5a8822946fa43ece65d7199f4ea4c",
+              "match": true,
+              "http": "206",
+              "error": null
+            },
+            {
+              "side": "post",
+              "offset": 88080384,
+              "length": 262144,
+              "expected_md5": "4b33f6d003c0f3617d623e18c660f054",
+              "served_md5": "4b33f6d003c0f3617d623e18c660f054",
+              "match": true,
+              "http": "206",
+              "error": null
+            }
+          ],
+          "aligned": true
+        },
+        "streaming": {
+          "http": "206",
+          "bytes": 6291456,
+          "total_s": 0.0759,
+          "ttfb_s": 0.002,
+          "error": null,
+          "md5": "8d664f418b71c085c29df2abf0a8657d",
+          "requested": 6291456,
+          "content_range": "bytes 82837504-89128959/6608994141",
+          "verdict": "spans-hole",
+          "detail": "the read covered the gap; the body says what is in it"
+        },
+        "direct": {
+          "http": "206",
+          "bytes": 4194304,
+          "total_s": 0.0199,
+          "error": null,
+          "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+          "requested": 4194304
+        },
+        "control": {
+          "http": "206",
+          "bytes": 6291456,
+          "total_s": 0.2632,
+          "MBps": 23.9,
+          "error": null
+        },
+        "slowdown_x": 0.29,
+        "gap": {
+          "http": "206",
+          "bytes": 4194304,
+          "md5": "b5cfa9d6c8febd618f91ac2843d50a1c",
+          "error": null,
+          "zero_run": 1048576,
+          "sampled": 1048576,
+          "content": "all zeros"
+        },
+        "verdict": "zero-filled"
+      },
+      "served": true,
+      "reason": "1352990720 bytes over HTTP 206",
+      "outcome": "pass",
+      "http": "206",
+      "bytes": 1352990720,
+      "entry_s": 50.162
+    },
+    {
+      "target": "zurg",
+      "entry": "obfuscated",
+      "tier": "core",
+      "expect": "serve",
+      "tag": "r14-main",
+      "import_mode": "sabnzbd",
+      "import_style": "drop-dir",
+      "import_accepted": true,
+      "import_detail": "present at /root/bench-round14/zurgrun/nzbs/Obfuscated.nzb",
+      "import_s": 5.064,
+      "url": "http://localhost:19998/dav/all/Obfuscated/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+      "size": 6608994141,
+      "cold_open_s": 0.0029,
+      "cold_ttfb_s": 0.002,
+      "cold_http": "206",
+      "cold_complete": true,
+      "seq_offset": 1982698242,
+      "seq_requested": 2147483648,
+      "seq_budget_bound": true,
+      "MBps": 41.61,
+      "p05_MBps": 6.38,
+      "p05_skipped": null,
+      "p05_windows": 28,
+      "first_window_MBps": 69.21,
+      "seq_bytes": 1248919552,
+      "seq_windows": 29,
+      "seeks": {
+        "points": [
+          {
+            "fraction": 0.01,
+            "offset": 66089941,
+            "ttfb_s": 0.6128,
+            "full_s": 0.9134,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.25,
+            "offset": 1652248535,
+            "ttfb_s": 0.7071,
+            "full_s": 2.1219,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.5,
+            "offset": 3304497070,
+            "ttfb_s": 0.7145,
+            "full_s": 1.6908,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.75,
+            "offset": 4956745605,
+            "ttfb_s": 0.8612,
+            "full_s": 0.9729,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.95,
+            "offset": 6278544433,
+            "ttfb_s": 0.6682,
+            "full_s": 0.7697,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          }
+        ],
+        "read_bytes": 8388608,
+        "backward": {
+          "offset": 660899414,
+          "ttfb_s": 0.6952,
+          "full_s": 1.2627,
+          "http": "206",
+          "complete": true,
+          "error": null
+        },
+        "n_complete": 5,
+        "n_attempted": 5,
+        "ttfb_median_s": 0.7071,
+        "ttfb_worst_s": 0.8612,
+        "full_median_s": 0.9729,
+        "full_worst_s": 2.1219
+      },
+      "playback": {
+        "bitrate_mbps": 25,
+        "seconds_of_media": 30,
+        "offset": 1982698242,
+        "bytes": 93750000,
+        "http": "206",
+        "total_s": 4.1297,
+        "MBps": 22.7,
+        "p05_MBps": null,
+        "error": null,
+        "media_seconds_delivered": 30.0,
+        "realtime_ratio": 7.26,
+        "to_buffer_s": 1.38,
+        "sustains_bitrate": null
+      },
+      "integrity": [
+        {
+          "offset": 1652248535,
+          "length": 2097152,
+          "md5": "08bfe6cbe5645b85132485cfff677d5b",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        },
+        {
+          "offset": 3304497070,
+          "length": 2097152,
+          "md5": "696b3a1f56f3e9992319ad3c0aca8411",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        },
+        {
+          "offset": 4956745605,
+          "length": 2097152,
+          "md5": "5be132dd93dd516ffd142eadcc1d5db4",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        }
+      ],
+      "silence": {
+        "samples_checked": 3,
+        "samples_zero_filled": 0,
+        "zero_fill": false
+      },
+      "shape": {
+        "samples": 41,
+        "sample_interval_s": 1.0,
+        "cpu_s": 20.93,
+        "cpu_s_per_GiB": 17.98,
+        "disk_read_MB": 0.0,
+        "disk_write_MB": 0.05,
+        "disk_read_MB_per_GiB": 0.0,
+        "disk_write_MB_per_GiB": 0.04,
+        "rss_peak_MB": 1032,
+        "rss_median_MB": 1009,
+        "rss_final_MB": 1029,
+        "cores_p95": 0.61,
+        "cores_max": 0.68,
+        "cores_median": 0.46,
+        "steady_pct": 100
+      },
+      "rss_peak_MB": 1032,
+      "served": true,
+      "reason": "1248919552 bytes over HTTP 206",
+      "outcome": "pass",
+      "http": "206",
+      "bytes": 1248919552,
+      "entry_s": 49.426
+    },
+    {
+      "target": "zurg",
+      "entry": "rar-stored",
+      "tier": "core",
+      "expect": "serve",
+      "tag": "r14-main",
+      "import_mode": "sabnzbd",
+      "import_style": "drop-dir",
+      "import_accepted": true,
+      "import_detail": "present at /root/bench-round14/zurgrun/nzbs/FatherBrown.nzb",
+      "import_s": 6.503,
+      "url": "http://localhost:19998/dav/all/FatherBrown/Father.Brown.2013.S02E05.HDTV.x264-TLA/father.brown.2013.s02e05.hdtv.x264-tla.mp4",
+      "size": 321905886,
+      "cold_open_s": 0.7601,
+      "cold_ttfb_s": 0.0013,
+      "cold_http": "206",
+      "cold_complete": true,
+      "seq_offset": 53470430,
+      "seq_requested": 268435456,
+      "seq_budget_bound": false,
+      "MBps": 42.22,
+      "p05_MBps": null,
+      "p05_skipped": "only 6 complete 1000ms windows; the floor needs 10 after the first",
+      "p05_windows": null,
+      "first_window_MBps": 24.38,
+      "seq_bytes": 268435456,
+      "seq_windows": 6,
+      "seeks": {
+        "points": [
+          {
+            "fraction": 0.01,
+            "offset": 3219058,
+            "ttfb_s": 0.003,
+            "full_s": 0.1375,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.25,
+            "offset": 80476471,
+            "ttfb_s": 0.2013,
+            "full_s": 0.4364,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.5,
+            "offset": 160952943,
+            "ttfb_s": 0.0036,
+            "full_s": 0.1915,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.75,
+            "offset": 241429414,
+            "ttfb_s": 0.0016,
+            "full_s": 0.0089,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.95,
+            "offset": 305810591,
+            "ttfb_s": 0.0018,
+            "full_s": 0.0168,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          }
+        ],
+        "read_bytes": 8388608,
+        "backward": {
+          "offset": 32190588,
+          "ttfb_s": 0.1687,
+          "full_s": 0.666,
+          "http": "206",
+          "complete": true,
+          "error": null
+        },
+        "n_complete": 5,
+        "n_attempted": 5,
+        "ttfb_median_s": 0.003,
+        "ttfb_worst_s": 0.2013,
+        "full_median_s": 0.1375,
+        "full_worst_s": 0.4364
+      },
+      "playback": {
+        "bitrate_mbps": 25,
+        "seconds_of_media": 30,
+        "offset": 96571765,
+        "bytes": 93750000,
+        "http": "206",
+        "total_s": 2.1321,
+        "MBps": 43.97,
+        "p05_MBps": null,
+        "error": null,
+        "media_seconds_delivered": 30.0,
+        "realtime_ratio": 14.07,
+        "to_buffer_s": 0.71,
+        "sustains_bitrate": null
+      },
+      "integrity": [
+        {
+          "offset": 80476471,
+          "length": 2097152,
+          "md5": "bd4c211fb02109091943ea869aab6003",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        },
+        {
+          "offset": 160952943,
+          "length": 2097152,
+          "md5": "f3611e8a9ef3362335351c5b573d8775",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        },
+        {
+          "offset": 241429414,
+          "length": 2097152,
+          "md5": "20c3244c67bb16dd21c0e83948c871e6",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        }
+      ],
+      "silence": {
+        "samples_checked": 3,
+        "samples_zero_filled": 0,
+        "zero_fill": false
+      },
+      "shape": {
+        "samples": 10,
+        "sample_interval_s": 1.0,
+        "cpu_s": 6.85,
+        "cpu_s_per_GiB": 27.29,
+        "disk_read_MB": 0.0,
+        "disk_write_MB": 14.79,
+        "disk_read_MB_per_GiB": 0.0,
+        "disk_write_MB_per_GiB": 58.93,
+        "rss_peak_MB": 1041,
+        "rss_median_MB": 1018,
+        "rss_final_MB": 1016,
+        "cores_p95": 0.76,
+        "cores_max": 0.76,
+        "cores_median": 0.64,
+        "steady_pct": 100
+      },
+      "rss_peak_MB": 1041,
+      "served": true,
+      "reason": "268435456 bytes over HTTP 206",
+      "outcome": "pass",
+      "http": "206",
+      "bytes": 268435456,
+      "entry_s": 17.562
+    },
+    {
+      "target": "zurg",
+      "entry": "season-pack",
+      "tier": "stress",
+      "expect": "serve",
+      "tag": "r14-main",
+      "import_mode": "sabnzbd",
+      "import_style": "drop-dir",
+      "import_accepted": true,
+      "import_detail": "present at /root/bench-round14/zurgrun/nzbs/Bosch.S01.nzb",
+      "import_s": 5.08,
+      "url": "http://localhost:19998/dav/all/Bosch.S01/Bosch.S01E01.2015.1080p.Amazon.WEB-DL.AVC.DDP.5.1-DBTV.mkv",
+      "size": 2210528776,
+      "cold_open_s": 0.3107,
+      "cold_ttfb_s": 0.1949,
+      "cold_http": "206",
+      "cold_complete": true,
+      "seq_offset": 663158632,
+      "seq_requested": 1547370144,
+      "seq_budget_bound": true,
+      "MBps": 47.29,
+      "p05_MBps": 42.74,
+      "p05_skipped": null,
+      "p05_windows": 28,
+      "first_window_MBps": 14.42,
+      "seq_bytes": 1421148160,
+      "seq_windows": 29,
+      "seeks": {
+        "points": [
+          {
+            "fraction": 0.01,
+            "offset": 22105287,
+            "ttfb_s": 0.2154,
+            "full_s": 0.5779,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.25,
+            "offset": 552632194,
+            "ttfb_s": 0.126,
+            "full_s": 0.4232,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.5,
+            "offset": 1105264388,
+            "ttfb_s": 0.3359,
+            "full_s": 0.5415,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.75,
+            "offset": 1657896582,
+            "ttfb_s": 0.1309,
+            "full_s": 0.5379,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          },
+          {
+            "fraction": 0.95,
+            "offset": 2100002337,
+            "ttfb_s": 0.0024,
+            "full_s": 0.265,
+            "http": "206",
+            "bytes": 8388608,
+            "complete": true,
+            "error": null
+          }
+        ],
+        "read_bytes": 8388608,
+        "backward": {
+          "offset": 221052877,
+          "ttfb_s": 0.1417,
+          "full_s": 0.4465,
+          "http": "206",
+          "complete": true,
+          "error": null
+        },
+        "n_complete": 5,
+        "n_attempted": 5,
+        "ttfb_median_s": 0.1309,
+        "ttfb_worst_s": 0.3359,
+        "full_median_s": 0.5379,
+        "full_worst_s": 0.5779
+      },
+      "playback": {
+        "bitrate_mbps": 25,
+        "seconds_of_media": 30,
+        "offset": 663158632,
+        "bytes": 93750000,
+        "http": "206",
+        "total_s": 2.4292,
+        "MBps": 38.59,
+        "p05_MBps": null,
+        "error": null,
+        "media_seconds_delivered": 30.0,
+        "realtime_ratio": 12.35,
+        "to_buffer_s": 0.81,
+        "sustains_bitrate": null
+      },
+      "integrity": [
+        {
+          "offset": 552632194,
+          "length": 2097152,
+          "md5": "79e078782b0f8393e994cf88592fab59",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        },
+        {
+          "offset": 1105264388,
+          "length": 2097152,
+          "md5": "085f5609430f33d9d380659aecefaa9e",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        },
+        {
+          "offset": 1657896582,
+          "length": 2097152,
+          "md5": "4dad2578b77fc65f9e2ab14ff91505bb",
+          "http": "206",
+          "bytes": 2097152,
+          "error": null
+        }
+      ],
+      "silence": {
+        "samples_checked": 3,
+        "samples_zero_filled": 0,
+        "zero_fill": false
+      },
+      "shape": {
+        "samples": 34,
+        "sample_interval_s": 1.0,
+        "cpu_s": 21.91,
+        "cpu_s_per_GiB": 16.54,
+        "disk_read_MB": 0.0,
+        "disk_write_MB": 0.7,
+        "disk_read_MB_per_GiB": 0.0,
+        "disk_write_MB_per_GiB": 0.52,
+        "rss_peak_MB": 1060,
+        "rss_median_MB": 1027,
+        "rss_final_MB": 1010,
+        "cores_p95": 0.69,
+        "cores_max": 0.7,
+        "cores_median": 0.6,
+        "steady_pct": 100
+      },
+      "rss_peak_MB": 1060,
+      "served": true,
+      "reason": "1421148160 bytes over HTTP 206",
+      "outcome": "pass",
+      "http": "206",
+      "bytes": 1421148160,
+      "entry_s": 41.557
+    },
+    {
+      "target": "zurg",
+      "entry": "dead-post",
+      "tier": "negative",
+      "expect": "reject",
+      "tag": "r14-main",
+      "import_mode": "sabnzbd",
+      "import_style": "drop-dir",
+      "import_accepted": true,
+      "import_detail": "present at /root/bench-round14/zurgrun/nzbs/dead-post.nzb",
+      "import_s": 902.616,
+      "error": "release dead-post never appeared within 900s",
+      "url": null,
+      "size": null,
+      "served": false,
+      "reason": "error: release dead-post never appeared within 900s",
+      "outcome": "refused",
+      "http": null,
+      "bytes": 0,
+      "entry_s": 902.617
+    },
+    {
+      "target": "zurg",
+      "entry": "incomplete-archive-set",
+      "tier": "negative",
+      "expect": "reject",
+      "tag": "r14-main",
+      "import_mode": "sabnzbd",
+      "import_style": "drop-dir",
+      "import_accepted": true,
+      "import_detail": "present at /root/bench-round14/zurgrun/nzbs/incomplete-archive-set.nzb",
+      "import_s": 903.044,
+      "error": "release incomplete-archive-set never appeared within 900s",
+      "url": null,
+      "size": null,
+      "served": false,
+      "reason": "error: release incomplete-archive-set never appeared within 900s",
+      "outcome": "refused",
+      "http": null,
+      "bytes": 0,
+      "entry_s": 903.044
+    },
+    {
+      "target": "zurg",
+      "entry": "damaged-severe",
+      "tier": "negative",
+      "expect": "reject",
+      "tag": "r14-main",
+      "import_mode": "sabnzbd",
+      "import_style": "drop-dir",
+      "import_accepted": true,
+      "import_detail": "present at /root/bench-round14/zurgrun/nzbs/damaged-severe.nzb",
+      "import_s": 5.058,
+      "url": "http://localhost:19998/dav/all/damaged-severe/Toy.Story.5.2026.1080p.AMZN.WEB-DL.DDP5.1.H.264-KyoGo.mkv",
+      "size": 6608994141,
+      "cold_open_s": null,
+      "cold_ttfb_s": null,
+      "cold_http": "503",
+      "cold_complete": false,
+      "seq_offset": 1982698242,
+      "seq_requested": 2147483648,
+      "seq_budget_bound": false,
+      "MBps": null,
+      "p05_MBps": null,
+      "p05_skipped": null,
+      "p05_windows": null,
+      "first_window_MBps": null,
+      "seq_bytes": 0,
+      "seq_windows": null,
+      "seeks": {
+        "points": [
+          {
+            "fraction": 0.01,
+            "offset": 66089941,
+            "ttfb_s": null,
+            "full_s": null,
+            "http": "503",
+            "bytes": 0,
+            "complete": false,
+            "error": "HTTP 503"
+          },
+          {
+            "fraction": 0.25,
+            "offset": 1652248535,
+            "ttfb_s": null,
+            "full_s": null,
+            "http": "503",
+            "bytes": 0,
+            "complete": false,
+            "error": "HTTP 503"
+          },
+          {
+            "fraction": 0.5,
+            "offset": 3304497070,
+            "ttfb_s": null,
+            "full_s": null,
+            "http": "503",
+            "bytes": 0,
+            "complete": false,
+            "error": "HTTP 503"
+          },
+          {
+            "fraction": 0.75,
+            "offset": 4956745605,
+            "ttfb_s": null,
+            "full_s": null,
+            "http": "503",
+            "bytes": 0,
+            "complete": false,
+            "error": "HTTP 503"
+          },
+          {
+            "fraction": 0.95,
+            "offset": 6278544433,
+            "ttfb_s": null,
+            "full_s": null,
+            "http": "503",
+            "bytes": 0,
+            "complete": false,
+            "error": "HTTP 503"
+          }
+        ],
+        "read_bytes": 8388608,
+        "backward": {
+          "offset": 660899414,
+          "ttfb_s": null,
+          "full_s": null,
+          "http": "503",
+          "complete": false,
+          "error": "HTTP 503"
+        },
+        "n_complete": 0,
+        "n_attempted": 5
+      },
+      "playback": {
+        "bitrate_mbps": 25,
+        "seconds_of_media": 30,
+        "offset": 1982698242,
+        "bytes": 0,
+        "http": "503",
+        "total_s": null,
+        "MBps": null,
+        "p05_MBps": null,
+        "error": "HTTP 503",
+        "media_seconds_delivered": 0.0,
+        "realtime_ratio": null,
+        "to_buffer_s": null,
+        "sustains_bitrate": null
+      },
+      "integrity": [
+        {
+          "offset": 1652248535,
+          "length": 2097152,
+          "md5": null,
+          "http": "503",
+          "bytes": 0,
+          "error": "HTTP 503"
+        },
+        {
+          "offset": 3304497070,
+          "length": 2097152,
+          "md5": null,
+          "http": "503",
+          "bytes": 0,
+          "error": "HTTP 503"
+        },
+        {
+          "offset": 4956745605,
+          "length": 2097152,
+          "md5": null,
+          "http": "503",
+          "bytes": 0,
+          "error": "HTTP 503"
+        }
+      ],
+      "silence": {
+        "samples_checked": 0,
+        "samples_zero_filled": 0,
+        "zero_fill": false
+      },
+      "shape": {
+        "samples": 0,
+        "sample_interval_s": 1.0,
+        "cpu_s": 0.0,
+        "disk_read_MB": 0.0,
+        "disk_write_MB": 0.0,
+        "shape_skipped": "0 samples, need 4"
+      },
+      "rss_peak_MB": null,
+      "served": false,
+      "reason": "HTTP 503",
+      "outcome": "refused",
+      "http": "503",
+      "bytes": 0,
+      "entry_s": 5.114
+    },
+    {
+      "target": "zurg",
+      "entry": "compressed-archive",
+      "tier": "negative",
+      "expect": "reject",
+      "tag": "r14-main",
+      "outcome": null,
+      "skipped": "no post available for this entry",
+      "entry_s": 0.0
+    },
+    {
+      "target": "zurg",
+      "entry": "encrypted-no-password",
+      "tier": "negative",
+      "expect": "reject",
+      "tag": "r14-main",
+      "outcome": null,
+      "skipped": "no post available for this entry",
+      "entry_s": 0.0
+    }
+  ],
+  "memory": {
+    "raw": {
+      "reads": 7,
+      "idle_rss_MB": 257,
+      "rss_per_read_MB": 434,
+      "rss_peak_MB": 467,
+      "peak_over_reads": 7,
+      "drift_MB": -196,
+      "after_idle_MB": 302,
+      "phase_resources": [
+        {
+          "samples": 381,
+          "sample_interval_s": 1.0,
+          "cpu_s": 230.52,
+          "cpu_s_per_GiB": 36.22,
+          "disk_read_MB": 0.04,
+          "disk_write_MB": 0.04,
+          "disk_read_MB_per_GiB": 0.01,
+          "disk_write_MB_per_GiB": 0.01,
+          "state_disk_start_MB": 0.0,
+          "state_disk_end_MB": 0.0,
+          "state_disk_delta_MB": 0.0,
+          "rss_peak_MB": 472,
+          "rss_median_MB": 336,
+          "rss_final_MB": 302,
+          "cores_p95": 1.33,
+          "cores_max": 1.4,
+          "cores_median": 0.21,
+          "steady_pct": 45
+        }
+      ]
+    },
+    "zurg": {
+      "reads": 5,
+      "idle_rss_MB": 50,
+      "rss_per_read_MB": 1032,
+      "rss_peak_MB": 1060,
+      "peak_over_reads": 5,
+      "drift_MB": 411,
+      "after_idle_MB": 406,
+      "phase_resources": [
+        {
+          "samples": 1936,
+          "sample_interval_s": 1.0,
+          "cpu_s": 145.95,
+          "cpu_s_per_GiB": 27.5,
+          "disk_read_MB": 1.48,
+          "disk_write_MB": 105.17,
+          "disk_read_MB_per_GiB": 0.28,
+          "disk_write_MB_per_GiB": 19.82,
+          "state_disk_start_MB": 0.0,
+          "state_disk_end_MB": 95.45,
+          "state_disk_delta_MB": 95.44,
+          "rss_peak_MB": 1061,
+          "rss_median_MB": 346,
+          "rss_final_MB": 407,
+          "cores_p95": 0.53,
+          "cores_max": 0.78,
+          "cores_median": 0.0,
+          "steady_pct": 13
+        }
+      ]
+    }
+  },
+  "capability": {
+    "raw": {
+      "pass": 5,
+      "FAIL": 0,
+      "refused": 2,
+      "WRONGLY SERVED": 1,
+      "skipped": 2,
+      "graded": 8,
+      "correct": 7,
+      "correct_pct": 88
+    },
+    "zurg": {
+      "pass": 5,
+      "FAIL": 0,
+      "refused": 3,
+      "WRONGLY SERVED": 0,
+      "skipped": 2,
+      "graded": 8,
+      "correct": 8,
+      "correct_pct": 100
+    }
+  },
+  "throughput": {
+    "field": "MBps",
+    "population": [
+      "damaged-partial",
+      "obfuscated",
+      "plain-video",
+      "rar-stored",
+      "season-pack"
+    ],
+    "population_size": 5,
+    "population_detail": {
+      "damaged-partial": {
+        "served_by": 2,
+        "of": 2,
+        "required": 1,
+        "share": 1.0,
+        "in_population": true
+      },
+      "obfuscated": {
+        "served_by": 2,
+        "of": 2,
+        "required": 1,
+        "share": 1.0,
+        "in_population": true
+      },
+      "plain-video": {
+        "served_by": 2,
+        "of": 2,
+        "required": 1,
+        "share": 1.0,
+        "in_population": true
+      },
+      "rar-stored": {
+        "served_by": 2,
+        "of": 2,
+        "required": 1,
+        "share": 1.0,
+        "in_population": true
+      },
+      "season-pack": {
+        "served_by": 2,
+        "of": 2,
+        "required": 1,
+        "share": 1.0,
+        "in_population": true
+      }
+    },
+    "threshold": 0.9,
+    "targets": {
+      "raw": {
+        "n": 5,
+        "of": 5,
+        "median": 56.9,
+        "own_median": 56.9,
+        "own_n": 5,
+        "gap_pct": 0.0
+      },
+      "zurg": {
+        "n": 5,
+        "of": 5,
+        "median": 44.98,
+        "own_median": 44.98,
+        "own_n": 5,
+        "gap_pct": 0.0
+      }
+    }
+  },
+  "cold_open": {
+    "field": "cold_open_s",
+    "population": [
+      "damaged-partial",
+      "obfuscated",
+      "plain-video",
+      "rar-stored",
+      "season-pack"
+    ],
+    "population_size": 5,
+    "population_detail": {
+      "damaged-partial": {
+        "served_by": 2,
+        "of": 2,
+        "required": 1,
+        "share": 1.0,
+        "in_population": true
+      },
+      "obfuscated": {
+        "served_by": 2,
+        "of": 2,
+        "required": 1,
+        "share": 1.0,
+        "in_population": true
+      },
+      "plain-video": {
+        "served_by": 2,
+        "of": 2,
+        "required": 1,
+        "share": 1.0,
+        "in_population": true
+      },
+      "rar-stored": {
+        "served_by": 2,
+        "of": 2,
+        "required": 1,
+        "share": 1.0,
+        "in_population": true
+      },
+      "season-pack": {
+        "served_by": 2,
+        "of": 2,
+        "required": 1,
+        "share": 1.0,
+        "in_population": true
+      }
+    },
+    "threshold": 0.9,
+    "targets": {
+      "raw": {
+        "n": 5,
+        "of": 5,
+        "median": 0.5818,
+        "own_median": 0.5818,
+        "own_n": 5,
+        "gap_pct": 0.0
+      },
+      "zurg": {
+        "n": 5,
+        "of": 5,
+        "median": 0.0038,
+        "own_median": 0.0038,
+        "own_n": 5,
+        "gap_pct": 0.0
+      }
+    }
+  },
+  "consensus": {
+    "ranges": [
+      {
+        "entry": "damaged-partial",
+        "offset": 1652248535,
+        "consensus": "08bfe6cbe5645b85132485cfff677d5b",
+        "distinct_hashes": 1,
+        "compared": 2,
+        "unresolved": false
+      },
+      {
+        "entry": "damaged-partial",
+        "offset": 3304497070,
+        "consensus": "696b3a1f56f3e9992319ad3c0aca8411",
+        "distinct_hashes": 1,
+        "compared": 2,
+        "unresolved": false
+      },
+      {
+        "entry": "damaged-partial",
+        "offset": 4956745605,
+        "consensus": "5be132dd93dd516ffd142eadcc1d5db4",
+        "distinct_hashes": 1,
+        "compared": 2,
+        "unresolved": false
+      },
+      {
+        "entry": "obfuscated",
+        "offset": 1652248535,
+        "consensus": null,
+        "distinct_hashes": 1,
+        "compared": 1,
+        "unresolved": true
+      },
+      {
+        "entry": "obfuscated",
+        "offset": 3304497070,
+        "consensus": null,
+        "distinct_hashes": 1,
+        "compared": 1,
+        "unresolved": true
+      },
+      {
+        "entry": "obfuscated",
+        "offset": 4956745605,
+        "consensus": null,
+        "distinct_hashes": 1,
+        "compared": 1,
+        "unresolved": true
+      },
+      {
+        "entry": "plain-video",
+        "offset": 1652248535,
+        "consensus": "08bfe6cbe5645b85132485cfff677d5b",
+        "distinct_hashes": 1,
+        "compared": 2,
+        "unresolved": false
+      },
+      {
+        "entry": "plain-video",
+        "offset": 3304497070,
+        "consensus": "696b3a1f56f3e9992319ad3c0aca8411",
+        "distinct_hashes": 1,
+        "compared": 2,
+        "unresolved": false
+      },
+      {
+        "entry": "plain-video",
+        "offset": 4956745605,
+        "consensus": "5be132dd93dd516ffd142eadcc1d5db4",
+        "distinct_hashes": 1,
+        "compared": 2,
+        "unresolved": false
+      },
+      {
+        "entry": "rar-stored",
+        "offset": 80476471,
+        "consensus": null,
+        "distinct_hashes": 1,
+        "compared": 1,
+        "unresolved": true
+      },
+      {
+        "entry": "rar-stored",
+        "offset": 160952943,
+        "consensus": null,
+        "distinct_hashes": 1,
+        "compared": 1,
+        "unresolved": true
+      },
+      {
+        "entry": "rar-stored",
+        "offset": 241429414,
+        "consensus": null,
+        "distinct_hashes": 1,
+        "compared": 1,
+        "unresolved": true
+      },
+      {
+        "entry": "season-pack",
+        "offset": 552632194,
+        "consensus": null,
+        "distinct_hashes": 1,
+        "compared": 1,
+        "unresolved": true
+      },
+      {
+        "entry": "season-pack",
+        "offset": 1105264388,
+        "consensus": null,
+        "distinct_hashes": 1,
+        "compared": 1,
+        "unresolved": true
+      },
+      {
+        "entry": "season-pack",
+        "offset": 1657896582,
+        "consensus": null,
+        "distinct_hashes": 1,
+        "compared": 1,
+        "unresolved": true
+      }
+    ],
+    "differing": [],
+    "pairs_compared": 12,
+    "pairs_matched": 12,
+    "summary": "12 of 12 target-range pairs matched consensus"
+  },
+  "shakedown": []
+}

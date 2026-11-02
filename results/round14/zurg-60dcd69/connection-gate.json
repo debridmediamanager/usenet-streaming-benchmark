@@ -1,0 +1,11 @@
+{
+  "budget": 10,
+  "sample_interval_s": 1.0,
+  "samples": 2187,
+  "peaks": {
+    "raw": 10,
+    "zurg": 10
+  },
+  "failure": null,
+  "sampling_limit": "Sub-interval transient sockets are not observed."
+}
