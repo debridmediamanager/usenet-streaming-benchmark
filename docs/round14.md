@@ -162,23 +162,174 @@ and AIOStreams returned zeros for the whole article; NZBDav-og and decypharr
 stopped at the hole (HTTP 404). None reconstructed it. Repair is enabled
 wherever the feature exists; enabled is not evidence that it ran.
 
-## Rates and latency
+## Results by metric
 
-Medians over the five positive entries, MB/s and seconds. The worst per-entry
-clean-start swing between the two noise passes was 9.1%: a difference smaller
-than that is not resolved by one pass.
+One table per metric, best first. AIOStreams' figures in every table are from its rerun without the disk cache (below); everything else is the main pass. `raw` reads the articles with no application in the way and is shown under the speed tables as the network ceiling, not ranked.
 
-| Target | Sequential | p05 stall floor | Cold open | Seek first byte |
-|---|---|---|---|---|
-| NZBDav-og | 60.58 | 43.76 | 0.2007 | 0.713 |
-| raw | 59.55 | — | 0.5497 | 1.948 |
-| InfiniDysk | 57.73 | 44.10 | 0.1532 | 0.614 |
-| AltMount | 57.37 | 39.73 | 0.0531 | 0.145 |
-| decypharr | 57.07 | 43.13 | 0.6454 | 1.040 |
-| AIOStreams, disk cache off (rerun) | 48.66 | 13.00 | 0.0087 | 0.019 |
-| zurg | 47.78 | 6.34 | 0.0025 | 0.617 |
+### Sequential throughput
 
-### AIOStreams without the disk cache
+**Higher is better.** Median over the five entries that should play. The worst clean-start swing between the two noise passes was 9.1%, so a difference smaller than that is not resolved by one pass: the top four are within it of each other, and so are zurg and AIOStreams.
+
+| Rank | Target | MB/s |
+|---|---|---|
+| 1 | NZBDav-og | 60.58 |
+| 2 | InfiniDysk | 57.73 |
+| 3 | AltMount | 57.37 |
+| 4 | decypharr | 57.07 |
+| 5 | AIOStreams | 48.66 |
+| 6 | zurg | 47.78 |
+| — | raw, network ceiling | 59.55 |
+
+InfiniDysk read the stored RAR entry at 2.27 MB/s against 27.88–56.90 for the rest, which pulls its median down on that one shape.
+
+### Stall floor
+
+**Higher is better.** The 5th percentile of one-second windows during the sequential read, median over the entries that should play: how far the stream dips.
+
+| Rank | Target | MB/s |
+|---|---|---|
+| 1 | InfiniDysk | 44.10 |
+| 2 | NZBDav-og | 43.76 |
+| 3 | decypharr | 43.13 |
+| 4 | AltMount | 39.72 |
+| 5 | AIOStreams | 13.00 |
+| 6 | zurg | 6.33 |
+
+### Cold open
+
+**Lower is better.** Time for the first read of a file that was just imported.
+
+| Rank | Target | ms |
+|---|---|---|
+| 1 | zurg | 2.5 |
+| 2 | AIOStreams | 8.7 |
+| 3 | AltMount | 53.1 |
+| 4 | InfiniDysk | 153.2 |
+| 5 | NZBDav-og | 200.7 |
+| 6 | decypharr | 645.4 |
+| — | raw, network ceiling | 549.7 |
+
+### Seek, first byte
+
+**Lower is better.** Median time to the first byte over five jumps through the file.
+
+| Rank | Target | ms |
+|---|---|---|
+| 1 | AIOStreams | 19 |
+| 2 | AltMount | 145 |
+| 3 | InfiniDysk | 614 |
+| 4 | zurg | 617 |
+| 5 | NZBDav-og | 713 |
+| 6 | decypharr | 1040 |
+| — | raw, network ceiling | 1948 |
+
+### Import
+
+**Lower is better.** From handing over the NZB to the file being listed. The harness checks the listing every 5 seconds, so about 5 s means "listed by the first check", and every median here is that: this does not separate the targets.
+
+| Rank | Target | s |
+|---|---|---|
+| 1 | AltMount | 5.0 |
+| 1 | decypharr | 5.0 |
+| 1 | zurg | 5.0 |
+| 4 | InfiniDysk | 5.1 |
+| 4 | AIOStreams | 5.1 |
+| 6 | NZBDav-og | 5.7 |
+
+### Registered expectations met
+
+**Higher is better.** Five entries that should play and three that should be refused (see the matrix above); two more need real posts and were skipped for every target.
+
+| Rank | Target | of 8 |
+|---|---|---|
+| 1 | NZBDav-og | 8 |
+| 1 | InfiniDysk | 8 |
+| 3 | AltMount | 7 |
+| 3 | decypharr | 7 |
+| 3 | zurg | 7 |
+| 6 | AIOStreams | 6 |
+
+### CPU time
+
+**Lower is better.** CPU seconds over startup, import and every read, per GiB delivered.
+
+| Rank | Target | s per GiB |
+|---|---|---|
+| 1 | decypharr | 4.84 |
+| 2 | AltMount | 6.20 |
+| 3 | zurg | 10.75 |
+| 4 | AIOStreams | 17.55 |
+| 5 | InfiniDysk | 21.70 |
+| 6 | NZBDav-og | 27.36 |
+
+### CPU, 95th percentile
+
+**Lower is better.** The 95th percentile of sampled CPU use.
+
+| Rank | Target | cores |
+|---|---|---|
+| 1 | decypharr | 0.16 |
+| 2 | AltMount | 0.18 |
+| 3 | InfiniDysk | 0.27 |
+| 3 | zurg | 0.27 |
+| 5 | AIOStreams | 0.56 |
+| 6 | NZBDav-og | 0.77 |
+
+### Peak memory
+
+**Lower is better.**
+
+| Rank | Target | MiB RSS |
+|---|---|---|
+| 1 | decypharr | 214 |
+| 2 | NZBDav-og | 442 |
+| 3 | AIOStreams | 547 |
+| 4 | InfiniDysk | 930 |
+| 5 | zurg | 1061 |
+| 6 | AltMount | 1064 |
+
+### Disk reads
+
+**Lower is better.** Physical block reads per GiB delivered.
+
+| Rank | Target | MiB per GiB |
+|---|---|---|
+| 1 | NZBDav-og | 0.00 |
+| 1 | InfiniDysk | 0.00 |
+| 3 | AltMount | 0.04 |
+| 4 | decypharr | 0.05 |
+| 5 | AIOStreams | 0.21 |
+| 6 | zurg | 10.16 |
+
+### Disk writes
+
+**Lower is better.** Physical block writes per GiB delivered.
+
+| Rank | Target | MiB per GiB |
+|---|---|---|
+| 1 | AltMount | 1.41 |
+| 2 | NZBDav-og | 18.59 |
+| 3 | zurg | 21.11 |
+| 4 | InfiniDysk | 25.09 |
+| 5 | AIOStreams | 28.08 |
+| 6 | decypharr | 1297.71 |
+
+decypharr's writes are consistent with its new sparse per-stream disk cache, which upstream no longer caps at 256 MiB (source reading, not measured per file).
+
+### State growth
+
+**Lower is better.** Allocated growth of the target's own state directories over the pass.
+
+| Rank | Target | MiB |
+|---|---|---|
+| 1 | decypharr | 1.34 |
+| 2 | NZBDav-og | 5.87 |
+| 3 | AltMount | 6.28 |
+| 4 | InfiniDysk | 20.96 |
+| 5 | zurg | 101.73 |
+| 6 | AIOStreams | 188.32 |
+
+## AIOStreams without the disk cache
 
 Each target starts once per pass and reads every entry in turn, so its caches
 stay warm from one entry to the next; nothing is cleared between entries, by
@@ -222,36 +373,16 @@ fell 11%. Outcomes did
 not change (six of eight expectations, the same two wrongly served), the
 socket gate saw 10 and 10 and nothing else, and every compared range matched
 consensus. The stall floor rose (8.39 to 13.00 MB/s) and cold open went from
-5.2 to 8.7 ms, still second to zurg. The rerun has no noise pass of its own;
+5.2 to 8.7 ms, still second to zurg. It
+also cost more without the cache: 17.55 CPU seconds per GiB against 7.10,
+since a cache hit is cheap, while peak memory fell from 773 to 547 MiB and
+state growth from 4,671.82 to 188.32 MiB. The rerun has no noise pass of its own;
 the round's 9.1% applies.
 
 A corpus that repeats articles rewards whichever target is given the largest
 cache. The next round should give those entries distinct posts, so every
 target can keep the cache it would ship with and every entry still reads from
 the network.
-
-InfiniDysk read the stored RAR entry at 2.27 MB/s against 27.88–56.90 for the
-rest, which pulls its row down on that one shape.
-
-## Resource cost
-
-Normalized by delivered sequential GiB. Lower is better throughout; `raw` is
-the transport control and is not ranked.
-
-| Target | CPU s/GiB | CPU p95 cores | Peak RSS MiB | Disk write MiB/GiB | State growth MiB |
-|---|---|---|---|---|---|
-| decypharr | 4.84 | 0.16 | 214 | 1297.71 | 1.34 |
-| AltMount | 6.20 | 0.18 | 1064 | 1.41 | 6.28 |
-| AIOStreams | 7.10 | 0.36 | 773 | 543.44 | 4671.82 |
-| zurg | 10.75 | 0.27 | 1061 | 21.11 | 101.73 |
-| InfiniDysk | 21.70 | 0.27 | 930 | 25.09 | 20.96 |
-| NZBDav-og | 27.36 | 0.77 | 442 | 18.59 | 5.87 |
-
-AIOStreams' row is its main pass with the 8 GB cache: its 4.67 GB of state
-growth is that cache, and peak RSS was 530 MiB in the rerun without it.
-decypharr's disk writes are consistent with its new sparse per-stream disk
-cache, which upstream no longer caps at 256 MiB (source reading, not measured
-per file).
 
 ## Reproducing the round
 
@@ -293,3 +424,16 @@ private and travels to the box as a git bundle of the pinned revision.
 - Socket sampling every second; no claim about sub-second transient sockets.
 - Configuration is round 13's source-informed review plus the settings above,
   not a corpus-tuned optimum. Images depend on mutable base/compiler tags.
+
+## All metrics
+
+Every metric from the tables above, with each target's rank in that metric in brackets. ↑ higher is better, ↓ lower is better. AIOStreams' figures are from its rerun without the disk cache.
+
+| Target | Throughput ↑ (MB/s) | Stall floor ↑ (MB/s) | Cold open ↓ (ms) | Seek ↓ (ms) | Import ↓ (s) | Expectations ↑ (of 8) | CPU ↓ (s per GiB) | CPU p95 ↓ (cores) | Memory ↓ (MiB RSS) | Disk reads ↓ (MiB per GiB) | Disk writes ↓ (MiB per GiB) | State ↓ (MiB) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| NZBDav-og | 60.58 (1) | 43.76 (2) | 200.7 (5) | 713 (5) | 5.7 (6) | 8 (1) | 27.36 (6) | 0.77 (6) | 442 (2) | 0.00 (1) | 18.59 (2) | 5.87 (2) |
+| InfiniDysk | 57.73 (2) | 44.10 (1) | 153.2 (4) | 614 (3) | 5.1 (4) | 8 (1) | 21.70 (5) | 0.27 (3) | 930 (4) | 0.00 (1) | 25.09 (4) | 20.96 (4) |
+| AltMount | 57.37 (3) | 39.72 (4) | 53.1 (3) | 145 (2) | 5.0 (1) | 7 (3) | 6.20 (2) | 0.18 (2) | 1064 (6) | 0.04 (3) | 1.41 (1) | 6.28 (3) |
+| decypharr | 57.07 (4) | 43.13 (3) | 645.4 (6) | 1040 (6) | 5.0 (1) | 7 (3) | 4.84 (1) | 0.16 (1) | 214 (1) | 0.05 (4) | 1297.71 (6) | 1.34 (1) |
+| AIOStreams | 48.66 (5) | 13.00 (5) | 8.7 (2) | 19 (1) | 5.1 (4) | 6 (6) | 17.55 (4) | 0.56 (5) | 547 (3) | 0.21 (5) | 28.08 (5) | 188.32 (6) |
+| zurg | 47.78 (6) | 6.33 (6) | 2.5 (1) | 617 (4) | 5.0 (1) | 7 (3) | 10.75 (3) | 0.27 (3) | 1061 (5) | 10.16 (6) | 21.11 (3) | 101.73 (5) |
