@@ -25,8 +25,10 @@ any earlier round.
   the second and third from disk. Its main pass was rerun with that cache off
   (see [below](#aiostreams-without-the-disk-cache)); the rerun's numbers are the
   ones in this report's tables.
-- **zurg still opens fastest.** Cold-open median 2.5 ms and first byte under
-  1 ms, ahead of AIOStreams (5.2 ms) and AltMount (53.1 ms).
+- **zurg opens fastest; AltMount seeks fastest.** Counting only data a target
+  had not read before, zurg's cold open is 2.5 ms against AltMount's 24.3 and
+  AIOStreams' 79.3, and AltMount's seeks reach a first byte in 175 ms against
+  219–586 for the rest (zurg 517).
 - **zurg served an incomplete archive set as zeros.** With one RAR volume of the
   set absent, zurg logged that the volume set was incomplete and then listed the
   inner file at its declared 321,905,886 bytes anyway. Every sampled range past
@@ -164,11 +166,11 @@ wherever the feature exists; enabled is not evidence that it ran.
 
 ## Results by metric
 
-One table per metric, best first. AIOStreams' figures in every table are from its rerun without the disk cache (below); everything else is the main pass. `raw` reads the articles with no application in the way and is shown under the speed tables as the network ceiling, not ranked.
+One table per metric, best first. AIOStreams' figures in every table are from its rerun without the disk cache (below); everything else is the main pass. `raw` reads the articles with no application in the way and is shown under the speed tables as the network ceiling, not ranked. Rebuild these tables with [`tables_r14.py`](../harness/tables_r14.py).
 
 ### Sequential throughput
 
-**Higher is better.** Median over the five entries that should play. The worst clean-start swing between the two noise passes was 9.1%, so a difference smaller than that is not resolved by one pass: the top four are within it of each other, and so are zurg and AIOStreams.
+**Higher is better.** Median over the five entries that should play. The worst clean-start swing between the two noise passes was 9.1%, so a difference smaller than that is not resolved by one pass: the top four are within it of each other, and so are zurg and AIOStreams. Each read is 1.6 GB or the rest of the file, more than any target's memory cache holds.
 
 | Rank | Target | MB/s |
 |---|---|---|
@@ -197,31 +199,31 @@ InfiniDysk read the stored RAR entry at 2.27 MB/s against 27.88–56.90 for the 
 
 ### Cold open
 
-**Lower is better.** Time for the first read of a file that was just imported.
+**Lower is better.** Time to read the first MiB of a file just after its import, median over the three entries whose articles no earlier entry had read (`plain-video`, `rar-stored`, `season-pack`). A target that fetches the start of a file while importing it answers from memory here, which is a real advantage to a player.
 
 | Rank | Target | ms |
 |---|---|---|
 | 1 | zurg | 2.5 |
-| 2 | AIOStreams | 8.7 |
-| 3 | AltMount | 53.1 |
-| 4 | InfiniDysk | 153.2 |
-| 5 | NZBDav-og | 200.7 |
-| 6 | decypharr | 645.4 |
-| — | raw, network ceiling | 549.7 |
+| 2 | AltMount | 24.3 |
+| 3 | AIOStreams | 79.3 |
+| 4 | InfiniDysk | 155.3 |
+| 5 | NZBDav-og | 197.1 |
+| 6 | decypharr | 452.7 |
+| — | raw, network ceiling | 226.3 |
 
 ### Seek, first byte
 
-**Lower is better.** Median time to the first byte over five jumps through the file.
+**Lower is better.** Time to the first byte of a jump to 1%, 25%, 50%, 75% and 95% of the file, counting only jumps to data the target had not read before: the three entries above, and only points outside the range the entry's own sequential read had just covered. That leaves 6–11 points per target, so neighbours within about a factor of two are not separated.
 
 | Rank | Target | ms |
 |---|---|---|
-| 1 | AIOStreams | 19 |
-| 2 | AltMount | 145 |
-| 3 | InfiniDysk | 614 |
-| 4 | zurg | 617 |
-| 5 | NZBDav-og | 713 |
-| 6 | decypharr | 1040 |
-| — | raw, network ceiling | 1948 |
+| 1 | AltMount | 175 |
+| 2 | NZBDav-og | 219 |
+| 3 | decypharr | 232 |
+| 4 | zurg | 517 |
+| 5 | InfiniDysk | 574 |
+| 6 | AIOStreams | 586 |
+| — | raw, network ceiling | 1820 |
 
 ### Import
 
@@ -329,6 +331,7 @@ decypharr's writes are consistent with its new sparse per-stream disk cache, whi
 | 5 | zurg | 101.73 |
 | 6 | AIOStreams | 188.32 |
 
+
 ## AIOStreams without the disk cache
 
 Each target starts once per pass and reads every entry in turn, so its caches
@@ -373,11 +376,18 @@ fell 11%. Outcomes did
 not change (six of eight expectations, the same two wrongly served), the
 socket gate saw 10 and 10 and nothing else, and every compared range matched
 consensus. The stall floor rose (8.39 to 13.00 MB/s) and cold open went from
-5.2 to 8.7 ms, still second to zurg. It
+5.2 to 8.7 ms on the round's five entries. It
 also cost more without the cache: 17.55 CPU seconds per GiB against 7.10,
 since a cache hit is cheap, while peak memory fell from 773 to 547 MiB and
 state growth from 4,671.82 to 188.32 MiB. The rerun has no noise pass of its own;
 the round's 9.1% applies.
+
+Turning the disk cache off did not take AIOStreams' memory out of the picture.
+Its seeks into `damaged-partial` and `obfuscated` still answered in 7 and 6 ms,
+where every other target paid full price again (zurg 624 and 652 ms, NZBDav-og
+713 and 791), because those offsets of those articles had just been fetched
+for `plain-video`. The latency tables above therefore count only data a target
+had not read before; the sequential reads, at 1.6 GB, are past any memory cache.
 
 A corpus that repeats articles rewards whichever target is given the largest
 cache. The next round should give those entries distinct posts, so every
@@ -427,13 +437,13 @@ private and travels to the box as a git bundle of the pinned revision.
 
 ## All metrics
 
-Every metric from the tables above, with each target's rank in that metric in brackets. ↑ higher is better, ↓ lower is better. AIOStreams' figures are from its rerun without the disk cache.
+Every metric from the tables above, with each target's rank in that metric in brackets. ↑ higher is better, ↓ lower is better. AIOStreams' figures are from its rerun without the disk cache; cold open and seek count only data the target had not read before.
 
 | Target | Throughput ↑ (MB/s) | Stall floor ↑ (MB/s) | Cold open ↓ (ms) | Seek ↓ (ms) | Import ↓ (s) | Expectations ↑ (of 8) | CPU ↓ (s per GiB) | CPU p95 ↓ (cores) | Memory ↓ (MiB RSS) | Disk reads ↓ (MiB per GiB) | Disk writes ↓ (MiB per GiB) | State ↓ (MiB) |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| NZBDav-og | 60.58 (1) | 43.76 (2) | 200.7 (5) | 713 (5) | 5.7 (6) | 8 (1) | 27.36 (6) | 0.77 (6) | 442 (2) | 0.00 (1) | 18.59 (2) | 5.87 (2) |
-| InfiniDysk | 57.73 (2) | 44.10 (1) | 153.2 (4) | 614 (3) | 5.1 (4) | 8 (1) | 21.70 (5) | 0.27 (3) | 930 (4) | 0.00 (1) | 25.09 (4) | 20.96 (4) |
-| AltMount | 57.37 (3) | 39.72 (4) | 53.1 (3) | 145 (2) | 5.0 (1) | 7 (3) | 6.20 (2) | 0.18 (2) | 1064 (6) | 0.04 (3) | 1.41 (1) | 6.28 (3) |
-| decypharr | 57.07 (4) | 43.13 (3) | 645.4 (6) | 1040 (6) | 5.0 (1) | 7 (3) | 4.84 (1) | 0.16 (1) | 214 (1) | 0.05 (4) | 1297.71 (6) | 1.34 (1) |
-| AIOStreams | 48.66 (5) | 13.00 (5) | 8.7 (2) | 19 (1) | 5.1 (4) | 6 (6) | 17.55 (4) | 0.56 (5) | 547 (3) | 0.21 (5) | 28.08 (5) | 188.32 (6) |
-| zurg | 47.78 (6) | 6.33 (6) | 2.5 (1) | 617 (4) | 5.0 (1) | 7 (3) | 10.75 (3) | 0.27 (3) | 1061 (5) | 10.16 (6) | 21.11 (3) | 101.73 (5) |
+| NZBDav-og | 60.58 (1) | 43.76 (2) | 197.1 (5) | 219 (2) | 5.7 (6) | 8 (1) | 27.36 (6) | 0.77 (6) | 442 (2) | 0.00 (1) | 18.59 (2) | 5.87 (2) |
+| InfiniDysk | 57.73 (2) | 44.10 (1) | 155.3 (4) | 574 (5) | 5.1 (4) | 8 (1) | 21.70 (5) | 0.27 (3) | 930 (4) | 0.00 (1) | 25.09 (4) | 20.96 (4) |
+| AltMount | 57.37 (3) | 39.72 (4) | 24.3 (2) | 175 (1) | 5.0 (1) | 7 (3) | 6.20 (2) | 0.18 (2) | 1064 (6) | 0.04 (3) | 1.41 (1) | 6.28 (3) |
+| decypharr | 57.07 (4) | 43.13 (3) | 452.7 (6) | 232 (3) | 5.0 (1) | 7 (3) | 4.84 (1) | 0.16 (1) | 214 (1) | 0.05 (4) | 1297.71 (6) | 1.34 (1) |
+| AIOStreams | 48.66 (5) | 13.00 (5) | 79.3 (3) | 586 (6) | 5.1 (4) | 6 (6) | 17.55 (4) | 0.56 (5) | 547 (3) | 0.21 (5) | 28.08 (5) | 188.32 (6) |
+| zurg | 47.78 (6) | 6.33 (6) | 2.5 (1) | 517 (4) | 5.0 (1) | 7 (3) | 10.75 (3) | 0.27 (3) | 1061 (5) | 10.16 (6) | 21.11 (3) | 101.73 (5) |
