@@ -19,9 +19,11 @@ target reached the ten-connection allowance with no sampled overlap or
 oversubscription, and the corpus was checked article by article on the new
 provider before any target ran. Raw output: [`results/round14/`](results/round14/).
 
-zurg is last on sustained reads (47.78 MB/s against 54.87–60.58, a 6.3 MB/s
-stall floor against 40–44 for four of the others) and first on cold open
-(2.5 ms). It also served an incomplete archive set as zeros, an entry round 13's
+zurg and AIOStreams trail on sustained reads (47.78 and 48.66 MB/s against
+57.07–60.58; zurg's stall floor is 6.3 MB/s against 40–44 for four of the
+others), and zurg is first on cold open (2.5 ms). AIOStreams' figures come from
+a rerun without the 8 GB disk cache that rounds 13 and 14 had given it alone,
+which let it serve the corpus's repeated articles from disk. It also served an incomplete archive set as zeros, an entry round 13's
 zurg refused. InfiniDysk and NZBDav-og met eight of eight registered
 expectations. A new host and a new provider mean no cross-round rate
 comparison; read the round's limits before quoting it.

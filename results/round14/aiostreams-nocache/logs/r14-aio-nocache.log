@@ -1,0 +1,58 @@
+== aio-nocache start 2026-11-02T06:58:49Z
+=== RESET main 2026-11-02T06:59:07Z ===
+Rendered isolated configs (secret contents suppressed)
+NZBDav migration-created SQLite: five roots, empty library, provider/download=10
+{
+ "dead-post": {
+  "segments_rewritten": 1010,
+  "sha256": "1509eddf4091c592",
+  "source": "FatherBrown.nzb",
+  "op": "dead_post",
+  "path": "corpus/derived/dead-post.nzb"
+ },
+ "incomplete-archive-set": {
+  "files_removed": [
+   "[ TOWN ]-[ www.town.ag ]-[ partner of www.ssl-news.info ]-[ TV ] [04/17] - \"pxAk"
+  ],
+  "sha256": "fab77b9744d443cd",
+  "source": "FatherBrown.nzb",
+  "op": "drop_volume",
+  "path": "corpus/derived/incomplete-archive-set.nzb"
+ },
+ "damaged-severe": {
+  "segments_dropped": 1050,
+  "segments_kept": 527,
+  "sha256": "c2deb10dd0691013",
+  "source": "ToyStory5.nzb",
+  "op": "decimate",
+  "path": "corpus/derived/damaged-severe.nzb"
+ }
+}
+670a6eb098b13bccabfcb0e338a774a79a9e6c98033fe6dc41dedc9b495e1252
+AIO static config: one TLS provider, 10 sockets, depth4, native WebDAV13000
+Created STOPPED aiostreams-r14-20261102; source revision 0b56aa18782fd1aab47f23609839de681bcc1122
+Reset complete: empty target libraries/cache, three stopped task-owned containers; nothing started
+=== MAIN start 2026-11-02T06:59:08Z ===
+{"target": "raw", "entry": "plain-video", "outcome": "pass", "MBps": 59.22, "p05_MBps": 0.0, "cold_open_s": 0.5494, "import_s": 0.039, "entry_s": 60.551}
+{"target": "raw", "entry": "damaged-partial", "outcome": "pass", "MBps": 59.04, "p05_MBps": 0.0, "cold_open_s": 0.6838, "import_s": 0.001, "entry_s": 69.661}
+{"target": "raw", "entry": "obfuscated", "outcome": "pass", "MBps": 60.26, "p05_MBps": 0.0, "cold_open_s": 0.7702, "import_s": 0.026, "entry_s": 58.266}
+{"target": "raw", "entry": "rar-stored", "outcome": "pass", "MBps": 43.76, "p05_MBps": null, "cold_open_s": 0.1395, "import_s": 0.002, "entry_s": 11.776}
+{"target": "raw", "entry": "season-pack", "outcome": "pass", "MBps": 54.11, "p05_MBps": 20.99, "cold_open_s": 0.2288, "import_s": 0.002, "entry_s": 45.323}
+{"target": "raw", "entry": "dead-post", "outcome": "refused", "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": null, "entry_s": 93.331, "error": "RuntimeError: raw never became ready at http://127.0.0.1:18099/stream, last code 000"}
+{"target": "raw", "entry": "incomplete-archive-set", "outcome": "WRONGLY SERVED", "MBps": 53.4, "p05_MBps": null, "cold_open_s": 0.1325, "import_s": 0.001, "entry_s": 11.943}
+{"target": "raw", "entry": "damaged-severe", "outcome": "refused", "MBps": 0.0, "p05_MBps": null, "cold_open_s": 0.6751, "import_s": 0.002, "entry_s": 26.735}
+{"target": "raw", "entry": "compressed-archive", "outcome": null, "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": null, "entry_s": 0.0, "skipped": "no post available for this entry"}
+{"target": "raw", "entry": "encrypted-no-password", "outcome": null, "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": null, "entry_s": 0.0, "skipped": "no post available for this entry"}
+AIO static config: one TLS provider, 10 sockets, depth4, native WebDAV13000
+{"target": "aiostreams", "entry": "plain-video", "outcome": "pass", "MBps": 54.96, "p05_MBps": 14.26, "cold_open_s": 0.0087, "import_s": 5.09, "entry_s": 50.445}
+{"target": "aiostreams", "entry": "damaged-partial", "outcome": "pass", "MBps": 50.94, "p05_MBps": 11.74, "cold_open_s": 0.0056, "import_s": 5.09, "entry_s": 55.742}
+{"target": "aiostreams", "entry": "obfuscated", "outcome": "pass", "MBps": 48.66, "p05_MBps": 11.74, "cold_open_s": 0.0052, "import_s": 5.06, "entry_s": 51.107}
+{"target": "aiostreams", "entry": "rar-stored", "outcome": "pass", "MBps": 32.99, "p05_MBps": null, "cold_open_s": 0.0793, "import_s": 5.149, "entry_s": 21.866}
+{"target": "aiostreams", "entry": "season-pack", "outcome": "pass", "MBps": 41.08, "p05_MBps": 35.85, "cold_open_s": 0.1206, "import_s": 6.235, "entry_s": 46.594}
+{"target": "aiostreams", "entry": "dead-post", "outcome": "refused", "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": 902.576, "entry_s": 902.577, "error": "release dead-post never appeared within 900s"}
+{"target": "aiostreams", "entry": "incomplete-archive-set", "outcome": "WRONGLY SERVED", "MBps": 35.14, "p05_MBps": null, "cold_open_s": 0.196, "import_s": 5.128, "entry_s": 21.015}
+{"target": "aiostreams", "entry": "damaged-severe", "outcome": "WRONGLY SERVED", "MBps": 38.99, "p05_MBps": 4.19, "cold_open_s": 0.0232, "import_s": 5.063, "entry_s": 56.313}
+{"target": "aiostreams", "entry": "compressed-archive", "outcome": null, "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": null, "entry_s": 0.0, "skipped": "no post available for this entry"}
+{"target": "aiostreams", "entry": "encrypted-no-password", "outcome": null, "MBps": null, "p05_MBps": null, "cold_open_s": null, "import_s": null, "entry_s": 0.0, "skipped": "no post available for this entry"}
+=== MAIN done 2026-11-02T07:26:46Z ===
+== aio-nocache done 2026-11-02T07:26:50Z

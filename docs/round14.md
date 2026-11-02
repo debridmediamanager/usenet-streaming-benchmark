@@ -10,14 +10,21 @@ any earlier round.
 
 ## Findings
 
-- **zurg is last on sustained reads.** Its sequential median is 47.78 MB/s
-  against 54.87–60.58 for the other five applications, and its p05 stall floor
-  is 6.3 MB/s where AltMount, InfiniDysk, NZBDav-og and decypharr hold
-  40–44. The clean-start noise floor this round is 9.1%, so the gap to the
-  field (about 16% below the six applications' median of 57.22) is resolved by
-  this pass. On
-  round 13's shared two-core host zurg had the highest observed median; on
+- **zurg and AIOStreams trail on sustained reads.** zurg's sequential median is
+  47.78 MB/s and AIOStreams', rerun without the disk cache only it had been
+  given, 48.66, against 57.07–60.58 for the other four applications. The
+  clean-start noise floor this round is 9.1%, so that gap is resolved by this
+  pass and the 1.8% between zurg and AIOStreams is not. zurg's p05 stall floor
+  is 6.3 MB/s where AltMount, InfiniDysk, NZBDav-og and decypharr hold 40–44.
+  On round 13's shared two-core host zurg had the highest observed median; on
   four dedicated cores the field overtakes it.
+- **Rounds 13 and 14 gave AIOStreams a cache advantage, and this report removes
+  it.** Our configuration review kept AIOStreams' 8 GB on-disk segment cache
+  while AltMount's and InfiniDysk's disk segment caches were off, and three
+  corpus entries share one release's articles, so only AIOStreams could serve
+  the second and third from disk. Its main pass was rerun with that cache off
+  (see [below](#aiostreams-without-the-disk-cache)); the rerun's numbers are the
+  ones in this report's tables.
 - **zurg still opens fastest.** Cold-open median 2.5 ms and first byte under
   1 ms, ahead of AIOStreams (5.2 ms) and AltMount (53.1 ms).
 - **zurg served an incomplete archive set as zeros.** With one RAR volume of the
@@ -168,17 +175,60 @@ than that is not resolved by one pass.
 | InfiniDysk | 57.73 | 44.10 | 0.1532 | 0.614 |
 | AltMount | 57.37 | 39.73 | 0.0531 | 0.145 |
 | decypharr | 57.07 | 43.13 | 0.6454 | 1.040 |
-| AIOStreams | 54.87 | 8.39 | 0.0052 | 0.004 |
+| AIOStreams, disk cache off (rerun) | 48.66 | 13.00 | 0.0087 | 0.019 |
 | zurg | 47.78 | 6.34 | 0.0025 | 0.617 |
 
-**AIOStreams' rates on three entries are its cache, not the network.**
-`plain-video`, `damaged-partial` and `obfuscated` are the same 1,662 articles
-under three names (1,661 for the damaged one), imported in that order, and
-AIOStreams keeps an 8 GB segment cache on disk: it read them at 54.87, 179.02
-and 1,938.07 MB/s. The median above is its uncached `plain-video` value, but
-its position in the table owes something to the repetition. Round 13 shows the
-same rise (19.8, 39.6, 58.0). The next harness should give those entries
-distinct posts or reset a target's cache between entries.
+### AIOStreams without the disk cache
+
+Each target starts once per pass and reads every entry in turn, so its caches
+stay warm from one entry to the next; nothing is cleared between entries, by
+design. That only matters where the corpus repeats itself: `plain-video`,
+`damaged-partial` and `obfuscated` are the same 1,662 articles under three
+names (1,661 for the damaged one), read in that order. Only a cache keyed by
+article and larger than the 7 GB release can serve the second and third
+without the network, and rounds 13 and 14 configured exactly one:
+
+| Target | Cache as configured in rounds 13 and 14 |
+|---|---|
+| AIOStreams | 8 GB segment cache on disk, keyed by message id (the "high" profile's size) |
+| AltMount | disk segment cache off; 256 MiB in memory |
+| InfiniDysk | segment cache off |
+| zurg | 256 MiB decoded cache in memory |
+| decypharr | 256 MB in memory and per-stream disk buffers |
+| NZBDav-og | none configurable |
+
+With it, AIOStreams read the three at 54.87, 179.02 and 1,938.07 MB/s; round 13
+shows the same rise (19.8, 39.6, 58.0). So AIOStreams' main pass was rerun on
+2 November, 06:59–07:27 UTC, with `USENET_SEGMENT_DISK_CACHE_BYTES=0`
+(AIOStreams documents 0 as disabled, and the engine then gets no cache path),
+everything else unchanged, beside `raw` as the same-window network ceiling.
+The image was rebuilt from the same pinned revision on a fresh box
+([`build.json`](../results/round14/aiostreams-nocache/build.json)); raw output in
+[`aiostreams-nocache/`](../results/round14/aiostreams-nocache/).
+
+| Entry | AIOStreams, 8 GB cache | AIOStreams, cache off | raw, main pass | raw, rerun window |
+|---|---|---|---|---|
+| plain-video | 54.87 | 54.96 | 59.55 | 59.22 |
+| damaged-partial | 179.02 | 50.94 | 60.78 | 59.04 |
+| obfuscated | 1,938.07 | 48.66 | 57.26 | 60.26 |
+| rar-stored | 30.77 | 32.99 | 56.90 | 43.76 |
+| season-pack | 40.90 | 41.08 | 60.27 | 54.11 |
+| **median** | **54.87** | **48.66** | **59.55** | **59.04** |
+
+The network was the same in both windows (raw's median 0.9% apart). The three
+entries whose articles had not been read before moved by under 8%; the two
+that repeat `plain-video`'s articles fell to the network rate, and the median
+fell 11%. Outcomes did
+not change (six of eight expectations, the same two wrongly served), the
+socket gate saw 10 and 10 and nothing else, and every compared range matched
+consensus. The stall floor rose (8.39 to 13.00 MB/s) and cold open went from
+5.2 to 8.7 ms, still second to zurg. The rerun has no noise pass of its own;
+the round's 9.1% applies.
+
+A corpus that repeats articles rewards whichever target is given the largest
+cache. The next round should give those entries distinct posts, so every
+target can keep the cache it would ship with and every entry still reads from
+the network.
 
 InfiniDysk read the stored RAR entry at 2.27 MB/s against 27.88–56.90 for the
 rest, which pulls its row down on that one shape.
@@ -197,6 +247,8 @@ the transport control and is not ranked.
 | InfiniDysk | 21.70 | 0.27 | 930 | 25.09 | 20.96 |
 | NZBDav-og | 27.36 | 0.77 | 442 | 18.59 | 5.87 |
 
+AIOStreams' row is its main pass with the 8 GB cache: its 4.67 GB of state
+growth is that cache, and peak RSS was 530 MiB in the rerun without it.
 decypharr's disk writes are consistent with its new sparse per-stream disk
 cache, which upstream no longer caps at 256 MiB (source reading, not measured
 per file).
@@ -233,7 +285,9 @@ private and travels to the box as a git bundle of the pinned revision.
 - One full pass, one plain-video noise shape, a 9.1% worst measured swing.
 - Registered serving/refusal heuristics, not full-file validation or real-client
   playback. Consensus uses three deterministic 2-MiB slices where available.
-- AIOStreams' cache inflates three of its five entries (above).
+- AIOStreams' numbers are from a rerun of its main pass without its disk cache
+  (above), not from the same window as the rest of the field; raw in the same
+  window bounds the difference in network conditions at 0.9%.
 - Two real-post prerequisites unavailable; compression and passwordless
   encrypted RAR behaviour remain unmeasured.
 - Socket sampling every second; no claim about sub-second transient sockets.

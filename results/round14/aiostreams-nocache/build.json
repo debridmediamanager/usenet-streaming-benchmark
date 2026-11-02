@@ -1,0 +1,9 @@
+{
+  "aiostreams": {
+    "revision": "0b56aa18782fd1aab47f23609839de681bcc1122",
+    "image_id": "sha256:38dbb14d946b4a14b1650470c261594441b4ce230856050775c28a52db665523",
+    "node_version": "v24.22.2",
+    "USENET_SEGMENT_DISK_CACHE_BYTES": "0"
+  },
+  "note": "Rebuilt 2026-11-02 from the same pinned revision on a fresh box; the image ID differs from round 14 main because base and compiler tags are mutable."
+}

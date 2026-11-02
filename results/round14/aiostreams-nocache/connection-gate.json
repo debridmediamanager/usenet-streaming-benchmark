@@ -1,0 +1,11 @@
+{
+  "budget": 10,
+  "sample_interval_s": 1.0,
+  "samples": 1485,
+  "peaks": {
+    "raw": 10,
+    "aiostreams": 10
+  },
+  "failure": null,
+  "sampling_limit": "Sub-interval transient sockets are not observed."
+}
