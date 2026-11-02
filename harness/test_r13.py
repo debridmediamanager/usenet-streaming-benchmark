@@ -13,6 +13,7 @@ import damage_r10 as damage
 from readback_r13 import match
 from run_r13 import check_counts, select_field
 from census_r14 import verdict
+from tables_r14 import fresh_seeks
 
 REPO = Path(__file__).resolve().parent.parent
 
@@ -98,6 +99,14 @@ class SelectFieldTests(unittest.TestCase):
     def test_an_unknown_target_is_refused(self):
         with self.assertRaises(SystemExit):
             select_field("raw,aiostream")
+
+
+class FreshSeekTests(unittest.TestCase):
+    def test_a_seek_inside_the_entrys_own_sequential_read_is_not_fresh(self):
+        row = {"seq_offset": 100, "seq_bytes": 50, "seeks": {"points": [
+            {"offset": 10, "ttfb_s": 0.5}, {"offset": 120, "ttfb_s": 0.001},
+            {"offset": 150, "ttfb_s": 0.4}, {"offset": 200, "ttfb_s": None}]}}
+        self.assertEqual(fresh_seeks(row), [0.5, 0.4])
 
 
 class CorpusCensusTests(unittest.TestCase):
