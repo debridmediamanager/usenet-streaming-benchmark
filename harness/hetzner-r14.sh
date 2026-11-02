@@ -10,7 +10,7 @@
 #   harness/hetzner-r14.sh aio-nocache AIOStreams' main pass again with its disk segment
 #                                      cache off, beside raw -> results/round14/aiostreams-nocache
 #   harness/hetzner-r14.sh zurg-rerun  after build: zurg alone rebuilt at config/round14-zurg-rerun.json's
-#                                      revision, its main pass beside raw -> results/round14/zurg-<rev:8>
+#                                      revision, its main pass beside raw -> results/round14/zurg-<rev:7>
 #   harness/hetzner-r14.sh status      the last step's state and log tail
 #   harness/hetzner-r14.sh collect [D] pull results/round14 back, or only its subdirectory D
 #   harness/hetzner-r14.sh down        delete the server, keep and verify the IP
@@ -139,8 +139,8 @@ zurg-rerun)
     [ -f corpus/ToyStory5.nzb ] || 7z x -pdmmbench -y -ocorpus corpus/corpus.7z >/dev/null
     bash harness/prep-r13.sh build-zurg
     sha256sum \$BENCH/src/out/zurg-r14
-    mkdir -p results/round14/zurg-${rev:0:8}; cp results/round14/corpus-census.json results/round14/zurg-${rev:0:8}/
-    python3 harness/run_r13.py --targets raw,zurg --main-only --out results/round14/zurg-${rev:0:8}" ;;
+    mkdir -p results/round14/zurg-${rev:0:7}; cp results/round14/corpus-census.json results/round14/zurg-${rev:0:7}/
+    python3 harness/run_r13.py --targets raw,zurg --main-only --out results/round14/zurg-${rev:0:7}" ;;
 status)
   attach
   ssh_to 'systemctl list-units "r14-*" --all --no-legend || true
