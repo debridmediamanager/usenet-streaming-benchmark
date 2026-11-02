@@ -31,7 +31,10 @@ if ROUND not in PROFILES:
     raise SystemExit(f"Unknown ROUND={ROUND!r}; known: {', '.join(PROFILES)}")
 P = PROFILES[ROUND]
 TAG, BENCH, HOST, PORT, CPUS = P["tag"], P["bench"], P["host"], P["port"], P["cpus"]
-SOURCES = json.loads((REPO / P["manifest"]).read_text())
+# ROUND_PIN: a second pin file for a rerun of part of the field after the round
+# (config/round14-zurg-rerun.json), so the round's own pins stay as published
+MANIFEST = os.environ.get("ROUND_PIN") or P["manifest"]
+SOURCES = json.loads((REPO / MANIFEST).read_text())
 
 
 def revision(name):
@@ -64,7 +67,7 @@ def check_bench(path):
 def shell():
     rows = {"ROUND": ROUND, "ROUND_TAG": TAG, "ROUND_BENCH": BENCH,
             "ROUND_HOST": HOST, "ROUND_PORT": PORT, "ROUND_CPUS": CPUS,
-            "ROUND_MANIFEST": str(REPO / P["manifest"])}
+            "ROUND_MANIFEST": str(REPO / MANIFEST)}
     for name in SOURCES:
         key = name.upper().replace("-", "_")
         rows[f"REV_{key}"] = revision(name)

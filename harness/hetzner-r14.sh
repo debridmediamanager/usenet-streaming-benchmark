@@ -9,8 +9,10 @@
 #   harness/hetzner-r14.sh run         noise_a, noise_b, main -> results/round14
 #   harness/hetzner-r14.sh aio-nocache AIOStreams' main pass again with its disk segment
 #                                      cache off, beside raw -> results/round14/aiostreams-nocache
+#   harness/hetzner-r14.sh zurg-rerun  after build: zurg alone rebuilt at config/round14-zurg-rerun.json's
+#                                      revision, its main pass beside raw -> results/round14/zurg-<rev:8>
 #   harness/hetzner-r14.sh status      the last step's state and log tail
-#   harness/hetzner-r14.sh collect     pull results/round14 back
+#   harness/hetzner-r14.sh collect [D] pull results/round14 back, or only its subdirectory D
 #   harness/hetzner-r14.sh down        delete the server, keep and verify the IP
 #
 # A round runs for hours and an ssh session from a laptop does not, so every
@@ -31,6 +33,7 @@ IMAGE="${HETZNER_IMAGE:-ubuntu-24.04}"
 LOCATION="${HETZNER_LOCATION:-nbg1}"
 SSH_KEY="${HETZNER_SSH_KEY:-$(hcloud ssh-key list -o noheader -o columns=name | head -1)}"
 REMOTE=/root/usenet-streaming-benchmark
+RERUN_PIN=config/round14-zurg-rerun.json
 . "$HERE/hetzner-box.sh"
 
 attach () {
@@ -41,14 +44,34 @@ attach () {
   IP=$want
 }
 
+pin_rev () { python3 -c "import json,sys;print(json.load(open(sys.argv[1]))['zurg']['revision'])" "$REPO/$1"; }
+
+# zurg's repository is private, so the box cannot clone it. A revision goes
+# over as a bundle and becomes the checkout prep-r13.sh verifies (exact
+# revision, clean tree) like any other source.
+send_zurg () {
+  local rev="$1" src="${ZURG_SRC:-$REPO/../zurg}" tmp
+  git -C "$src" cat-file -e "$rev^{commit}" || box_die "$src does not have zurg $rev; git fetch there"
+  # bundled from a throwaway repo, so the local checkout's refs are never
+  # touched; fetched by sha, so a commit not yet pushed is bundled too
+  tmp=$(mktemp -d); git init -q --bare "$tmp/pin.git"
+  git -C "$tmp/pin.git" fetch -q "$src" "$rev"
+  git -C "$tmp/pin.git" branch bench-r14-pin "$rev"
+  git -C "$tmp/pin.git" bundle create "$tmp/zurg.bundle" bench-r14-pin 2>/dev/null
+  rsync -a "$tmp/zurg.bundle" "root@$IP:/root/zurg.bundle"; rm -rf "$tmp"
+  # an existing checkout fetches the new revision from this bundle in prep-r13.sh
+  ssh_to "[ -d /root/bench-round14/src/zurg ] || { mkdir -p /root/bench-round14/src
+          git clone -q -b bench-r14-pin /root/zurg.bundle /root/bench-round14/src/zurg; }"
+}
+
 # run one step on the box as a unit that survives this ssh session
 remote_step () {
   local step="$1" cmd="$2"
   # two steps that dial the account at once would share its connections and
   # measure each other; a build or a test run dials nothing and may overlap
-  local dialing='r14-census.service|r14-smoke.service|r14-run.service|r14-aio-nocache.service'
+  local dialing='r14-census.service|r14-smoke.service|r14-run.service|r14-aio-nocache.service|r14-zurg-rerun.service'
   ssh_to "systemctl is-active --quiet 'r14-$step' && { echo 'r14-$step is still running'; exit 1; }
-          case '$step' in census|smoke|run|aio-nocache)
+          case '$step' in census|smoke|run|aio-nocache|zurg-rerun)
             systemctl list-units 'r14-*' --state=active --no-legend | grep -Eq '$dialing' \
               && { echo 'a step that dials the account is still running:'; systemctl list-units 'r14-*' --no-legend; exit 1; };;
           esac
@@ -88,21 +111,7 @@ census)  attach; remote_step census "7z x -pdmmbench -y -ocorpus corpus/corpus.7
                                      python3 harness/census_r14.py corpus results/round14/corpus-census.json" ;;
 build)
   attach
-  # zurg's repository is private, so the box cannot clone it. Its pinned
-  # revision goes over as a bundle and becomes the checkout prep-r13.sh
-  # verifies (exact revision, clean tree) like any other source.
-  rev=$(python3 -c "import json;print(json.load(open('$REPO/config/round14-existing.json'))['zurg']['revision'])")
-  src="${ZURG_SRC:-$REPO/../zurg}"
-  git -C "$src" cat-file -e "$rev^{commit}" || box_die "$src does not have zurg $rev; git fetch there"
-  # bundled from a throwaway repo, so the local checkout's refs are never touched
-  tmp=$(mktemp -d); git init -q --bare "$tmp/pin.git"
-  git -C "$tmp/pin.git" fetch -q "$src" "+refs/remotes/origin/*:refs/remotes/origin/*"
-  git -C "$tmp/pin.git" branch bench-r14-pin "$rev"
-  git -C "$tmp/pin.git" bundle create "$tmp/zurg.bundle" bench-r14-pin 2>/dev/null
-  rsync -a "$tmp/zurg.bundle" "root@$IP:/root/zurg.bundle"; rm -rf "$tmp"
-  ssh_to "[ -d /root/bench-round14/src/zurg ] || { mkdir -p /root/bench-round14/src
-          git clone -q -b bench-r14-pin /root/zurg.bundle /root/bench-round14/src/zurg; }
-          git -C /root/bench-round14/src/zurg rev-parse HEAD"
+  send_zurg "$(pin_rev config/round14-existing.json)"
   remote_step build "bash harness/prep-r13.sh build
                                     python3 harness/prep_aiostreams_r13.py build
                                     bash harness/prep-r13.sh bootstrap" ;;
@@ -116,6 +125,22 @@ aio-nocache)
   attach; remote_step aio-nocache "[ -f corpus/ToyStory5.nzb ] || 7z x -pdmmbench -y -ocorpus corpus/corpus.7z >/dev/null
     export AIOSTREAMS_SEGMENT_DISK_CACHE_BYTES=0
     python3 harness/run_r13.py --targets raw,aiostreams --main-only --out results/round14/aiostreams-nocache" ;;
+zurg-rerun)
+  # A zurg fix made after the round, measured the way aio-nocache was: round
+  # 14's pins with only zurg's moved (RERUN_PIN), zurg rebuilt and nothing else.
+  # This box's census is the rerun's gate, so it goes beside the rerun's results.
+  # (No apostrophes inside remote_step commands: they run in a single-quoted bash -c.)
+  [ -f "$REPO/$RERUN_PIN" ] || box_die "$RERUN_PIN is missing: round 14's pins with zurg's revision moved"
+  attach
+  rev=$(pin_rev "$RERUN_PIN")
+  send_zurg "$rev"
+  rsync -a "$REPO/$RERUN_PIN" "root@$IP:$REMOTE/$RERUN_PIN"
+  remote_step zurg-rerun "export ROUND_PIN=$RERUN_PIN
+    [ -f corpus/ToyStory5.nzb ] || 7z x -pdmmbench -y -ocorpus corpus/corpus.7z >/dev/null
+    bash harness/prep-r13.sh build-zurg
+    sha256sum \$BENCH/src/out/zurg-r14
+    mkdir -p results/round14/zurg-${rev:0:8}; cp results/round14/corpus-census.json results/round14/zurg-${rev:0:8}/
+    python3 harness/run_r13.py --targets raw,zurg --main-only --out results/round14/zurg-${rev:0:8}" ;;
 status)
   attach
   ssh_to 'systemctl list-units "r14-*" --all --no-legend || true
@@ -123,16 +148,19 @@ status)
   ;;
 collect)
   attach
-  mkdir -p "$REPO/results/round14"
-  rsync -a "root@$IP:$REMOTE/results/round14/" "$REPO/results/round14/"
+  # a rerun box collects its own subdirectory, so its census and logs never
+  # replace the round's published ones
+  dir="results/round14${2:+/$2}" logs="logs/server-$SERVER_ID"
+  [ -n "${2:-}" ] && logs=logs
+  mkdir -p "$REPO/$dir/$logs"
+  rsync -a "root@$IP:$REMOTE/$dir/" "$REPO/$dir/"
   # per box: a later box's logs carry the same names and must not replace these
-  mkdir -p "$REPO/results/round14/logs/server-$SERVER_ID"
-  rsync -a "root@$IP:/root/r14-*.log" "$REPO/results/round14/logs/server-$SERVER_ID/" 2>/dev/null || true
-  echo "   $(find "$REPO/results/round14" -type f | wc -l) files in results/round14"
+  rsync -a "root@$IP:/root/r14-*.log" "$REPO/$dir/$logs/" 2>/dev/null || true
+  echo "   $(find "$REPO/$dir" -type f | wc -l) files in $dir"
   ;;
 down)
   attach
   trap box_teardown EXIT
   ;;
-*) sed -n 2,13p "$0" >&2; exit 2 ;;
+*) sed -n 2,15p "$0" >&2; exit 2 ;;
 esac

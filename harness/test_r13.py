@@ -148,5 +148,32 @@ class DecypharrSinceRound13Tests(unittest.TestCase):
                          {"usenet": {"disk_buffer_path": "/b/decyrun/streams", "max_connections": 10}})
 
 
+
+class RerunPinTests(unittest.TestCase):
+    def profile_env(self, pin):
+        import os, sys
+        env = dict(os.environ, ROUND="r14")
+        env.pop("ROUND_PIN", None)
+        if pin:
+            env["ROUND_PIN"] = pin
+        out = subprocess.run([sys.executable, "round_profile.py", "env"], env=env, cwd=Path(__file__).parent,
+                             capture_output=True, text=True, check=True).stdout
+        return dict(line[len("export "):].split("=", 1) for line in out.splitlines())
+
+    def test_a_rerun_pin_moves_zurg_and_leaves_the_round_pin_alone(self):
+        import tempfile
+        repo = Path(__file__).resolve().parent.parent
+        pins = json.loads((repo / "config/round14-existing.json").read_text())
+        pins["zurg"]["revision"] = "f" * 40
+        with tempfile.NamedTemporaryFile("w", suffix=".json") as pin:
+            json.dump(pins, pin); pin.flush()
+            rerun, round14 = self.profile_env(pin.name), self.profile_env(None)
+        self.assertEqual(rerun["REV_ZURG"], "f" * 40)
+        self.assertEqual(rerun["ROUND_MANIFEST"], pin.name)
+        self.assertEqual(round14["REV_ZURG"], "e4fac5cbdf3b9b8983f939029849c20960810d71")
+        self.assertEqual({k: v for k, v in rerun.items() if "ZURG" not in k and k != "ROUND_MANIFEST"},
+                         {k: v for k, v in round14.items() if "ZURG" not in k and k != "ROUND_MANIFEST"})
+
+
 if __name__ == "__main__":
     unittest.main()

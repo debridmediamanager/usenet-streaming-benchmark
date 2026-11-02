@@ -12,17 +12,19 @@ export BENCH="${BENCH:-$ROUND_BENCH}"
 mkdir -p "$BENCH/src/out"
 MANIFEST="$ROUND_MANIFEST"
 case "${1:-}" in
-build)
+build|build-zurg)
+  # build-zurg: zurg alone, for a rerun at another zurg revision (ROUND_PIN);
+  # every other target stays as built.
   # Sources are not secret, and the .NET images run their frontend as a
   # non-root user: built under the script's umask 077 they ship files only root
   # can read, and the target dies at start with EACCES on package.json.
   umask 022
   # Each source checkout belongs exclusively to this task. Fail rather than replace dirty sources.
-  python3 - "$MANIFEST" "$BENCH" <<'PY'
+  python3 - "$MANIFEST" "$BENCH" "$1" <<'PY'
 import json, pathlib, subprocess, sys
 manifest, bench = json.load(open(sys.argv[1])), pathlib.Path(sys.argv[2])
 for name, spec in manifest.items():
-    if name == 'aiostreams':
+    if name == 'aiostreams' or (sys.argv[3] == 'build-zurg' and name != 'zurg'):
         continue
     dest = bench / 'src' / name
     if dest.exists():
@@ -46,6 +48,7 @@ PY
     -v "$BENCH/src:/src" -w /src/zurg "$(goimg zurg)" bash -euc "
       apt-get update && apt-get install -y --no-install-recommends libfuse-dev libfuse3-dev pkg-config
       CGO_ENABLED=1 go build -p $ROUND_CPUS -trimpath -buildvcs=false -ldflags='-X github.com/debridmediamanager/zurg/internal/version.GitCommit=$REV_ZURG -X github.com/debridmediamanager/zurg/internal/version.Version=main-${REV_ZURG:0:8}' -o /src/out/zurg-$ROUND ./cmd/zurg"
+  [[ "$1" == build ]] || exit 0
   docker run --rm --name "build-decypharr-$ROUND_TAG" -e GOMAXPROCS="$ROUND_CPUS" \
     -v "$BENCH/src:/src" -w /src/decypharr "$(goimg decypharr)" bash -euc "
       apt-get update && apt-get install -y --no-install-recommends libfuse-dev libfuse3-dev pkg-config
@@ -156,5 +159,5 @@ PY
 validate)
   python3 "$HERE/readback_r13.py" "${2:?Specify one currently running target}"
   ;;
-*) echo 'Usage: prep-r13.sh build|bootstrap|reset|validate TARGET' >&2; exit 2 ;;
+*) echo 'Usage: prep-r13.sh build|build-zurg|bootstrap|reset|validate TARGET' >&2; exit 2 ;;
 esac
