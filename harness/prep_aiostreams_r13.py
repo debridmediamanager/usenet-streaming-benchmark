@@ -40,6 +40,10 @@ ROUND = profile.TAG
 HOME = BENCH / 'aiostreams'
 SOURCE = BENCH / 'src' / ('aiostreams-' + REVISION)
 ENV = HOME / 'runtime.env'
+# the segment cache on disk, keyed by message id. 8 GB is the "high" profile's
+# and what rounds 13 and 14 ran; 0 disables it, which is AltMount's and
+# InfiniDysk's setting, for a rerun without a cache only AIOStreams had.
+SEGMENT_DISK_CACHE_BYTES = os.environ.get('AIOSTREAMS_SEGMENT_DISK_CACHE_BYTES', '8000000000')
 DATA = HOME / 'data'
 
 
@@ -85,6 +89,7 @@ def validate():
     assert cfg['SHARES_FUSE_ENABLED'] == cfg['SHARES_NFS_ENABLED'] == 'false'
     assert cfg['DATABASE_URI'] == 'sqlite:///app/data/db.sqlite'
     assert cfg['DISK_CACHE_DIR'] == '/app/data/cache'
+    assert cfg['USENET_SEGMENT_DISK_CACHE_BYTES'] == SEGMENT_DISK_CACHE_BYTES
     assert len(cfg['SECRET_KEY']) == 64
     assert ENV.stat().st_mode & 0o077 == 0
     print('AIO static config: one TLS provider, 10 sockets, depth4, native WebDAV13000')
@@ -149,7 +154,7 @@ def prepare():
                SHARES_WEBDAV_ENABLED='true', SHARES_FUSE_ENABLED='false', SHARES_NFS_ENABLED='false',
                USENET_PROVIDERS=json.dumps([provider], separators=(',', ':')),
                USENET_PERFORMANCE_PROFILE='custom', USENET_MAX_CONCURRENT_DOWNLOADS='40',
-               USENET_PREFETCH_SEGMENTS='20', USENET_SEGMENT_DISK_CACHE_BYTES='8000000000',
+               USENET_PREFETCH_SEGMENTS='20', USENET_SEGMENT_DISK_CACHE_BYTES=SEGMENT_DISK_CACHE_BYTES,
                USENET_MAX_CONCURRENT_INSPECTS='4', USENET_CENSUS_SHADOW_CONCURRENCY='12',
                USENET_STREAMING_PRIORITY='0.8', USENET_LAZY_RAR_RESOLUTION='true',
                USENET_VERIFY_MODE='census', USENET_VERIFY_BUDGET_MS='0',

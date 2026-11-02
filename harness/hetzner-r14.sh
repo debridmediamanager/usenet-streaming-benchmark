@@ -7,6 +7,8 @@
 #   harness/hetzner-r14.sh verify      the harness's own tests, on the box
 #   harness/hetzner-r14.sh smoke       plain-video on every target -> results/round14/preflight
 #   harness/hetzner-r14.sh run         noise_a, noise_b, main -> results/round14
+#   harness/hetzner-r14.sh aio-nocache AIOStreams' main pass again with its disk segment
+#                                      cache off, beside raw -> results/round14/aiostreams-nocache
 #   harness/hetzner-r14.sh status      the last step's state and log tail
 #   harness/hetzner-r14.sh collect     pull results/round14 back
 #   harness/hetzner-r14.sh down        delete the server, keep and verify the IP
@@ -44,9 +46,9 @@ remote_step () {
   local step="$1" cmd="$2"
   # two steps that dial the account at once would share its connections and
   # measure each other; a build or a test run dials nothing and may overlap
-  local dialing='r14-census.service|r14-smoke.service|r14-run.service'
+  local dialing='r14-census.service|r14-smoke.service|r14-run.service|r14-aio-nocache.service'
   ssh_to "systemctl is-active --quiet 'r14-$step' && { echo 'r14-$step is still running'; exit 1; }
-          case '$step' in census|smoke|run)
+          case '$step' in census|smoke|run|aio-nocache)
             systemctl list-units 'r14-*' --state=active --no-legend | grep -Eq '$dialing' \
               && { echo 'a step that dials the account is still running:'; systemctl list-units 'r14-*' --no-legend; exit 1; };;
           esac
@@ -107,6 +109,13 @@ build)
 verify)  attach; remote_step verify "python3 harness/test_r10.py; python3 harness/test_r13.py; python3 harness/test_hetzner.py" ;;
 smoke)   attach; remote_step smoke "python3 harness/run_r13.py --smoke --out results/round14/preflight" ;;
 run)     attach; remote_step run "python3 harness/run_r13.py --out results/round14" ;;
+aio-nocache)
+  # Rounds 13 and 14 gave only AIOStreams a disk cache large enough to hold a
+  # release, and three corpus entries share one release's articles. This reruns
+  # its main pass with that cache at 0, AltMount's and InfiniDysk's setting.
+  attach; remote_step aio-nocache "[ -f corpus/ToyStory5.nzb ] || 7z x -pdmmbench -y -ocorpus corpus/corpus.7z >/dev/null
+    export AIOSTREAMS_SEGMENT_DISK_CACHE_BYTES=0
+    python3 harness/run_r13.py --targets raw,aiostreams --main-only --out results/round14/aiostreams-nocache" ;;
 status)
   attach
   ssh_to 'systemctl list-units "r14-*" --all --no-legend || true

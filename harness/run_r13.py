@@ -242,6 +242,17 @@ def pass_run(names, entries, life, tag, path):
     return data
 
 
+def select_field(spec):
+    """--targets a,b: a subset of FIELD, kept in FIELD's order so rotation still applies."""
+    if not spec:
+        return list(FIELD)
+    wanted = [name.strip() for name in spec.split(",") if name.strip()]
+    unknown = sorted(set(wanted) - set(FIELD))
+    if unknown or not wanted:
+        raise SystemExit(f"Unknown or empty --targets {unknown or spec!r}; known: {', '.join(FIELD)}")
+    return [name for name in FIELD if name in wanted]
+
+
 def reset():
     subprocess.run(["bash", str(HERE / "prep-r13.sh"), "reset"], check=True)
 
@@ -250,7 +261,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--smoke", action="store_true", help="Plain-video path on every target, not a published round")
     parser.add_argument("--out", default=str(REPO / "results" / f"round{profile.ROUND[1:]}"))
+    parser.add_argument("--targets", help="comma-separated subset of the field, e.g. raw,aiostreams")
+    parser.add_argument("--main-only", action="store_true",
+                        help="only the main pass: a rerun of part of a round, not a round")
     args = parser.parse_args()
+    FIELD[:] = select_field(args.targets)
     if os.geteuid() != 0:
         raise SystemExit("Run as root: Docker /proc accounting and socket ownership must be visible")
     profile.check_provider(os.environ.get("NNTP_HOST"), os.environ.get("NNTP_PORT", "563"))
@@ -271,7 +286,8 @@ def main():
         if not args.smoke:
             install_truth(out)
         with SocketGate(life, out) as gate:
-            phases = [("smoke", FIELD, [runner.corpus.BY_ID["plain-video"]])] if args.smoke else [
+            phases = [("smoke", FIELD, [runner.corpus.BY_ID["plain-video"]])] if args.smoke else \
+                [("main", FIELD[3:] + FIELD[:3], runner.corpus.ENTRIES)] if args.main_only else [
                 ("noise_a", FIELD[1:] + FIELD[:1], [runner.corpus.BY_ID["plain-video"]]),
                 ("noise_b", FIELD[2:] + FIELD[:2], [runner.corpus.BY_ID["plain-video"]]),
                 ("main", FIELD[3:] + FIELD[:3], runner.corpus.ENTRIES)]
@@ -296,7 +312,7 @@ def main():
         if failed or main_data["consensus"]["differing"]:
             raise RuntimeError(f"Filesystem smoke failed: targets={failed}, byte disagreements={main_data['consensus']['differing']}")
         print(f"Filesystem smoke passed: all seven targets served matching sampled bytes; live socket peaks={dict(gate.peaks)}; cap=10", flush=True)
-    if not args.smoke:
+    if not args.smoke and not args.main_only:
         report = runner.report
         a, b = (json.loads((out / f"{phase}.json").read_text()) for phase in ("noise_a", "noise_b"))
         text = [f"# Round {profile.ROUND[1:]}: reviewed filesystem targets on {profile.P['where']}", "", "Connection allowance: at most 10 per application; actual peaks are in connection-gate.json.", "",

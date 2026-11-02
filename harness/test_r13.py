@@ -11,7 +11,7 @@ from unittest.mock import patch
 import corpus_r10 as corpus
 import damage_r10 as damage
 from readback_r13 import match
-from run_r13 import check_counts
+from run_r13 import check_counts, select_field
 from census_r14 import verdict
 
 REPO = Path(__file__).resolve().parent.parent
@@ -86,6 +86,18 @@ class DamageCorpusTests(unittest.TestCase):
             self.assertLessEqual(start + length, record["metadata"]["file_size"])
             self.assertGreaterEqual(result["hole_position_pct"], 0)
             self.assertLessEqual(result["hole_position_pct"], 100)
+
+
+class SelectFieldTests(unittest.TestCase):
+    def test_a_subset_keeps_the_field_order(self):
+        self.assertEqual(select_field("aiostreams,raw"), ["raw", "aiostreams"])
+
+    def test_no_subset_is_the_whole_field(self):
+        self.assertEqual(len(select_field(None)), 7)
+
+    def test_an_unknown_target_is_refused(self):
+        with self.assertRaises(SystemExit):
+            select_field("raw,aiostream")
 
 
 class CorpusCensusTests(unittest.TestCase):
