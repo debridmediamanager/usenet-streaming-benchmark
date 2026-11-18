@@ -47,15 +47,15 @@ The review in issue #1 was largely correct. Beyond the container-name and contro
 - CPU per read subtracts an idle baseline sampled while the server is up but not reading, so a target's background services and per-restart startup are not charged to the read. The raw figure is kept alongside.
 - RSS is sampled during the transfer and the peak kept, rather than the larger of a before and after snapshot.
 - The latency phase validates every read for a 206 and the full byte count, drops short scrub samples, and runs each read shape on a freshly started server. The warm re-read still pairs with its big read on the same instance so the warm cache is real.
-- `prep-r7.sh` writes a runtime-identity artifact (image digests, container env, binary sha256, effective settings, pinned commits) so numbers are tied to the measured process, and it accepts `SEGMENT_CACHE_OFF=1` to run InfiniDysk with its segment cache disabled for a separate cache-off comparison.
+- `prep-r7.sh` writes a runtime-identity artifact (image digests, container env, binary sha256, effective settings, pinned commits) and accepts `SEGMENT_CACHE_OFF=1` for an InfiniDysk cache-off run. Neither ever ran in a published round: round 9 ran without them and round 11 moved to the round 10 harness. Rounds 13 and 14 record build identity in `build.json` and read each target's effective config back from its own API, but not the running container's image id.
 
-Still open: the .NET JIT cost on a first read is only partly addressed by the idle baseline, and the cache-off comparison needs a run to produce numbers.
+Closed with issue #1 (2026-11-18), both dropped rather than measured. The .NET JIT cost on a first read was never measured; since round 11 every target starts once per pass, so startup and JIT sit inside the whole-pass CPU per GiB. The InfiniDysk cache-off comparison was never run; from the round 11 build on, InfiniDysk's segment cache is off by default for new installs and rounds 13 and 14 run it off.
 
 The detailed round-7 run — full method, latency, the behaviour phases and the round-4 comparison — follows.
 
 ## What changed in this round
 
-Two things, and both of them make the comparison harder for zurg rather than easier.
+Two things. (This line used to say both made the comparison harder for zurg. For InfiniDysk that was backwards: its read budget went from 50 to 20, which works in zurg's favour.)
 
 **Every target now gets exactly 20 NNTP connections.** Round 4 did not verify this and round 6 was measurably wrong about it. In three of the five servers the provider connection cap and the read budget are separate settings, so a config that says 20 in the obvious place can still be reading on 15 or on 50.
 
@@ -255,7 +255,7 @@ Three bugs in this harness each produced a wrong number before being caught in t
 
 **Plex press play and next episode.** Round 4 measured these through the real Plex web app over the DevTools Protocol. The browser host was unavailable when this round ran. The round 4 numbers are in `results/round4/plex_ttp_*.json` and they are not comparable to this round because the provider server differs.
 
-**Import and directory structure as a scored phase.** The tree phase needs a clean re-run under the corrected settle. Its raw per target listings are in `results/round7/` and the RAR and obfuscated structure findings above are taken from those listings, which are sound. What is not yet sound is import timing and completeness.
+**Import and directory structure as a scored phase.** The tree phase needs a clean re-run under the corrected settle. The full per target listings were never published in `results/round7/`; the RAR and obfuscated structure findings above come from the listings inside `results_reprobe_r7*.json`, and round 8 has the full trees. What is not yet sound is import timing and completeness.
 
 ## Corpus
 
